@@ -19563,6 +19563,92 @@ function generateTileTexture(tileW, tileH, groutW, tileColor, groutColor) {
   return canvas;
 }
 
+// ===== TIMBER MEMBER (replaces BoxGeometry for all timber) =====
+function createTimberMember(length, width, thickness, edgeProfile, grainAxis) {
+  // edgeProfile: 'square' | 'chamfer' | 'round' | 'pencil-round'
+  // grainAxis: 'x' | 'y' | 'z' — which axis grain runs along (default 'y' = vertical)
+  edgeProfile = edgeProfile || 'pencil-round';
+  grainAxis = grainAxis || 'y';
+  const w = width, t = thickness;
+  const hw = w / 2, ht = t / 2;
+  const chamfer = Math.min(w, t) * 0.06;
+  const roundR = Math.min(w, t) * 0.08;
+
+  const shape = new THREE.Shape();
+
+  if (edgeProfile === 'square') {
+    shape.moveTo(-hw, -ht);
+    shape.lineTo(hw, -ht);
+    shape.lineTo(hw, ht);
+    shape.lineTo(-hw, ht);
+    shape.closePath();
+  } else if (edgeProfile === 'chamfer') {
+    shape.moveTo(-hw + chamfer, -ht);
+    shape.lineTo(hw - chamfer, -ht);
+    shape.lineTo(hw, -ht + chamfer);
+    shape.lineTo(hw, ht - chamfer);
+    shape.lineTo(hw - chamfer, ht);
+    shape.lineTo(-hw + chamfer, ht);
+    shape.lineTo(-hw, ht - chamfer);
+    shape.lineTo(-hw, -ht + chamfer);
+    shape.closePath();
+  } else if (edgeProfile === 'round') {
+    const r = roundR;
+    shape.moveTo(-hw + r, -ht);
+    shape.lineTo(hw - r, -ht);
+    shape.quadraticCurveTo(hw, -ht, hw, -ht + r);
+    shape.lineTo(hw, ht - r);
+    shape.quadraticCurveTo(hw, ht, hw - r, ht);
+    shape.lineTo(-hw + r, ht);
+    shape.quadraticCurveTo(-hw, ht, -hw, ht - r);
+    shape.lineTo(-hw, -ht + r);
+    shape.quadraticCurveTo(-hw, -ht, -hw + r, -ht);
+  } else { // pencil-round — slight round on front edges only, square back
+    const r = roundR * 0.6;
+    shape.moveTo(-hw, -ht);
+    shape.lineTo(hw - r, -ht);
+    shape.quadraticCurveTo(hw, -ht, hw, -ht + r);
+    shape.lineTo(hw, ht - r);
+    shape.quadraticCurveTo(hw, ht, hw - r, ht);
+    shape.lineTo(-hw, ht);
+    shape.closePath();
+  }
+
+  const geo = new THREE.ExtrudeGeometry(shape, {
+    steps: 1, depth: length, bevelEnabled: false
+  });
+
+  // Rotate so extrusion aligns with the requested grain axis
+  if (grainAxis === 'y') {
+    geo.rotateX(-Math.PI / 2);
+  } else if (grainAxis === 'x') {
+    geo.rotateY(Math.PI / 2);
+  }
+
+  // Fix UV mapping: orient grain along the length axis
+  const uvAttr = geo.attributes.uv;
+  const posAttr = geo.attributes.position;
+  for (let i = 0; i < uvAttr.count; i++) {
+    let u, v;
+    const px = posAttr.getX(i), py = posAttr.getY(i), pz = posAttr.getZ(i);
+    if (grainAxis === 'y') {
+      u = px / width;
+      v = py / length;
+    } else if (grainAxis === 'x') {
+      u = px / length;
+      v = py / width;
+    } else {
+      u = px / width;
+      v = pz / length;
+    }
+    uvAttr.setXY(i, u, v);
+  }
+  uvAttr.needsUpdate = true;
+
+  geo.computeVertexNormals();
+  return geo;
+}
+
 // ===== MOULDING FRAME FOR 3D DOOR (mitred corners) =====
 function makeFrameShape(hw, hh, iw, ih) {
   // Creates a rectangular frame shape (outer rect minus inner rect hole)
