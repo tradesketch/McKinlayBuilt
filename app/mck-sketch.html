@@ -19882,19 +19882,78 @@ function addPanelMouldings(scene, panelCX, panelCY, panelW, panelH, frontZ, moul
   }
 }
 
-// ===== SKIRTING PROFILE (ExtrudeGeometry) =====
-function createSkirtingGeometry(length, skirtH, skirtD) {
+// ===== SKIRTING & ARCHITRAVE PROFILES =====
+function createSkirtingGeometry(length, skirtH, skirtD, profile) {
   skirtH = skirtH || 120; skirtD = skirtD || 18;
+  profile = profile || 'ogee';
+
   const shape = new THREE.Shape();
   shape.moveTo(0, 0);
   shape.lineTo(skirtD, 0);
-  shape.lineTo(skirtD, skirtH * 0.7);
-  shape.quadraticCurveTo(skirtD, skirtH * 0.85, skirtD * 0.7, skirtH * 0.9);
-  shape.quadraticCurveTo(skirtD * 0.3, skirtH * 0.95, skirtD * 0.25, skirtH);
-  shape.lineTo(0, skirtH);
-  shape.lineTo(0, 0);
-  const extrudeSettings = { steps: 1, depth: length, bevelEnabled: false };
-  return new THREE.ExtrudeGeometry(shape, extrudeSettings);
+
+  if (profile === 'ogee') {
+    shape.lineTo(skirtD, skirtH * 0.65);
+    shape.bezierCurveTo(skirtD, skirtH * 0.78, skirtD * 0.8, skirtH * 0.88, skirtD * 0.55, skirtH * 0.93);
+    shape.bezierCurveTo(skirtD * 0.3, skirtH * 0.97, skirtD * 0.25, skirtH, skirtD * 0.2, skirtH);
+    shape.lineTo(0, skirtH);
+  } else if (profile === 'torus') {
+    shape.lineTo(skirtD, skirtH * 0.6);
+    shape.quadraticCurveTo(skirtD, skirtH, skirtD * 0.3, skirtH);
+    shape.lineTo(0, skirtH);
+  } else if (profile === 'chamfer') {
+    shape.lineTo(skirtD, skirtH * 0.75);
+    shape.lineTo(skirtD * 0.3, skirtH);
+    shape.lineTo(0, skirtH);
+  } else if (profile === 'bullnose') {
+    shape.lineTo(skirtD, skirtH * 0.5);
+    shape.absarc(skirtD * 0.5, skirtH * 0.5, skirtD * 0.5, 0, Math.PI / 2, false);
+    shape.lineTo(0, skirtH);
+  } else if (profile === 'victorian') {
+    shape.lineTo(skirtD, skirtH * 0.5);
+    shape.bezierCurveTo(skirtD, skirtH * 0.65, skirtD * 0.85, skirtH * 0.72, skirtD * 0.7, skirtH * 0.78);
+    shape.bezierCurveTo(skirtD * 0.55, skirtH * 0.84, skirtD * 0.5, skirtH * 0.88, skirtD * 0.45, skirtH * 0.92);
+    shape.quadraticCurveTo(skirtD * 0.3, skirtH, skirtD * 0.2, skirtH);
+    shape.lineTo(0, skirtH);
+  } else {
+    shape.lineTo(skirtD, skirtH);
+    shape.lineTo(0, skirtH);
+  }
+
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, { steps: 1, depth: length, bevelEnabled: false });
+}
+
+function createArchitravGeometry(length, archW, archD, profile) {
+  archW = archW || 60; archD = archD || 18;
+  profile = profile || 'ogee';
+
+  const shape = new THREE.Shape();
+  shape.moveTo(0, 0);
+  shape.lineTo(archD, 0);
+
+  if (profile === 'ogee') {
+    shape.lineTo(archD, archW * 0.6);
+    shape.bezierCurveTo(archD, archW * 0.78, archD * 0.75, archW * 0.88, archD * 0.5, archW * 0.94);
+    shape.bezierCurveTo(archD * 0.25, archW, archD * 0.15, archW, 0, archW);
+  } else if (profile === 'chamfer') {
+    shape.lineTo(archD, archW * 0.7);
+    shape.lineTo(archD * 0.3, archW);
+    shape.lineTo(0, archW);
+  } else if (profile === 'bullnose') {
+    shape.lineTo(archD, archW * 0.5);
+    shape.absarc(archD * 0.5, archW * 0.5, archD * 0.5, 0, Math.PI / 2, false);
+    shape.lineTo(0, archW);
+  } else if (profile === 'ovolo') {
+    shape.lineTo(archD, archW * 0.55);
+    shape.quadraticCurveTo(archD, archW, archD * 0.2, archW);
+    shape.lineTo(0, archW);
+  } else {
+    shape.lineTo(archD, archW);
+    shape.lineTo(0, archW);
+  }
+
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, { steps: 1, depth: length, bevelEnabled: false });
 }
 
 // ===== TURNED BALUSTER (LatheGeometry) =====
