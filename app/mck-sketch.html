@@ -21095,25 +21095,15 @@ function buildDoor3D(sceneObj, dd, timberSpecies) {
           mesh.position.copy(pos(px4, py4));
           mesh.userData.door3d = true; scene.add(mesh);
         } else if (panel.type === 'raised') {
-          // Panel base — fills opening, sits slightly behind frame
-          const baseGeo = new THREE.BoxGeometry(pFullW, pFullH, panelT);
-          const baseMesh = new THREE.Mesh(baseGeo, panelMat);
-          baseMesh.position.copy(pos(px4, py4)).add(new THREE.Vector3(0, 0, -3));
-          baseMesh.castShadow = true; baseMesh.receiveShadow = true; baseMesh.userData.door3d = true; scene.add(baseMesh);
-          // Bevel transition
-          const bevelInset = 25;
-          const bvGeo = new THREE.BoxGeometry(pFullW - bevelInset, pFullH - bevelInset, panelT + 2);
-          const bvMesh = new THREE.Mesh(bvGeo, panelMat);
-          bvMesh.position.copy(pos(px4, py4)).add(new THREE.Vector3(0, 0, -1));
-          bvMesh.castShadow = true; bvMesh.userData.door3d = true; scene.add(bvMesh);
-          // Raised center field — nearly flush with frame face
-          const centerGeo = new THREE.BoxGeometry(pFullW - bevelInset * 2, pFullH - bevelInset * 2, panelT + 5);
-          const centerMesh = new THREE.Mesh(centerGeo, panelMat);
-          centerMesh.position.copy(pos(px4, py4)).add(new THREE.Vector3(0, 0, 1));
-          centerMesh.castShadow = true; centerMesh.userData.door3d = true; scene.add(centerMesh);
+          // Raised panel with proper angled bevels
+          const rpGeo = createRaisedPanelGeometry(pFullW, pFullH, panelT, 9, 4, 25);
+          const rpMesh = new THREE.Mesh(rpGeo, panelMat);
+          rpMesh.position.copy(pos(px4, py4));
+          rpMesh.castShadow = true; rpMesh.receiveShadow = true; rpMesh.userData.door3d = true;
+          scene.add(rpMesh);
           // Moulding frame around panel
           const pPos = pos(px4, py4);
-          addPanelMouldings(scene, pPos.x, pPos.y, pFullW, pFullH,
+          addProfiledMouldings(scene, pPos.x, pPos.y, pFullW, pFullH,
             T / 2, dd.mouldingProfile || 'ogee', dd.mouldingSize || 15, frameMat, 'door3d');
         } else {
           // Flat/recessed panel — fills opening, recessed 3mm behind frame face
@@ -21123,7 +21113,7 @@ function buildDoor3D(sceneObj, dd, timberSpecies) {
           mesh.castShadow = true; mesh.receiveShadow = true; mesh.userData.door3d = true; scene.add(mesh);
           // Moulding frame around panel
           const pPos2 = pos(px4, py4);
-          addPanelMouldings(scene, pPos2.x, pPos2.y, pFullW, pFullH,
+          addProfiledMouldings(scene, pPos2.x, pPos2.y, pFullW, pFullH,
             T / 2, dd.mouldingProfile || 'ogee', dd.mouldingSize || 15, frameMat, 'door3d');
         }
 
