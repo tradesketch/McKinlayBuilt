@@ -19744,6 +19744,44 @@ function getMouldingShape(profile, mSize, depth) {
   }
 }
 
+// ===== RAISED PANEL GEOMETRY =====
+function createRaisedPanelGeometry(panelW, panelH, thickness, bevelAngle, fieldRaise, tongueWidth) {
+  bevelAngle = bevelAngle || 9;
+  fieldRaise = fieldRaise || 4;
+  tongueWidth = tongueWidth || 25;
+
+  const hw = panelW / 2, hh = panelH / 2;
+  const ht = thickness / 2;
+  const bevelRad = (bevelAngle * Math.PI) / 180;
+  const bevelDepth = Math.tan(bevelRad) * tongueWidth;
+
+  const fieldHW = hw - tongueWidth;
+  const fieldHH = hh - tongueWidth;
+  const tongueZ = -ht;
+  const fieldZ = ht;
+  const tongueEdgeZ = fieldZ - fieldRaise - bevelDepth;
+
+  // Cross-section profile along width: tongue -> bevel -> field -> bevel -> tongue
+  const shape = new THREE.Shape();
+  shape.moveTo(-hw, tongueEdgeZ);
+  shape.lineTo(-hw, tongueZ);
+  shape.lineTo(hw, tongueZ);
+  shape.lineTo(hw, tongueEdgeZ);
+  shape.lineTo(fieldHW, fieldZ);
+  shape.lineTo(-fieldHW, fieldZ);
+  shape.lineTo(-hw, tongueEdgeZ);
+  shape.closePath();
+
+  const geo = new THREE.ExtrudeGeometry(shape, {
+    steps: 1, depth: panelH, bevelEnabled: false
+  });
+
+  // Rotate so panel faces forward (Z axis) and is oriented correctly
+  geo.rotateX(-Math.PI / 2);
+  geo.computeVertexNormals();
+  return geo;
+}
+
 // ===== PROFILED MOULDING FRAME (replaces flat extrusion) =====
 function addProfiledMouldings(scene, cx, cy, openingW, openingH, frontZ, profile, mSize, material, tag) {
   mSize = mSize || 15;
