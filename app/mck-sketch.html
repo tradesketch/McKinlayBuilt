@@ -21051,7 +21051,7 @@ function buildDoor3D(sceneObj, dd, timberSpecies) {
 
   // === STILES (vertical frame members) ===
   [0, W - stW].forEach(sx => {
-    const geo = new THREE.BoxGeometry(stW, H, T);
+    const geo = createTimberMember(H, stW, T, 'pencil-round', 'y');
     const mesh = new THREE.Mesh(geo, frameMat);
     mesh.position.copy(pos(sx + stW / 2, H / 2));
     mesh.castShadow = true; mesh.receiveShadow = true; mesh.userData.door3d = true;
@@ -21066,7 +21066,7 @@ function buildDoor3D(sceneObj, dd, timberSpecies) {
       else if (rail.fixed === 'bottom') ry = rail.height / 2;
       else ry = H - (rail.fromTop || 0) - rail.height / 2;
       const railW = W - stW * 2;
-      const geo = new THREE.BoxGeometry(railW, rail.height, T);
+      const geo = createTimberMember(railW, rail.height, T, 'pencil-round', 'x');
       const mesh = new THREE.Mesh(geo, frameMat);
       mesh.position.copy(pos(stW + railW / 2, ry));
       mesh.castShadow = true; mesh.receiveShadow = true; mesh.userData.door3d = true;
