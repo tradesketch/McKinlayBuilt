@@ -20856,15 +20856,32 @@ function buildDoor3D(sceneObj, dd, timberSpecies) {
     abDoor.receiveShadow = true; abDoor.userData.door3d = true; scene.add(abDoor);
   }
 
-  // Architrave moulding
+  // Architrave moulding (profiled)
   const archW = 60, archD = 18;
   const archMat = getMaterial('painted', '#e8e4e0');
-  const archL = new THREE.Mesh(new THREE.BoxGeometry(archW, H + archW, archD), archMat);
-  archL.position.set(-W/2 - archW/2, (H + archW)/2, archD/2); archL.castShadow = true; archL.userData.door3d = true; scene.add(archL);
-  const archR = new THREE.Mesh(new THREE.BoxGeometry(archW, H + archW, archD), archMat);
-  archR.position.set(W/2 + archW/2, (H + archW)/2, archD/2); archR.castShadow = true; archR.userData.door3d = true; scene.add(archR);
-  const archTop = new THREE.Mesh(new THREE.BoxGeometry(W + archW * 2, archW, archD), archMat);
-  archTop.position.set(0, H + archW/2, archD/2); archTop.castShadow = true; archTop.userData.door3d = true; scene.add(archTop);
+
+  // Left architrave (vertical, runs bottom to top)
+  const archLGeo = createArchitravGeometry(H + archW, archW, archD, 'ogee');
+  archLGeo.rotateY(Math.PI / 2);
+  const archL = new THREE.Mesh(archLGeo, archMat);
+  archL.position.set(-W/2 - archW, 0, archD/2);
+  archL.castShadow = true; archL.userData.door3d = true; scene.add(archL);
+
+  // Right architrave (vertical, mirrored)
+  const archRGeo = createArchitravGeometry(H + archW, archW, archD, 'ogee');
+  archRGeo.rotateY(Math.PI / 2);
+  archRGeo.scale(-1, 1, 1); // mirror
+  const archR = new THREE.Mesh(archRGeo, archMat);
+  archR.position.set(W/2 + archW, 0, archD/2);
+  archR.castShadow = true; archR.userData.door3d = true; scene.add(archR);
+
+  // Head architrave (horizontal, across top)
+  const archTopGeo = createArchitravGeometry(W + archW * 2, archW, archD, 'ogee');
+  archTopGeo.rotateY(Math.PI / 2);
+  archTopGeo.rotateZ(Math.PI / 2);
+  const archTop = new THREE.Mesh(archTopGeo, archMat);
+  archTop.position.set(-W/2 - archW, H, archD/2);
+  archTop.castShadow = true; archTop.userData.door3d = true; scene.add(archTop);
 
   // Floor
   const floorW = W + wallExt * 2, floorD = 2000;
