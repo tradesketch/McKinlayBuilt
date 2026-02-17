@@ -19649,6 +19649,141 @@ function createTimberMember(length, width, thickness, edgeProfile, grainAxis) {
   return geo;
 }
 
+// ===== MOULDING PROFILE CROSS-SECTIONS =====
+function mouldingOgeeShape(mSize, depth) {
+  depth = depth || mSize * 0.6;
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.bezierCurveTo(mSize * 0.15, depth * 0.1, mSize * 0.25, depth * 0.7, mSize * 0.5, depth * 0.85);
+  s.bezierCurveTo(mSize * 0.75, depth, mSize * 0.9, depth * 0.6, mSize, depth * 0.15);
+  s.lineTo(mSize, 0);
+  s.closePath();
+  return s;
+}
+
+function mouldingOvoloShape(mSize, depth) {
+  depth = depth || mSize * 0.5;
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.quadraticCurveTo(0, depth, mSize * 0.5, depth);
+  s.quadraticCurveTo(mSize, depth, mSize, depth * 0.3);
+  s.lineTo(mSize, 0);
+  s.closePath();
+  return s;
+}
+
+function mouldingBolectionShape(mSize, depth) {
+  depth = depth || mSize * 0.7;
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.lineTo(0, depth * 0.3);
+  s.quadraticCurveTo(mSize * 0.1, depth * 0.9, mSize * 0.3, depth);
+  s.lineTo(mSize * 0.7, depth);
+  s.quadraticCurveTo(mSize * 0.9, depth * 0.9, mSize, depth * 0.3);
+  s.lineTo(mSize, 0);
+  s.closePath();
+  return s;
+}
+
+function mouldingLambsTongueShape(mSize, depth) {
+  depth = depth || mSize * 0.45;
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.quadraticCurveTo(mSize * 0.2, depth * 0.8, mSize * 0.45, depth);
+  s.lineTo(mSize * 0.55, depth);
+  s.quadraticCurveTo(mSize * 0.8, depth * 0.6, mSize, depth * 0.05);
+  s.lineTo(mSize, 0);
+  s.closePath();
+  return s;
+}
+
+function mouldingTorusShape(mSize, depth) {
+  depth = depth || mSize * 0.5;
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.absarc(mSize / 2, 0, mSize / 2, Math.PI, 0, true);
+  s.lineTo(mSize, 0);
+  s.closePath();
+  return s;
+}
+
+function mouldingBeadButtShape(mSize, depth) {
+  depth = depth || mSize * 0.35;
+  const beadR = mSize * 0.2;
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.lineTo(0, depth * 0.4);
+  s.absarc(beadR, depth * 0.4, beadR, Math.PI, 0, true);
+  s.lineTo(beadR * 2, 0);
+  s.lineTo(mSize, 0);
+  s.closePath();
+  return s;
+}
+
+function mouldingSquareShape(mSize, depth) {
+  depth = depth || mSize * 0.5;
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.lineTo(0, depth);
+  s.lineTo(mSize, depth);
+  s.lineTo(mSize, 0);
+  s.closePath();
+  return s;
+}
+
+function getMouldingShape(profile, mSize, depth) {
+  switch (profile) {
+    case 'ogee': return mouldingOgeeShape(mSize, depth);
+    case 'ovolo': return mouldingOvoloShape(mSize, depth);
+    case 'bolection': return mouldingBolectionShape(mSize, depth);
+    case 'lambs-tongue': return mouldingLambsTongueShape(mSize, depth);
+    case 'torus': return mouldingTorusShape(mSize, depth);
+    case 'bead-butt': return mouldingBeadButtShape(mSize, depth);
+    case 'square': return mouldingSquareShape(mSize, depth);
+    default: return mouldingOgeeShape(mSize, depth);
+  }
+}
+
+// ===== PROFILED MOULDING FRAME (replaces flat extrusion) =====
+function addProfiledMouldings(scene, cx, cy, openingW, openingH, frontZ, profile, mSize, material, tag) {
+  mSize = mSize || 15;
+  const mDepth = mSize * 0.6;
+  const shape = getMouldingShape(profile, mSize, mDepth);
+
+  const hw = openingW / 2, hh = openingH / 2;
+
+  // Bottom strip (extrude along X)
+  const bottomGeo = new THREE.ExtrudeGeometry(shape, { steps: 1, depth: openingW, bevelEnabled: false });
+  const bottomMesh = new THREE.Mesh(bottomGeo, material);
+  bottomMesh.position.set(cx - hw, cy - hh, frontZ);
+  bottomMesh.castShadow = true; bottomMesh.userData[tag] = true;
+  scene.add(bottomMesh);
+
+  // Top strip (flipped)
+  const topGeo = new THREE.ExtrudeGeometry(shape, { steps: 1, depth: openingW, bevelEnabled: false });
+  const topMesh = new THREE.Mesh(topGeo, material);
+  topMesh.rotation.z = Math.PI;
+  topMesh.position.set(cx + hw, cy + hh, frontZ);
+  topMesh.castShadow = true; topMesh.userData[tag] = true;
+  scene.add(topMesh);
+
+  // Left strip (rotate 90)
+  const leftGeo = new THREE.ExtrudeGeometry(shape, { steps: 1, depth: openingH, bevelEnabled: false });
+  const leftMesh = new THREE.Mesh(leftGeo, material);
+  leftMesh.rotation.z = -Math.PI / 2;
+  leftMesh.position.set(cx - hw, cy + hh, frontZ);
+  leftMesh.castShadow = true; leftMesh.userData[tag] = true;
+  scene.add(leftMesh);
+
+  // Right strip (rotate -90)
+  const rightGeo = new THREE.ExtrudeGeometry(shape, { steps: 1, depth: openingH, bevelEnabled: false });
+  const rightMesh = new THREE.Mesh(rightGeo, material);
+  rightMesh.rotation.z = Math.PI / 2;
+  rightMesh.position.set(cx + hw, cy - hh, frontZ);
+  rightMesh.castShadow = true; rightMesh.userData[tag] = true;
+  scene.add(rightMesh);
+}
+
 // ===== MOULDING FRAME FOR 3D DOOR (mitred corners) =====
 function makeFrameShape(hw, hh, iw, ih) {
   // Creates a rectangular frame shape (outer rect minus inner rect hole)
