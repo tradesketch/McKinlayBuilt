@@ -20163,8 +20163,8 @@ function createScene(container) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.toneMapping = THREE.NoToneMapping;
-  renderer.toneMappingExposure = 1.0;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(renderer.domElement);
 
@@ -20244,11 +20244,11 @@ function createScene(container) {
   // SSAO (ambient occlusion for depth in recesses, under cabinets, beam coffers)
   const gtaoPass = new GTAOPass(scene, camera, w, h);
   gtaoPass.output = GTAOPass.OUTPUT.Default;
-  gtaoPass.updateGtaoMaterial({ radius: 0.3, distanceExponent: 2, thickness: 5, scale: 1.0 });
+  gtaoPass.updateGtaoMaterial({ radius: 0.8, distanceExponent: 2, thickness: 5, scale: 1.0 });
   gtaoPass.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 4, samples: 16 });
   composer.addPass(gtaoPass);
   // Bloom (very subtle specular highlights on metallic hardware only)
-  const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.05, 0.3, 0.98);
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.05, 0.3, 0.85);
   composer.addPass(bloomPass);
   composer.addPass(new OutputPass());
   const fxaaPass = new ShaderPass(FXAAShader);
