@@ -1,0 +1,56 @@
+{
+  "name": "mck-sketch",
+  "version": "1.0.0",
+  "description": "Architectural CAD & sketching tool for bespoke joinery",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:all": "electron-builder --mac --win"
+  },
+  "dependencies": {
+    "electron": "^33.0.0",
+    "three": "^0.182.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^25.1.8",
+    "electron-reload": "^2.0.0-alpha.1"
+  },
+  "build": {
+    "appId": "com.mckinlaybuilt.mck-sketch",
+    "productName": "McK Sketch",
+    "files": [
+      "main.js",
+      "app/**/*",
+      "!app/config.json"
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.graphics-design",
+      "icon": "build/icon.png"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+node_modules/
+app/config.json
+server/.env
+server/db/mck-sketch.db
+server/db/mck-sketch.db-shm
+server/db/mck-sketch.db-wal
+server/warehouse/
+*.dmg
+*.exe
+dist/
+.DS_Store
