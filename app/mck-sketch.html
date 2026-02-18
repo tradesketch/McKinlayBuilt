@@ -54530,10 +54530,71 @@ function whCloseDetail() {
 }
 window.whCloseDetail = whCloseDetail;
 
-function whPlaceItem(id) {
-  // TODO: Load glTF model and place in active 3D scene
+async function whPlaceItem(id) {
   closeWarehouse();
-  console.log('Place warehouse item', id);
+
+  try {
+    const config = await window.electronAPI.getConfig();
+    const modelUrl = 'http://localhost:3141/api/warehouse/item/' + id + '/model';
+
+    gltfLoader.setRequestHeader({ 'Authorization': 'Bearer ' + config.authToken });
+
+    gltfLoader.load(
+      modelUrl,
+      function(gltf) {
+        const model = gltf.scene;
+        model.traverse(function(child) {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+
+        // glTF models are typically in meters; our scenes use mm
+        model.scale.setScalar(1000);
+        model.position.set(0, 0, 0);
+
+        model.userData.warehouseItem = true;
+        model.userData.warehouseId = id;
+
+        // Find the currently active 3D scene by checking which designer overlay is open
+        const sceneMap = [
+          { overlay: 'door-designer-overlay',      scene: typeof dd3DScene !== 'undefined' ? dd3DScene : null },
+          { overlay: 'window-designer-overlay',     scene: typeof wd3DScene !== 'undefined' ? wd3DScene : null },
+          { overlay: 'staircase-designer-overlay',  scene: typeof sd3DScene !== 'undefined' ? sd3DScene : null },
+          { overlay: 'cabinet-designer-overlay',    scene: typeof cab3DScene !== 'undefined' ? cab3DScene : null },
+          { overlay: 'kitchen-elevation-overlay',   scene: typeof ke3DScene !== 'undefined' ? ke3DScene : null },
+          { overlay: 'wall-panelling-overlay',      scene: typeof wp3DScene !== 'undefined' ? wp3DScene : null },
+          { overlay: 'coffered-ceiling-overlay',    scene: typeof cc3DScene !== 'undefined' ? cc3DScene : null }
+        ];
+
+        for (var i = 0; i < sceneMap.length; i++) {
+          var entry = sceneMap[i];
+          var overlayEl = document.getElementById(entry.overlay);
+          if (overlayEl && overlayEl.classList.contains('open') && entry.scene) {
+            entry.scene.scene.add(model);
+            console.log('Placed warehouse item', id, 'in', entry.overlay);
+            return;
+          }
+        }
+
+        // Fallback: try the room viewer
+        if (rvState && rvState.scene) {
+          rvState.scene.add(model);
+          console.log('Placed warehouse item', id, 'in room viewer');
+          return;
+        }
+
+        console.warn('No active 3D scene found to place warehouse item');
+      },
+      undefined,
+      function(error) {
+        console.error('Failed to load warehouse model:', error);
+      }
+    );
+  } catch (e) {
+    console.error('Place item error:', e);
+  }
 }
 window.whPlaceItem = whPlaceItem;
 
