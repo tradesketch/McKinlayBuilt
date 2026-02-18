@@ -20163,24 +20163,28 @@ function addRoomContext(scene, opts) {
       // Architrave moulding (profiled)
       const archD = 18, archW2 = 60;
       const archMat = getMaterial('painted', '#e8e4e0');
-      // Left architrave (vertical, extrude along +Z = length, rotate to vertical)
+      // Left architrave (vertical, depth→+Z into room, length→-Y downward from top)
       const archLeftGeo = createArchitravGeometry(dh + archW2, archW2, archD, 'ogee');
+      archLeftGeo.rotateX(Math.PI / 2);
+      archLeftGeo.rotateY(-Math.PI / 2); // (x,y,z)→(-y,-z,x): X→+Z, Y→-X, Z→-Y
       const archLeft = new THREE.Mesh(archLeftGeo, archMat);
-      archLeft.rotation.x = -Math.PI / 2; // rotate extrusion from +Z to -Y (vertical)
-      archLeft.position.set(dx - archW2, dh + archW2, 0);
+      archLeft.position.set(dx, dh + archW2, 0);
       archLeft.castShadow = true; archLeft.userData[tag] = true; scene.add(archLeft);
-      // Right architrave (vertical)
+      // Right architrave (vertical, mirrored so width extends in +X)
       const archRightGeo = createArchitravGeometry(dh + archW2, archW2, archD, 'ogee');
+      archRightGeo.rotateX(Math.PI / 2);
+      archRightGeo.rotateY(-Math.PI / 2);
+      archRightGeo.scale(-1, 1, 1);
       const archRight = new THREE.Mesh(archRightGeo, archMat);
-      archRight.rotation.x = -Math.PI / 2;
       archRight.position.set(dx + dw, dh + archW2, 0);
       archRight.castShadow = true; archRight.userData[tag] = true; scene.add(archRight);
-      // Head architrave (horizontal, extrude along +Z, rotate to run along X)
+      // Head architrave (horizontal, length→-X from right to left)
       const archHeadGeo = createArchitravGeometry(dw + archW2 * 2, archW2, archD, 'ogee');
+      archHeadGeo.rotateX(Math.PI / 2);
+      archHeadGeo.rotateY(-Math.PI / 2);
+      archHeadGeo.rotateZ(-Math.PI / 2); // (x,y,z)→(-z,y,x): length→-X, width→+Y, depth→+Z
       const archHead = new THREE.Mesh(archHeadGeo, archMat);
-      archHead.rotation.x = -Math.PI / 2;
-      archHead.rotation.z = -Math.PI / 2; // rotate so extrusion runs along +X
-      archHead.position.set(dx - archW2, dh, 0);
+      archHead.position.set(dx + dw + archW2, dh, 0);
       archHead.castShadow = true; archHead.userData[tag] = true; scene.add(archHead);
     } else {
       addWall(w, h, wallThick, w/2, h/2, -wallThick/2);
