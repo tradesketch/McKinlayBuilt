@@ -21486,12 +21486,12 @@ function buildPanelling3D(sceneObj, wp) {
   // Corner posts
   if (wp.cornersOn) {
     [0, W - cornerW].forEach(x => {
-      const cMesh = new THREE.Mesh(new THREE.BoxGeometry(cornerW, H, frameDepth + 18), mat);
+      const cMesh = new THREE.Mesh(createTimberMember(H, cornerW, frameDepth + 18, 'chamfer', 'y'), mat);
       cMesh.position.set(x + cornerW / 2, H / 2, frameDepth / 2 + 2);
       cMesh.castShadow = true; cMesh.receiveShadow = true; cMesh.userData.wp3d = true;
       scene.add(cMesh);
       if (wp.capStyle !== 'none') {
-        const capMesh = new THREE.Mesh(new THREE.BoxGeometry(cornerW + 12, 22, frameDepth + 28), mat);
+        const capMesh = new THREE.Mesh(createTimberMember(22, cornerW + 12, frameDepth + 28, 'chamfer', 'y'), mat);
         capMesh.position.set(x + cornerW / 2, H + 11, frameDepth / 2 + 2);
         capMesh.castShadow = true; capMesh.userData.wp3d = true; scene.add(capMesh);
       }
@@ -21501,7 +21501,7 @@ function buildPanelling3D(sceneObj, wp) {
   // Stiles
   for (let col = 0; col <= nCols; col++) {
     const sx = cornerW + col * (panelAreaW - stW) / nCols;
-    const sMesh = new THREE.Mesh(new THREE.BoxGeometry(stW, H, frameDepth), mat);
+    const sMesh = new THREE.Mesh(createTimberMember(H, stW, frameDepth, 'pencil-round', 'y'), mat);
     sMesh.position.set(sx + stW / 2, H / 2, frameDepth / 2);
     sMesh.castShadow = true; sMesh.receiveShadow = true; sMesh.userData.wp3d = true;
     scene.add(sMesh);
@@ -21511,7 +21511,7 @@ function buildPanelling3D(sceneObj, wp) {
   const railW = panelAreaW - stW;
   const railX = cornerW + stW / 2 + railW / 2;
   function addRail(y, rH) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(railW, rH, frameDepth), mat);
+    const m = new THREE.Mesh(createTimberMember(railW, rH, frameDepth, 'pencil-round', 'x'), mat);
     m.position.set(railX, y, frameDepth / 2); m.castShadow = true;
     m.userData.wp3d = true; scene.add(m);
   }
@@ -21524,7 +21524,7 @@ function buildPanelling3D(sceneObj, wp) {
 
   // Dado rail
   if (wp.dadoOn) {
-    const dadoMesh = new THREE.Mesh(new THREE.BoxGeometry(W, 24, frameDepth + 22), mat);
+    const dadoMesh = new THREE.Mesh(createTimberMember(W, 24, frameDepth + 22, 'round', 'x'), mat);
     dadoMesh.position.set(W / 2, wp.dadoH, frameDepth / 2 + 6);
     dadoMesh.castShadow = true; dadoMesh.userData.wp3d = true; scene.add(dadoMesh);
   }
@@ -21545,19 +21545,15 @@ function buildPanelling3D(sceneObj, wp) {
       }
 
       if (wp.panelStyle === 'raised') {
-        // Base panel — sits slightly proud of wall surface
-        const pMesh3 = new THREE.Mesh(new THREE.BoxGeometry(colW - 6, rowH - 6, panelDepth), mat);
-        pMesh3.position.set(px5, py5, panelDepth / 2 + 2);
-        pMesh3.castShadow = true; pMesh3.userData.wp3d = true; scene.add(pMesh3);
-        // Raised center
-        const rMesh3 = new THREE.Mesh(new THREE.BoxGeometry(colW - 52, rowH - 52, panelDepth + 8), mat);
-        rMesh3.position.set(px5, py5, panelDepth / 2 + 5);
-        rMesh3.castShadow = true; rMesh3.userData.wp3d = true; scene.add(rMesh3);
+        const rpGeo = createRaisedPanelGeometry(colW - 6, rowH - 6, panelDepth, 9, 4, 20);
+        const rpMesh = new THREE.Mesh(rpGeo, mat);
+        rpMesh.position.set(px5, py5, panelDepth / 2 + 2);
+        rpMesh.castShadow = true; rpMesh.userData.wp3d = true; scene.add(rpMesh);
       } else if (wp.panelStyle === 'flat') {
-        // Flat panel recessed — sits behind frame surface with a 2mm gap for shadow line
-        const pMesh4 = new THREE.Mesh(new THREE.BoxGeometry(colW - 6, rowH - 6, panelDepth - 4), mat);
-        pMesh4.position.set(px5, py5, (panelDepth - 4) / 2 - 2);
-        pMesh4.castShadow = true; pMesh4.userData.wp3d = true; scene.add(pMesh4);
+        const fpGeo = createTimberMember(colW - 6, rowH - 6, panelDepth - 4, 'square', 'x');
+        const fpMesh = new THREE.Mesh(fpGeo, mat);
+        fpMesh.position.set(px5, py5, (panelDepth - 4) / 2 - 2);
+        fpMesh.castShadow = true; fpMesh.userData.wp3d = true; scene.add(fpMesh);
       } else {
         const pMesh5 = new THREE.Mesh(new THREE.BoxGeometry(colW - 6, rowH - 6, panelDepth), mat);
         pMesh5.position.set(px5, py5, panelDepth / 2);
@@ -21572,11 +21568,14 @@ function buildPanelling3D(sceneObj, wp) {
       new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.95 }));
     fMesh.position.set(W / 2, wp.fireH / 2, 2); fMesh.userData.wp3d = true; scene.add(fMesh);
     if (wp.mantelOn) {
-      const manMesh = new THREE.Mesh(new THREE.BoxGeometry(wp.fireW + 220, 44, frameDepth + 65), mat);
+      const mantelWidth = wp.fireW + 220;
+      const mantelDepth = frameDepth + 65;
+      const mantelHeight = 44;
+      const manMesh = new THREE.Mesh(createTimberMember(mantelWidth, mantelDepth, mantelHeight, 'round', 'x'), mat);
       manMesh.position.set(W / 2, wp.fireH + 22, frameDepth / 2 + 18);
       manMesh.castShadow = true; manMesh.userData.wp3d = true; scene.add(manMesh);
       // Mantel fascia detail
-      const mfMesh = new THREE.Mesh(new THREE.BoxGeometry(wp.fireW + 220, 14, 20), mat);
+      const mfMesh = new THREE.Mesh(createTimberMember(mantelWidth, 20, 14, 'round', 'x'), mat);
       mfMesh.position.set(W / 2, wp.fireH + 10, frameDepth + 60);
       mfMesh.userData.wp3d = true; scene.add(mfMesh);
     }
@@ -21592,7 +21591,8 @@ function buildPanelling3D(sceneObj, wp) {
   // Skirting on side walls
   const skMat3 = getMaterial('painted', '#e8e4e0');
   [0, W].forEach(sx => {
-    const skMesh3 = new THREE.Mesh(new THREE.BoxGeometry(14, 100, returnD - 50), skMat3);
+    const skGeo = createSkirtingGeometry(returnD - 50, 100, 14, 'ogee');
+    const skMesh3 = new THREE.Mesh(skGeo, skMat3);
     skMesh3.position.set(sx + (sx === 0 ? 7 : -7), 50, returnD / 2);
     skMesh3.castShadow = true; skMesh3.userData.wp3d = true; scene.add(skMesh3);
   });
