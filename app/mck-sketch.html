@@ -3967,6 +3967,85 @@ kbd {
 .three-controls { position:absolute; bottom:10px; right:10px; display:flex; gap:4px; }
 .three-controls button { padding:6px 12px; font-size:11px; background:rgba(255,255,255,0.9); border:1px solid #ccc; border-radius:4px; cursor:pointer; backdrop-filter:blur(4px); }
 .three-controls button:hover { background:#fff; border-color:#999; }
+
+/* ===== McK WAREHOUSE ===== */
+#warehouse-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--bg-app); z-index: 900;
+  display: none; flex-direction: column;
+}
+#warehouse-overlay.active { display: flex; }
+
+.wh-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+.wh-header h2 { font-size: 16px; font-weight: 600; }
+.wh-close { background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+.wh-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.wh-body { display: flex; flex: 1; overflow: hidden; }
+
+.wh-sidebar {
+  width: 220px; background: var(--bg-panel); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 8px 0;
+}
+.wh-cat { padding: 8px 16px; color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.wh-subcat { padding: 6px 16px 6px 28px; color: var(--text-secondary); cursor: pointer; font-size: 13px; border-radius: 4px; margin: 0 4px; }
+.wh-subcat:hover { background: var(--bg-hover); color: var(--text-primary); }
+.wh-subcat.active { background: var(--accent-dim); color: var(--accent); }
+
+.wh-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.wh-search { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.wh-search input {
+  width: 100%; padding: 8px 12px; background: var(--bg-input);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text-primary); font-size: 13px;
+}
+.wh-search input:focus { outline: none; border-color: var(--accent); }
+
+.wh-grid {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px; align-content: start;
+}
+
+.wh-item {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius); cursor: pointer; overflow: hidden;
+  transition: border-color 0.15s;
+}
+.wh-item:hover { border-color: var(--accent); }
+.wh-item-thumb {
+  width: 100%; aspect-ratio: 1; background: var(--bg-input);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 32px;
+}
+.wh-item-info { padding: 8px 10px; }
+.wh-item-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+.wh-item-cat { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.wh-detail {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--bg-app); display: none; flex-direction: column;
+}
+.wh-detail.active { display: flex; }
+.wh-detail-header { display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); }
+.wh-detail-back { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 4px; }
+.wh-detail-back:hover { background: var(--bg-hover); color: var(--text-primary); }
+.wh-detail-body { flex: 1; display: flex; overflow: hidden; }
+.wh-detail-preview { flex: 1; background: var(--bg-input); }
+.wh-detail-info { width: 280px; padding: 16px; overflow-y: auto; border-left: 1px solid var(--border); }
+.wh-detail-name { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.wh-detail-meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.wh-place-btn {
+  width: 100%; padding: 10px; margin-top: 16px; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius); font-size: 13px;
+  font-weight: 600; cursor: pointer;
+}
+.wh-place-btn:hover { filter: brightness(1.1); }
   </style>
 </head>
 <body>
@@ -4149,6 +4228,7 @@ kbd {
           <div class="menu-opt" onclick="openTimesheet()">Timesheet Tracker</div>
         </div>
       </div>
+      <div class="menu-item" onclick="openWarehouse()" style="cursor:pointer">Warehouse</div>
       <div class="menu-item" onclick="openSettings()" style="cursor:pointer">Settings</div>
     </nav>
 
@@ -19114,6 +19194,33 @@ kbd {
   </div>
 </div>
 
+<!-- ===== McK WAREHOUSE ===== -->
+<div id="warehouse-overlay">
+  <div class="wh-header">
+    <h2>McK Warehouse</h2>
+    <button class="wh-close" onclick="closeWarehouse()">&times;</button>
+  </div>
+  <div class="wh-body">
+    <div class="wh-sidebar" id="wh-sidebar"></div>
+    <div class="wh-content" style="position:relative">
+      <div class="wh-search">
+        <input type="text" id="wh-search-input" placeholder="Search warehouse..." oninput="whSearch(this.value)">
+      </div>
+      <div class="wh-grid" id="wh-grid"></div>
+      <div class="wh-detail" id="wh-detail">
+        <div class="wh-detail-header">
+          <button class="wh-detail-back" onclick="whCloseDetail()">&larr; Back</button>
+          <span id="wh-detail-title"></span>
+        </div>
+        <div class="wh-detail-body">
+          <div class="wh-detail-preview" id="wh-detail-preview"></div>
+          <div class="wh-detail-info" id="wh-detail-info"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 // ===== THREE.JS 3D RENDERING ENGINE =====
 import * as THREE from 'three';
@@ -19128,6 +19235,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // ===== PROCEDURAL TEXTURE GENERATORS =====
 function generateWoodTexture(baseColor, width, height) {
@@ -22241,6 +22349,14 @@ function init() {
   // Global Escape key to close topmost open modal
   document.addEventListener('keydown', function(e) {
     if (e.key !== 'Escape') return;
+    // Warehouse overlay uses 'active' class
+    const whOverlay = document.getElementById('warehouse-overlay');
+    if (whOverlay && whOverlay.classList.contains('active')) {
+      const whDetail = document.getElementById('wh-detail');
+      if (whDetail && whDetail.classList.contains('active')) { whCloseDetail(); }
+      else { closeWarehouse(); }
+      return;
+    }
     // Check overlays in reverse DOM order (last = topmost)
     const openOverlays = document.querySelectorAll('.dd-overlay.open, #door-designer-overlay.open');
     if (openOverlays.length === 0) return;
@@ -54206,6 +54322,220 @@ function fpDrawShape(ctx,shape,sc,ox,oy){
   ctx.restore();
 }
 // ===== END FLOOR PLAN TOOLS =====
+
+// ===== McK WAREHOUSE =====
+let whCategories = {};
+let whItems = [];
+let whCurrentCategory = null;
+let whCurrentSubcategory = null;
+let whDetailScene = null;
+const gltfLoader = new GLTFLoader();
+
+async function openWarehouse() {
+  document.getElementById('warehouse-overlay').classList.add('active');
+  await whLoadCategories();
+  await whLoadItems();
+}
+window.openWarehouse = openWarehouse;
+
+function closeWarehouse() {
+  document.getElementById('warehouse-overlay').classList.remove('active');
+  if (whDetailScene) { whDetailScene.dispose(); whDetailScene = null; }
+}
+window.closeWarehouse = closeWarehouse;
+
+async function whLoadCategories() {
+  try {
+    const config = await window.electronAPI.getConfig();
+    const res = await fetch('http://localhost:3141/api/warehouse/categories', {
+      headers: { 'Authorization': 'Bearer ' + config.authToken }
+    });
+    whCategories = await res.json();
+    whRenderSidebar();
+  } catch (e) { console.error('Warehouse categories error:', e); }
+}
+
+function whRenderSidebar() {
+  const sb = document.getElementById('wh-sidebar');
+  sb.textContent = '';
+  // "All Items" entry
+  const allDiv = document.createElement('div');
+  allDiv.className = 'wh-subcat' + (!whCurrentCategory ? ' active' : '');
+  allDiv.textContent = 'All Items';
+  allDiv.onclick = function() { whSelectCategory(null, null); };
+  sb.appendChild(allDiv);
+  for (const [cat, subs] of Object.entries(whCategories)) {
+    const catDiv = document.createElement('div');
+    catDiv.className = 'wh-cat';
+    catDiv.textContent = cat;
+    sb.appendChild(catDiv);
+    for (const sub of subs) {
+      const subDiv = document.createElement('div');
+      subDiv.className = 'wh-subcat' + (whCurrentCategory === cat && whCurrentSubcategory === sub ? ' active' : '');
+      subDiv.textContent = sub;
+      subDiv.onclick = (function(c, s) { return function() { whSelectCategory(c, s); }; })(cat, sub);
+      sb.appendChild(subDiv);
+    }
+  }
+}
+
+async function whSelectCategory(cat, sub) {
+  whCurrentCategory = cat;
+  whCurrentSubcategory = sub;
+  whRenderSidebar();
+  await whLoadItems();
+}
+window.whSelectCategory = whSelectCategory;
+
+async function whLoadItems(search) {
+  try {
+    const config = await window.electronAPI.getConfig();
+    let url = 'http://localhost:3141/api/warehouse/items?limit=100';
+    if (whCurrentCategory) url += '&category=' + encodeURIComponent(whCurrentCategory);
+    if (whCurrentSubcategory) url += '&subcategory=' + encodeURIComponent(whCurrentSubcategory);
+    if (search) url += '&search=' + encodeURIComponent(search);
+    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + config.authToken } });
+    const data = await res.json();
+    whItems = data.items;
+    whRenderGrid();
+  } catch (e) { console.error('Warehouse items error:', e); }
+}
+
+let whSearchTimer = null;
+function whSearch(val) {
+  clearTimeout(whSearchTimer);
+  whSearchTimer = setTimeout(() => whLoadItems(val), 300);
+}
+window.whSearch = whSearch;
+
+function whRenderGrid() {
+  const grid = document.getElementById('wh-grid');
+  grid.textContent = '';
+  if (!whItems.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'color:var(--text-muted);padding:40px;text-align:center';
+    empty.textContent = 'No items found';
+    grid.appendChild(empty);
+    return;
+  }
+  whItems.forEach(function(item) {
+    const card = document.createElement('div');
+    card.className = 'wh-item';
+    card.onclick = function() { whShowDetail(item.id); };
+
+    const thumb = document.createElement('div');
+    thumb.className = 'wh-item-thumb';
+    if (item.thumbnail_filename) {
+      const img = document.createElement('img');
+      img.src = 'http://localhost:3141/api/warehouse/item/' + item.id + '/thumbnail';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover';
+      thumb.appendChild(img);
+    } else {
+      thumb.textContent = getCategoryIcon(item.category);
+    }
+    card.appendChild(thumb);
+
+    const info = document.createElement('div');
+    info.className = 'wh-item-info';
+    const name = document.createElement('div');
+    name.className = 'wh-item-name';
+    name.textContent = item.name;
+    info.appendChild(name);
+    const catLabel = document.createElement('div');
+    catLabel.className = 'wh-item-cat';
+    catLabel.textContent = item.subcategory || item.category;
+    info.appendChild(catLabel);
+    card.appendChild(info);
+
+    grid.appendChild(card);
+  });
+}
+
+function getCategoryIcon(cat) {
+  const icons = { 'Ironmongery': '\u{1F529}', 'Appliances': '\u{1F373}', 'Sanitary': '\u{1F6BF}', 'Furniture': '\u{1FA91}', 'Fixtures': '\u{1F4A1}', 'Exterior': '\u{1F3E0}' };
+  return icons[cat] || '\u{1F4E6}';
+}
+
+async function whShowDetail(id) {
+  try {
+    const config = await window.electronAPI.getConfig();
+    const res = await fetch('http://localhost:3141/api/warehouse/item/' + id, { headers: { 'Authorization': 'Bearer ' + config.authToken } });
+    const item = await res.json();
+    document.getElementById('wh-detail-title').textContent = item.name;
+
+    const infoEl = document.getElementById('wh-detail-info');
+    infoEl.textContent = '';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'wh-detail-name';
+    nameEl.textContent = item.name;
+    infoEl.appendChild(nameEl);
+
+    const catMeta = document.createElement('div');
+    catMeta.className = 'wh-detail-meta';
+    catMeta.textContent = 'Category: ' + item.category;
+    infoEl.appendChild(catMeta);
+
+    const subMeta = document.createElement('div');
+    subMeta.className = 'wh-detail-meta';
+    subMeta.textContent = 'Subcategory: ' + (item.subcategory || '\u2014');
+    infoEl.appendChild(subMeta);
+
+    const typeMeta = document.createElement('div');
+    typeMeta.className = 'wh-detail-meta';
+    typeMeta.textContent = 'Type: ' + item.type;
+    infoEl.appendChild(typeMeta);
+
+    if (item.tags) {
+      const tagsMeta = document.createElement('div');
+      tagsMeta.className = 'wh-detail-meta';
+      tagsMeta.textContent = 'Tags: ' + item.tags;
+      infoEl.appendChild(tagsMeta);
+    }
+
+    if (item.description) {
+      const descEl = document.createElement('div');
+      descEl.style.cssText = 'margin-top:12px;font-size:13px;color:var(--text-secondary)';
+      descEl.textContent = item.description;
+      infoEl.appendChild(descEl);
+    }
+
+    if (item.parameters) {
+      const paramWrap = document.createElement('div');
+      paramWrap.style.cssText = 'margin-top:12px;font-size:11px;color:var(--text-muted)';
+      const paramLabel = document.createElement('b');
+      paramLabel.textContent = 'Parameters:';
+      paramWrap.appendChild(paramLabel);
+      const paramPre = document.createElement('pre');
+      paramPre.style.cssText = 'margin-top:4px;white-space:pre-wrap';
+      paramPre.textContent = JSON.stringify(JSON.parse(item.parameters), null, 2);
+      paramWrap.appendChild(paramPre);
+      infoEl.appendChild(paramWrap);
+    }
+
+    const placeBtn = document.createElement('button');
+    placeBtn.className = 'wh-place-btn';
+    placeBtn.textContent = 'Place in Scene';
+    placeBtn.onclick = function() { whPlaceItem(item.id); };
+    infoEl.appendChild(placeBtn);
+
+    document.getElementById('wh-detail').classList.add('active');
+  } catch (e) { console.error('Warehouse detail error:', e); }
+}
+window.whShowDetail = whShowDetail;
+
+function whCloseDetail() {
+  document.getElementById('wh-detail').classList.remove('active');
+  if (whDetailScene) { whDetailScene.dispose(); whDetailScene = null; }
+}
+window.whCloseDetail = whCloseDetail;
+
+function whPlaceItem(id) {
+  // TODO: Load glTF model and place in active 3D scene
+  closeWarehouse();
+  console.log('Place warehouse item', id);
+}
+window.whPlaceItem = whPlaceItem;
 
 // ===== CANVAS RESIZE HANDLERS =====
 window.addEventListener('resize',function(){
