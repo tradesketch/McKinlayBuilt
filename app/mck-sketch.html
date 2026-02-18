@@ -19645,6 +19645,7 @@ function createTimberMember(length, width, thickness, edgeProfile, grainAxis) {
   }
   uvAttr.needsUpdate = true;
 
+  geo.center();
   geo.computeVertexNormals();
   return geo;
 }
@@ -20348,7 +20349,7 @@ function buildKitchen3D(sceneObj, keData, keComponents) {
 
   // Plinth strip
   if (plinth > 0) {
-    const plinthMesh = new THREE.Mesh(new THREE.BoxGeometry(wallW, plinth, 55), getMaterial('painted', '#d8d4ce'));
+    const plinthMesh = new THREE.Mesh(createTimberMember(wallW, 55, plinth, 'square', 'x'), getMaterial('painted', '#d8d4ce'));
     plinthMesh.position.set(wallW / 2, plinth / 2, 27);
     plinthMesh.castShadow = true; plinthMesh.receiveShadow = true; plinthMesh.userData.kitchen = true;
     scene.add(plinthMesh);
@@ -20373,24 +20374,20 @@ function buildKitchen3D(sceneObj, keData, keComponents) {
     const fi = frameInset;
     const frameFaceZ = cz + doorThick / 2; // front face of door
 
-    // Top rail bar
-    const trGeo = new THREE.BoxGeometry(dw, fi, doorThick + 2);
-    const trMesh = new THREE.Mesh(trGeo, mat);
+    // Top rail bar (horizontal, pencil-round profile)
+    const trMesh = new THREE.Mesh(createTimberMember(dw, doorThick + 2, fi, 'pencil-round', 'x'), mat);
     trMesh.position.set(cx, cy + dh / 2 - fi / 2, cz);
     trMesh.userData[tag] = true; scene.add(trMesh);
     // Bottom rail bar
-    const brGeo = new THREE.BoxGeometry(dw, fi, doorThick + 2);
-    const brMesh = new THREE.Mesh(brGeo, mat);
+    const brMesh = new THREE.Mesh(createTimberMember(dw, doorThick + 2, fi, 'pencil-round', 'x'), mat);
     brMesh.position.set(cx, cy - dh / 2 + fi / 2, cz);
     brMesh.userData[tag] = true; scene.add(brMesh);
-    // Left stile bar
-    const lsGeo = new THREE.BoxGeometry(fi, dh - fi * 2, doorThick + 2);
-    const lsMesh = new THREE.Mesh(lsGeo, mat);
+    // Left stile bar (vertical, pencil-round profile)
+    const lsMesh = new THREE.Mesh(createTimberMember(dh - fi * 2, fi, doorThick + 2, 'pencil-round', 'y'), mat);
     lsMesh.position.set(cx - dw / 2 + fi / 2, cy, cz);
     lsMesh.userData[tag] = true; scene.add(lsMesh);
     // Right stile bar
-    const rsGeo = new THREE.BoxGeometry(fi, dh - fi * 2, doorThick + 2);
-    const rsMesh = new THREE.Mesh(rsGeo, mat);
+    const rsMesh = new THREE.Mesh(createTimberMember(dh - fi * 2, fi, doorThick + 2, 'pencil-round', 'y'), mat);
     rsMesh.position.set(cx + dw / 2 - fi / 2, cy, cz);
     rsMesh.userData[tag] = true; scene.add(rsMesh);
 
@@ -20438,16 +20435,28 @@ function buildKitchen3D(sceneObj, keData, keComponents) {
 
     const cx = comp.x + cw / 2;
 
-    // Carcase box
-    const carcMesh = new THREE.Mesh(new THREE.BoxGeometry(cw - 4, ch - 4, depth - 4), getMaterial('painted', '#e4e0da'));
-    carcMesh.position.set(cx, cy, cz); carcMesh.castShadow = true;
-    carcMesh.receiveShadow = true; carcMesh.userData.kitchen = true;
-    scene.add(carcMesh);
+    // Carcase panels (timber members instead of solid box)
+    const carcMat = getMaterial('painted', '#e4e0da');
+    // Back panel (thin ply — keep as BoxGeometry)
+    const backMesh = new THREE.Mesh(new THREE.BoxGeometry(cw - 4, ch - 4, 6), carcMat);
+    backMesh.position.set(cx, cy, cz - depth / 2 + 5);
+    backMesh.receiveShadow = true; backMesh.userData.kitchen = true;
+    scene.add(backMesh);
+    // Top panel
+    const topMesh = new THREE.Mesh(createTimberMember(cw - 4, depth - 4, 18, 'chamfer', 'x'), carcMat);
+    topMesh.position.set(cx, cy + ch / 2 - 11, cz);
+    topMesh.castShadow = true; topMesh.receiveShadow = true; topMesh.userData.kitchen = true;
+    scene.add(topMesh);
+    // Bottom panel
+    const botMesh = new THREE.Mesh(createTimberMember(cw - 4, depth - 4, 18, 'chamfer', 'x'), carcMat);
+    botMesh.position.set(cx, cy - ch / 2 + 11, cz);
+    botMesh.castShadow = true; botMesh.receiveShadow = true; botMesh.userData.kitchen = true;
+    scene.add(botMesh);
 
     // Side end panels (visible sides)
     const sideMat = getMaterial('painted', '#dedad4');
     [-1, 1].forEach(side => {
-      const spMesh = new THREE.Mesh(new THREE.BoxGeometry(18, ch - 4, depth - 4), sideMat);
+      const spMesh = new THREE.Mesh(createTimberMember(ch - 4, 18, depth - 4, 'chamfer', 'y'), sideMat);
       spMesh.position.set(cx + side * (cw / 2 - 9), cy, cz);
       spMesh.castShadow = true; spMesh.receiveShadow = true; spMesh.userData.kitchen = true;
       scene.add(spMesh);
@@ -20549,35 +20558,31 @@ function buildKitchen3D(sceneObj, keData, keComponents) {
     }
   });
 
-  // Worktops with beveled front edge effect
+  // Worktops with bullnose front edge (round profile TimberMember)
   const baseComps = wall.components.filter(c => { const d = keComponents[c.type]; return d && d.y === 'base'; });
   if (baseComps.length > 0) {
     const wtMat = getMaterial(keData.worktopMat || 'oak');
     baseComps.forEach(c => {
-      // Main worktop slab
-      const wtMesh = new THREE.Mesh(new THREE.BoxGeometry(c.w + worktopOverhang * 2, worktopThick, cabinetDepth + worktopOverhang), wtMat);
+      const wtLen = c.w + worktopOverhang * 2;
+      const wtDepth = cabinetDepth + worktopOverhang;
+      const wtMesh = new THREE.Mesh(createTimberMember(wtLen, wtDepth, worktopThick, 'round', 'x'), wtMat);
       wtMesh.position.set(c.x + c.w / 2, plinth + 870 + worktopThick / 2, cabinetDepth / 2 + worktopOverhang / 2);
       wtMesh.castShadow = true; wtMesh.receiveShadow = true; wtMesh.userData.kitchen = true;
       scene.add(wtMesh);
-      // Front edge profile strip (chamfered appearance)
-      const edgeMesh = new THREE.Mesh(new THREE.BoxGeometry(c.w + worktopOverhang * 2, worktopThick * 0.6, 12), wtMat);
-      edgeMesh.position.set(c.x + c.w / 2, plinth + 870 + worktopThick * 0.3, cabinetDepth + worktopOverhang + 6);
-      edgeMesh.userData.kitchen = true; scene.add(edgeMesh);
     });
   }
 
   // Cornice across wall units with profile detail
   if (keData.cornice !== 'none') {
     const wallComps = wall.components.filter(c => { const d = keComponents[c.type]; return d && d.y === 'wall'; });
+    const corMat = getMaterial('painted', doorCol);
     wallComps.forEach(c => {
       const corH = 44, corD = 34;
-      const corMesh = new THREE.Mesh(new THREE.BoxGeometry(c.w + 24, corH, wallCabDepth + corD), getMaterial('painted', doorCol));
+      const corLen = c.w + 24;
+      // Main cornice timber (runs horizontally along X)
+      const corMesh = new THREE.Mesh(createTimberMember(corLen, wallCabDepth + corD, corH, 'round', 'x'), corMat);
       corMesh.position.set(c.x + c.w / 2, wallH - 200 + corH / 2, wallCabDepth / 2);
       corMesh.castShadow = true; corMesh.userData.kitchen = true; scene.add(corMesh);
-      // Profile face
-      const profMesh = new THREE.Mesh(new THREE.BoxGeometry(c.w + 24, corH * 0.4, corD * 0.5), getMaterial('painted', doorCol));
-      profMesh.position.set(c.x + c.w / 2, wallH - 200 + corH * 0.8, wallCabDepth + corD * 0.5 / 2);
-      profMesh.userData.kitchen = true; scene.add(profMesh);
     });
   }
 
@@ -20636,8 +20641,8 @@ function buildCabinet3D(sceneObj, cab) {
   // Back panel (thin ply — keep as BoxGeometry)
   addCarcPanel(w, h, 6, 0, h / 2, -d / 2 + 3);
   // Sides (vertical timber panels with chamfer on front visible edge)
-  addTimberPanel(h, d, th, -w / 2 + th / 2, h / 2, 0, 'chamfer', 'y');
-  addTimberPanel(h, d, th,  w / 2 - th / 2, h / 2, 0, 'chamfer', 'y');
+  addTimberPanel(h, th, d, -w / 2 + th / 2, h / 2, 0, 'chamfer', 'y');
+  addTimberPanel(h, th, d,  w / 2 - th / 2, h / 2, 0, 'chamfer', 'y');
   // Top and bottom (horizontal timber panels with chamfer)
   addTimberPanel(w - th * 2, d, th, 0, h - th / 2, 0, 'chamfer', 'x');
   addTimberPanel(w - th * 2, d, th, 0, th / 2, 0, 'chamfer', 'x');
@@ -20675,7 +20680,7 @@ function buildCabinet3D(sceneObj, cab) {
         [[dx, h / 2 + (h - 4) / 2 - fi / 2, dz, doorW - 3, fi, doorThick2 + 2],
          [dx, h / 2 - (h - 4) / 2 + fi / 2, dz, doorW - 3, fi, doorThick2 + 2]
         ].forEach(([px2, py2, pz2, gw2, gh2, gd2]) => {
-          const fm = new THREE.Mesh(createTimberMember(gw2, gh2, gd2, 'pencil-round', 'x'), doorMat2);
+          const fm = new THREE.Mesh(createTimberMember(gw2, gd2, gh2, 'pencil-round', 'x'), doorMat2);
           fm.position.set(px2, py2, pz2); fm.userData.cab = true; scene.add(fm);
         });
         // Frame stiles (vertical, pencil-round profile)
@@ -20745,7 +20750,7 @@ function buildCabinet3D(sceneObj, cab) {
     const doorMat3 = getMaterial(doorCol2, doorHex);
     cab.drawers.forEach((dh2) => {
       const dy = cumY + dh2 / 2;
-      const drMesh = new THREE.Mesh(createTimberMember(w - 6, dh2 - 4, 20, 'round', 'x'), doorMat3);
+      const drMesh = new THREE.Mesh(createTimberMember(w - 6, 20, dh2 - 4, 'round', 'x'), doorMat3);
       drMesh.position.set(0, dy + 2, d / 2 + 10); drMesh.castShadow = true; drMesh.userData.cab = true;
       scene.add(drMesh);
       // Shaker face on drawer (pencil-round rails and stiles)
@@ -20754,7 +20759,7 @@ function buildCabinet3D(sceneObj, cab) {
       [[0, dy + 2 + (dh2 - 4) / 2 - dfi / 2, d / 2 + 10, w - 6, dfi, 22],
        [0, dy + 2 - (dh2 - 4) / 2 + dfi / 2, d / 2 + 10, w - 6, dfi, 22]
       ].forEach(([px3, py3, pz3, gw3, gh3, gd3]) => {
-        const fm3 = new THREE.Mesh(createTimberMember(gw3, gh3, gd3, 'pencil-round', 'x'), doorMat3);
+        const fm3 = new THREE.Mesh(createTimberMember(gw3, gd3, gh3, 'pencil-round', 'x'), doorMat3);
         fm3.position.set(px3, py3, pz3); fm3.userData.cab = true; scene.add(fm3);
       });
       // Stiles (vertical)
@@ -21102,7 +21107,7 @@ function buildDoor3D(sceneObj, dd, timberSpecies) {
       else if (rail.fixed === 'bottom') ry = rail.height / 2;
       else ry = H - (rail.fromTop || 0) - rail.height / 2;
       const railW = W - stW * 2;
-      const geo = createTimberMember(railW, rail.height, T, 'pencil-round', 'x');
+      const geo = createTimberMember(railW, T, rail.height, 'pencil-round', 'x');
       const mesh = new THREE.Mesh(geo, frameMat);
       mesh.position.copy(pos(stW + railW / 2, ry));
       mesh.castShadow = true; mesh.receiveShadow = true; mesh.userData.door3d = true;
@@ -21271,8 +21276,9 @@ function buildWindow3D(sceneObj, wd) {
   function timberBox(gw, gh, gd, x, y, z, mat, profile) {
     const axis = gw >= gh ? 'x' : 'y';
     const length = axis === 'x' ? gw : gh;
-    const width = axis === 'x' ? gh : gw;
-    const geo = createTimberMember(length, width, gd, profile, axis);
+    const width = axis === 'x' ? gd : gw;
+    const thickness = axis === 'x' ? gh : gd;
+    const geo = createTimberMember(length, width, thickness, profile, axis);
     const m = new THREE.Mesh(geo, mat);
     m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true;
     m.userData[tag] = true; scene.add(m); return m;
