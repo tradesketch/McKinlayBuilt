@@ -20625,14 +20625,22 @@ function buildCabinet3D(sceneObj, cab) {
     scene.add(m);
   }
 
-  // Back panel
+  function addTimberPanel(length, width, thickness, x, y, z, edgeProfile, grainAxis, mat) {
+    const geo = createTimberMember(length, width, thickness, edgeProfile, grainAxis);
+    const m = new THREE.Mesh(geo, mat || getMaterial(carcCol, carcHex));
+    m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; m.userData.cab = true;
+    scene.add(m);
+    return m;
+  }
+
+  // Back panel (thin ply — keep as BoxGeometry)
   addCarcPanel(w, h, 6, 0, h / 2, -d / 2 + 3);
-  // Sides
-  addCarcPanel(th, h, d, -w / 2 + th / 2, h / 2, 0);
-  addCarcPanel(th, h, d,  w / 2 - th / 2, h / 2, 0);
-  // Top and bottom
-  addCarcPanel(w - th * 2, th, d, 0, h - th / 2, 0);
-  addCarcPanel(w - th * 2, th, d, 0, th / 2, 0);
+  // Sides (vertical timber panels with chamfer on front visible edge)
+  addTimberPanel(h, d, th, -w / 2 + th / 2, h / 2, 0, 'chamfer', 'y');
+  addTimberPanel(h, d, th,  w / 2 - th / 2, h / 2, 0, 'chamfer', 'y');
+  // Top and bottom (horizontal timber panels with chamfer)
+  addTimberPanel(w - th * 2, d, th, 0, h - th / 2, 0, 'chamfer', 'x');
+  addTimberPanel(w - th * 2, d, th, 0, th / 2, 0, 'chamfer', 'x');
   // Plinth at base (for base units)
   if (cab.type === 'base' || !cab.type) {
     const plinthH = 100;
@@ -20641,9 +20649,9 @@ function buildCabinet3D(sceneObj, cab) {
     plinthMesh.castShadow = true; plinthMesh.userData.cab = true; scene.add(plinthMesh);
   }
 
-  // Shelves
+  // Shelves (timber with pencil-round edge)
   for (let s = 1; s <= (cab.shelves || 1); s++) {
-    addCarcPanel(w - th * 2 - 2, th, d - 20, 0, th + (h - th * 2) * s / ((cab.shelves || 1) + 1), -10);
+    addTimberPanel(w - th * 2 - 2, d - 20, th, 0, th + (h - th * 2) * s / ((cab.shelves || 1) + 1), -10, 'pencil-round', 'x');
   }
 
   // Door faces with proper shaker recess
@@ -20663,13 +20671,18 @@ function buildCabinet3D(sceneObj, cab) {
       scene.add(dMesh);
 
       if (cab.doorStyle === 'shaker' || !cab.doorStyle) {
-        // Frame rails/stiles (proud)
+        // Frame rails (horizontal, pencil-round profile)
         [[dx, h / 2 + (h - 4) / 2 - fi / 2, dz, doorW - 3, fi, doorThick2 + 2],
-         [dx, h / 2 - (h - 4) / 2 + fi / 2, dz, doorW - 3, fi, doorThick2 + 2],
-         [dx - (doorW - 3) / 2 + fi / 2, h / 2, dz, fi, h - 4 - fi * 2, doorThick2 + 2],
+         [dx, h / 2 - (h - 4) / 2 + fi / 2, dz, doorW - 3, fi, doorThick2 + 2]
+        ].forEach(([px2, py2, pz2, gw2, gh2, gd2]) => {
+          const fm = new THREE.Mesh(createTimberMember(gw2, gh2, gd2, 'pencil-round', 'x'), doorMat2);
+          fm.position.set(px2, py2, pz2); fm.userData.cab = true; scene.add(fm);
+        });
+        // Frame stiles (vertical, pencil-round profile)
+        [[dx - (doorW - 3) / 2 + fi / 2, h / 2, dz, fi, h - 4 - fi * 2, doorThick2 + 2],
          [dx + (doorW - 3) / 2 - fi / 2, h / 2, dz, fi, h - 4 - fi * 2, doorThick2 + 2]
         ].forEach(([px2, py2, pz2, gw2, gh2, gd2]) => {
-          const fm = new THREE.Mesh(new THREE.BoxGeometry(gw2, gh2, gd2), doorMat2);
+          const fm = new THREE.Mesh(createTimberMember(gh2, gw2, gd2, 'pencil-round', 'y'), doorMat2);
           fm.position.set(px2, py2, pz2); fm.userData.cab = true; scene.add(fm);
         });
         // Recessed center panel (3mm behind door face)
@@ -20732,17 +20745,23 @@ function buildCabinet3D(sceneObj, cab) {
     const doorMat3 = getMaterial(doorCol2, doorHex);
     cab.drawers.forEach((dh2) => {
       const dy = cumY + dh2 / 2;
-      const drMesh = new THREE.Mesh(new THREE.BoxGeometry(w - 6, dh2 - 4, 20), doorMat3);
+      const drMesh = new THREE.Mesh(createTimberMember(w - 6, dh2 - 4, 20, 'round', 'x'), doorMat3);
       drMesh.position.set(0, dy + 2, d / 2 + 10); drMesh.castShadow = true; drMesh.userData.cab = true;
       scene.add(drMesh);
-      // Shaker face on drawer
+      // Shaker face on drawer (pencil-round rails and stiles)
       const dfi = 18;
+      // Rails (horizontal)
       [[0, dy + 2 + (dh2 - 4) / 2 - dfi / 2, d / 2 + 10, w - 6, dfi, 22],
-       [0, dy + 2 - (dh2 - 4) / 2 + dfi / 2, d / 2 + 10, w - 6, dfi, 22],
-       [-(w - 6) / 2 + dfi / 2, dy + 2, d / 2 + 10, dfi, dh2 - 4 - dfi * 2, 22],
+       [0, dy + 2 - (dh2 - 4) / 2 + dfi / 2, d / 2 + 10, w - 6, dfi, 22]
+      ].forEach(([px3, py3, pz3, gw3, gh3, gd3]) => {
+        const fm3 = new THREE.Mesh(createTimberMember(gw3, gh3, gd3, 'pencil-round', 'x'), doorMat3);
+        fm3.position.set(px3, py3, pz3); fm3.userData.cab = true; scene.add(fm3);
+      });
+      // Stiles (vertical)
+      [[-(w - 6) / 2 + dfi / 2, dy + 2, d / 2 + 10, dfi, dh2 - 4 - dfi * 2, 22],
        [ (w - 6) / 2 - dfi / 2, dy + 2, d / 2 + 10, dfi, dh2 - 4 - dfi * 2, 22]
       ].forEach(([px3, py3, pz3, gw3, gh3, gd3]) => {
-        const fm3 = new THREE.Mesh(new THREE.BoxGeometry(gw3, gh3, gd3), doorMat3);
+        const fm3 = new THREE.Mesh(createTimberMember(gh3, gw3, gd3, 'pencil-round', 'y'), doorMat3);
         fm3.position.set(px3, py3, pz3); fm3.userData.cab = true; scene.add(fm3);
       });
       // Cup handle (respects finish)
