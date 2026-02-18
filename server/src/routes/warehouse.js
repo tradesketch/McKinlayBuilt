@@ -74,7 +74,7 @@ router.get('/item/:id/model', (req, res) => {
   const item = db.prepare('SELECT model_filename FROM warehouse_items WHERE id = ?').get(req.params.id);
   if (!item || !item.model_filename) return res.status(404).json({ error: 'Model not found' });
 
-  const filePath = path.join(MODELS_DIR, item.model_filename);
+  const filePath = path.join(MODELS_DIR, path.basename(item.model_filename));
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
   res.sendFile(filePath);
 });
@@ -85,9 +85,8 @@ router.get('/item/:id/thumbnail', (req, res) => {
   const item = db.prepare('SELECT thumbnail_filename FROM warehouse_items WHERE id = ?').get(req.params.id);
   if (!item || !item.thumbnail_filename) return res.status(404).json({ error: 'Thumbnail not found' });
 
-  const filePath = path.join(THUMBNAILS_DIR, item.thumbnail_filename);
+  const filePath = path.join(THUMBNAILS_DIR, path.basename(item.thumbnail_filename));
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
-  res.sendFile(filePath);
 });
 
 // POST /item — create (admin only, user id 1)
