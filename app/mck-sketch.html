@@ -20160,12 +20160,28 @@ function addRoomContext(scene, opts) {
       // Right of door
       const rightW = w - dx - dw;
       if (rightW > 0) addWall(rightW, dh, wallThick, dx + dw + rightW/2, dh/2, -wallThick/2);
-      // Architrave moulding
+      // Architrave moulding (profiled)
       const archD = 18, archW2 = 60;
       const archMat = getMaterial('painted', '#e8e4e0');
-      addWall(archW2, dh + archW2, archD, dx - archW2/2, (dh + archW2)/2, archD/2);   // left
-      addWall(archW2, dh + archW2, archD, dx + dw + archW2/2, (dh + archW2)/2, archD/2); // right
-      addWall(dw + archW2 * 2, archW2, archD, dx + dw/2, dh + archW2/2, archD/2);     // head
+      // Left architrave (vertical, extrude along +Z = length, rotate to vertical)
+      const archLeftGeo = createArchitravGeometry(dh + archW2, archW2, archD, 'ogee');
+      const archLeft = new THREE.Mesh(archLeftGeo, archMat);
+      archLeft.rotation.x = -Math.PI / 2; // rotate extrusion from +Z to -Y (vertical)
+      archLeft.position.set(dx - archW2, dh + archW2, 0);
+      archLeft.castShadow = true; archLeft.userData[tag] = true; scene.add(archLeft);
+      // Right architrave (vertical)
+      const archRightGeo = createArchitravGeometry(dh + archW2, archW2, archD, 'ogee');
+      const archRight = new THREE.Mesh(archRightGeo, archMat);
+      archRight.rotation.x = -Math.PI / 2;
+      archRight.position.set(dx + dw, dh + archW2, 0);
+      archRight.castShadow = true; archRight.userData[tag] = true; scene.add(archRight);
+      // Head architrave (horizontal, extrude along +Z, rotate to run along X)
+      const archHeadGeo = createArchitravGeometry(dw + archW2 * 2, archW2, archD, 'ogee');
+      const archHead = new THREE.Mesh(archHeadGeo, archMat);
+      archHead.rotation.x = -Math.PI / 2;
+      archHead.rotation.z = -Math.PI / 2; // rotate so extrusion runs along +X
+      archHead.position.set(dx - archW2, dh, 0);
+      archHead.castShadow = true; archHead.userData[tag] = true; scene.add(archHead);
     } else {
       addWall(w, h, wallThick, w/2, h/2, -wallThick/2);
     }
@@ -20208,22 +20224,30 @@ function addRoomContext(scene, opts) {
     scene.add(floorMesh);
   }
 
-  // Skirting boards
+  // Skirting boards (profiled)
   if (hasSkirting) {
     // Back wall skirting (skip window/door openings)
     if (opts.backWall && !opts.windowOpening && !opts.doorOpening) {
-      const skMesh = new THREE.Mesh(new THREE.BoxGeometry(w, skirtH, skirtD), skirtMat);
-      skMesh.position.set(w/2, skirtH/2, skirtD/2);
+      const skGeo = createSkirtingGeometry(w, skirtH, skirtD, 'ogee');
+      const skMesh = new THREE.Mesh(skGeo, skirtMat);
+      // Extrusion along +Z; rotate so it runs along X-axis, profile facing +Z into room
+      skMesh.rotation.y = -Math.PI / 2;
+      skMesh.position.set(w, 0, 0);
       skMesh.castShadow = true; skMesh.userData[tag] = true; scene.add(skMesh);
     }
     if (opts.leftWall) {
-      const skMesh = new THREE.Mesh(new THREE.BoxGeometry(skirtD, skirtH, d - skirtD), skirtMat);
-      skMesh.position.set(skirtD/2, skirtH/2, d/2);
+      const skGeo = createSkirtingGeometry(d - skirtD, skirtH, skirtD, 'ogee');
+      const skMesh = new THREE.Mesh(skGeo, skirtMat);
+      // Extrusion along +Z is correct; profile faces +X into room
+      skMesh.position.set(0, 0, skirtD);
       skMesh.castShadow = true; skMesh.userData[tag] = true; scene.add(skMesh);
     }
     if (opts.rightWall) {
-      const skMesh = new THREE.Mesh(new THREE.BoxGeometry(skirtD, skirtH, d - skirtD), skirtMat);
-      skMesh.position.set(w - skirtD/2, skirtH/2, d/2);
+      const skGeo = createSkirtingGeometry(d - skirtD, skirtH, skirtD, 'ogee');
+      const skMesh = new THREE.Mesh(skGeo, skirtMat);
+      // Mirror to face -X into room: rotate 180 around Y
+      skMesh.rotation.y = Math.PI;
+      skMesh.position.set(w, 0, d);
       skMesh.castShadow = true; skMesh.userData[tag] = true; scene.add(skMesh);
     }
   }
