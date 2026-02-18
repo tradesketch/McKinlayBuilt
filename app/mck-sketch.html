@@ -21663,13 +21663,13 @@ function buildStaircase3D(sceneObj, stair) {
   // Helper: add a single tread+riser at position (x,y,z) with rotation
   function addStep(sx, sy, sz, tw, rotY) {
     rotY = rotY || 0;
-    const tGeo = new THREE.BoxGeometry(going + nosing, treadT, tw);
+    const tGeo = createTimberMember(going + nosing, tw, treadT, 'round', 'x');
     const tMesh = new THREE.Mesh(tGeo, treadMat);
     tMesh.position.set(sx, sy - treadT / 2, sz);
     if (rotY) tMesh.rotation.y = rotY;
     tMesh.castShadow = true; tMesh.receiveShadow = true; tMesh.userData.stair3d = true;
     scene.add(tMesh);
-    const rGeo = new THREE.BoxGeometry(riserT, rise, tw);
+    const rGeo = createTimberMember(riserT, tw, rise, 'square', 'x');
     const rMesh = new THREE.Mesh(rGeo, stair.stringType === 'open' ? treadMat : riserMat);
     rMesh.position.set(sx - going / 2, sy - rise / 2, sz);
     if (rotY) rMesh.rotation.y = rotY;
@@ -21777,12 +21777,12 @@ function buildStaircase3D(sceneObj, stair) {
     for (let i = 0; i < upperN; i++) {
       const stepIdx = lowerN + winderN + i;
       const y = (stepIdx + 1) * rise;
-      const tGeo = new THREE.BoxGeometry(width, treadT, going + nosing);
+      const tGeo = createTimberMember(going + nosing, width, treadT, 'round', 'z');
       const tMesh = new THREE.Mesh(tGeo, treadMat);
       tMesh.position.set(cornerX + width / 2, y - treadT / 2, cornerZ - i * going - going / 2);
       tMesh.castShadow = true; tMesh.receiveShadow = true; tMesh.userData.stair3d = true;
       scene.add(tMesh);
-      const rGeo = new THREE.BoxGeometry(width, rise, riserT);
+      const rGeo = createTimberMember(riserT, width, rise, 'square', 'z');
       const rMesh = new THREE.Mesh(rGeo, stair.stringType === 'open' ? treadMat : riserMat);
       rMesh.position.set(cornerX + width / 2, y - rise / 2, cornerZ - i * going);
       rMesh.castShadow = true; rMesh.userData.stair3d = true; scene.add(rMesh);
@@ -21815,11 +21815,11 @@ function buildStaircase3D(sceneObj, stair) {
     for (let i = 0; i < upperN; i++) {
       const stepIdx = lowerN + i;
       const y = (stepIdx + 1) * rise;
-      const tGeo = new THREE.BoxGeometry(going + nosing, treadT, width);
+      const tGeo = createTimberMember(going + nosing, width, treadT, 'round', 'x');
       const tMesh = new THREE.Mesh(tGeo, treadMat);
       tMesh.position.set(flightLen - i * going - going / 2, y - treadT / 2, -(width + 200));
       tMesh.castShadow = true; tMesh.receiveShadow = true; tMesh.userData.stair3d = true; scene.add(tMesh);
-      const rGeo = new THREE.BoxGeometry(riserT, rise, width);
+      const rGeo = createTimberMember(riserT, width, rise, 'square', 'x');
       const rMesh = new THREE.Mesh(rGeo, stair.stringType === 'open' ? treadMat : riserMat);
       rMesh.position.set(flightLen - i * going + riserT / 2, y - rise / 2, -(width + 200));
       rMesh.castShadow = true; rMesh.userData.stair3d = true; scene.add(rMesh);
@@ -21879,10 +21879,10 @@ function buildStaircase3D(sceneObj, stair) {
       const treadX = i * going + going / 2 + nosing / 2 - nosing;
       const riserY = i * rise + rise / 2;
       const riserX = i * going;
-      const tMesh = new THREE.Mesh(new THREE.BoxGeometry(going + nosing, treadT, width), treadMat);
+      const tMesh = new THREE.Mesh(createTimberMember(going + nosing, width, treadT, 'round', 'x'), treadMat);
       tMesh.position.set(treadX, treadY, 0);
       tMesh.castShadow = true; tMesh.receiveShadow = true; tMesh.userData.stair3d = true; scene.add(tMesh);
-      const rMesh = new THREE.Mesh(new THREE.BoxGeometry(riserT, rise, width), stair.stringType === 'open' ? treadMat : riserMat);
+      const rMesh = new THREE.Mesh(createTimberMember(riserT, width, rise, 'square', 'x'), stair.stringType === 'open' ? treadMat : riserMat);
       rMesh.position.set(riserX + riserT / 2, riserY, 0);
       rMesh.castShadow = true; rMesh.userData.stair3d = true; scene.add(rMesh);
     }
@@ -21898,9 +21898,9 @@ function buildStaircase3D(sceneObj, stair) {
     const newelH = railH + 200;
     const newelZ = -width / 2 - newelSize / 2 - 10;
     [[0, newelH / 2], [totalGo, totalRise + newelH / 2]].forEach(([nx, ny]) => {
-      const nMesh = new THREE.Mesh(new THREE.BoxGeometry(newelSize, newelH, newelSize), treadMat);
+      const nMesh = new THREE.Mesh(createTimberMember(newelH, newelSize, newelSize, 'chamfer', 'y'), treadMat);
       nMesh.position.set(nx, ny, newelZ); nMesh.castShadow = true; nMesh.userData.stair3d = true; scene.add(nMesh);
-      const capMesh = new THREE.Mesh(new THREE.BoxGeometry(newelSize + 18, newelSize * 0.4, newelSize + 18), treadMat);
+      const capMesh = new THREE.Mesh(createTimberMember(newelSize * 0.4, newelSize + 18, newelSize + 18, 'chamfer', 'y'), treadMat);
       capMesh.position.set(nx, ny + newelH / 2 + newelSize * 0.2, newelZ); capMesh.castShadow = true; capMesh.userData.stair3d = true; scene.add(capMesh);
     });
     // Turned balusters
