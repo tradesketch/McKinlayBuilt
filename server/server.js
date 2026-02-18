@@ -11,6 +11,7 @@ const smsRoutes = require('./src/routes/sms');
 const emailRoutes = require('./src/routes/email');
 const spotifyRoutes = require('./src/routes/spotify');
 const settingsRoutes = require('./src/routes/settings');
+const warehouseRoutes = require('./src/routes/warehouse');
 
 const app = express();
 const PORT = process.env.PORT || 3141;
@@ -44,6 +45,7 @@ app.use('/api/sms', smsRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/spotify', spotifyRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/warehouse', warehouseRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
