@@ -19503,13 +19503,22 @@ function getMaterial(type, color) {
     case 'walnut':   mat = woodMat('#5a3520', 0.45); break;
     case 'pine':     mat = woodMat('#dfc880', 0.62); break;
     case 'ash':      mat = woodMat('#d8c898', 0.50); break;
-    case 'painted':
+    case 'sapele':   mat = woodMat('#8b3a2a', 0.42); break;
+    case 'maple':    mat = woodMat('#e8d0a8', 0.48); break;
+    case 'cherry':   mat = woodMat('#a0523c', 0.40); break;
+    case 'iroko':    mat = woodMat('#9a7a3c', 0.52); break;
+    case 'accoya':   mat = woodMat('#c8b878', 0.58); break;
+    case 'painted': {
+      const paintNorm = generateBrushStrokeNormal(512, 512);
       mat = new THREE.MeshStandardMaterial({
         map: new THREE.CanvasTexture(generatePaintTexture(color || '#3a3a3c')),
+        normalMap: new THREE.CanvasTexture(paintNorm),
+        normalScale: new THREE.Vector2(0.15, 0.15),
         roughness: 0.72, metalness: 0.0,
         color: new THREE.Color(color || '#3a3a3c'),
         envMapIntensity: 0.2
       }); break;
+    }
     case 'marble': {
       const marbDiff = generateMarbleTexture('#ece8e2', 'rgba(155,143,133,0.5)', 1024, 1024);
       const marbNorm = generateNormalFromBump(marbDiff, 0.6);
@@ -19541,21 +19550,56 @@ function getMaterial(type, color) {
       mat = new THREE.MeshStandardMaterial({
         color: 0xc8b8a0, roughness: 0.3, metalness: 0.0
       }); break;
-    case 'brass':
+    case 'brass': {
+      const bBrush = generateBrushedMetalNormal(1024, 512, 0.6);
       mat = new THREE.MeshStandardMaterial({
         color: 0xc8a040, roughness: 0.18, metalness: 0.92,
+        normalMap: new THREE.CanvasTexture(bBrush),
+        normalScale: new THREE.Vector2(0.3, 0.3),
         envMapIntensity: 1.0
       }); break;
-    case 'chrome':
+    }
+    case 'chrome': {
+      const cBrush = generateBrushedMetalNormal(1024, 512, 0.15);
       mat = new THREE.MeshStandardMaterial({
         color: 0xe0e0e0, roughness: 0.04, metalness: 0.98,
+        normalMap: new THREE.CanvasTexture(cBrush),
+        normalScale: new THREE.Vector2(0.08, 0.08),
         envMapIntensity: 1.2
       }); break;
-    case 'stainless':
+    }
+    case 'stainless': {
+      const sBrush = generateBrushedMetalNormal(1024, 512, 1.0);
       mat = new THREE.MeshStandardMaterial({
         color: 0xc0c0c0, roughness: 0.12, metalness: 0.92,
+        normalMap: new THREE.CanvasTexture(sBrush),
+        normalScale: new THREE.Vector2(0.5, 0.5),
         envMapIntensity: 0.9
       }); break;
+    }
+    case 'satin-nickel': {
+      const snBrush = generateBrushedMetalNormal(1024, 512, 0.8);
+      mat = new THREE.MeshStandardMaterial({
+        color: 0xd0ccc4, roughness: 0.28, metalness: 0.88,
+        normalMap: new THREE.CanvasTexture(snBrush),
+        normalScale: new THREE.Vector2(0.4, 0.4),
+        envMapIntensity: 0.7
+      }); break;
+    }
+    case 'matt-black':
+      mat = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a, roughness: 0.75, metalness: 0.85,
+        envMapIntensity: 0.3
+      }); break;
+    case 'antique-bronze': {
+      const abBrush = generateBrushedMetalNormal(1024, 512, 0.5);
+      mat = new THREE.MeshStandardMaterial({
+        color: 0x6b4c2a, roughness: 0.45, metalness: 0.78,
+        normalMap: new THREE.CanvasTexture(abBrush),
+        normalScale: new THREE.Vector2(0.35, 0.35),
+        envMapIntensity: 0.5
+      }); break;
+    }
     case 'glass':
       mat = new THREE.MeshPhysicalMaterial({
         color: 0xd0e8f0, roughness: 0.0, metalness: 0.0,
@@ -19583,6 +19627,40 @@ function getMaterial(type, color) {
       mat = new THREE.MeshStandardMaterial({
         map: new THREE.CanvasTexture(tileDiff),
         roughness: 0.35, metalness: 0.02
+      }); break;
+    }
+    case 'metro-tile': {
+      const metroDiff = generateTileTexture(150, 75, 3, color || '#f0ece6', '#c8c0b4');
+      const metroNorm = generateNormalFromBump(metroDiff, 1.8);
+      mat = new THREE.MeshStandardMaterial({
+        map: new THREE.CanvasTexture(metroDiff),
+        normalMap: new THREE.CanvasTexture(metroNorm),
+        normalScale: new THREE.Vector2(0.6, 0.6),
+        roughness: 0.25, metalness: 0.02,
+        envMapIntensity: 0.4
+      }); break;
+    }
+    case 'herringbone': {
+      const herrDiff = generateHerringboneTexture(1024, 1024, color || '#c8913a');
+      const herrNorm = generateNormalFromBump(herrDiff, 1.5);
+      mat = new THREE.MeshStandardMaterial({
+        map: new THREE.CanvasTexture(herrDiff),
+        normalMap: new THREE.CanvasTexture(herrNorm),
+        normalScale: new THREE.Vector2(0.6, 0.6),
+        roughness: 0.50, metalness: 0.0
+      }); break;
+    }
+    case 'slate': {
+      const slateDiff = generateSlateTexture(1024, 1024);
+      const slateNorm = generateNormalFromBump(slateDiff, 2.5);
+      const slateRough = generateRoughnessMap(slateDiff, 0.70);
+      mat = new THREE.MeshStandardMaterial({
+        map: new THREE.CanvasTexture(slateDiff),
+        normalMap: new THREE.CanvasTexture(slateNorm),
+        normalScale: new THREE.Vector2(0.8, 0.8),
+        roughnessMap: new THREE.CanvasTexture(slateRough),
+        roughness: 0.70, metalness: 0.04,
+        envMapIntensity: 0.3
       }); break;
     }
     default:
@@ -19668,6 +19746,152 @@ function generateTileTexture(tileW, tileH, groutW, tileColor, groutColor) {
       ctx.fillRect(tx + groutW / 2, ty + groutW / 2, tileW, tileH);
     }
   }
+  return canvas;
+}
+
+// ===== BRUSHED METAL NORMAL MAP =====
+function generateBrushedMetalNormal(width, height, intensity) {
+  width = width || 1024; height = height || 512;
+  intensity = intensity || 0.8;
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  // Fill with neutral normal (128,128,255)
+  ctx.fillStyle = 'rgb(128,128,255)';
+  ctx.fillRect(0, 0, width, height);
+  // Horizontal brush strokes — fine parallel lines with slight variation
+  for (let i = 0; i < Math.floor(height * 2.5); i++) {
+    const y = Math.random() * height;
+    const deviation = (Math.random() - 0.5) * intensity * 80;
+    const green = Math.round(128 + deviation);
+    const alpha = 0.04 + Math.random() * 0.12;
+    ctx.strokeStyle = 'rgba(' + Math.round(128 + (Math.random() - 0.5) * 20) + ',' + green + ',255,' + alpha + ')';
+    ctx.lineWidth = 0.3 + Math.random() * 1.2;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y + (Math.random() - 0.5) * 2);
+    ctx.stroke();
+  }
+  return canvas;
+}
+
+// ===== BRUSH STROKE NORMAL MAP (for painted surfaces) =====
+function generateBrushStrokeNormal(width, height) {
+  width = width || 512; height = height || 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'rgb(128,128,255)';
+  ctx.fillRect(0, 0, width, height);
+  // Random brushstrokes at slight angles
+  for (let i = 0; i < 200; i++) {
+    const x = Math.random() * width;
+    const y = Math.random() * height;
+    const len = 40 + Math.random() * 120;
+    const angle = (Math.random() - 0.5) * 0.3; // mostly horizontal
+    const deviation = (Math.random() - 0.5) * 30;
+    ctx.strokeStyle = 'rgba(' + Math.round(128 + deviation) + ',' + Math.round(128 + (Math.random() - 0.5) * 25) + ',255,' + (0.03 + Math.random() * 0.06) + ')';
+    ctx.lineWidth = 2 + Math.random() * 6;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(angle) * len, y + Math.sin(angle) * len);
+    ctx.stroke();
+  }
+  return canvas;
+}
+
+// ===== HERRINGBONE FLOOR TEXTURE =====
+function generateHerringboneTexture(width, height, baseColor) {
+  width = width || 1024; height = height || 1024;
+  baseColor = baseColor || '#c8913a';
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  // Parse base colour
+  const tmp = document.createElement('canvas'); tmp.width = 1; tmp.height = 1;
+  const tc = tmp.getContext('2d'); tc.fillStyle = baseColor; tc.fillRect(0,0,1,1);
+  const px = tc.getImageData(0,0,1,1).data;
+  const r = px[0], g = px[1], b = px[2];
+  // Fill with grout
+  ctx.fillStyle = '#8a7e70';
+  ctx.fillRect(0, 0, width, height);
+  // Plank dimensions in texture pixels
+  const plankW = 45, plankH = 180, gap = 2;
+  // Draw herringbone pattern
+  for (let row = -2; row < Math.ceil(height / (plankH / 2)) + 2; row++) {
+    for (let col = -2; col < Math.ceil(width / plankW) + 2; col++) {
+      const isRight = (row + col) % 2 === 0;
+      const variation = (Math.random() - 0.5) * 25;
+      const pr = Math.min(255, Math.max(0, r + variation));
+      const pg = Math.min(255, Math.max(0, g + variation * 0.85));
+      const pb = Math.min(255, Math.max(0, b + variation * 0.7));
+      ctx.fillStyle = 'rgb(' + Math.round(pr) + ',' + Math.round(pg) + ',' + Math.round(pb) + ')';
+      ctx.save();
+      const cx = col * plankW + (row % 2) * plankW / 2;
+      const cy = row * plankH / 2;
+      ctx.translate(cx + plankW / 2, cy + plankH / 4);
+      ctx.rotate(isRight ? Math.PI / 4 : -Math.PI / 4);
+      ctx.fillRect(-plankW / 2 + gap, -plankH / 4 + gap, plankW - gap * 2, plankH / 2 - gap * 2);
+      // Add subtle grain lines
+      ctx.strokeStyle = 'rgba(' + Math.max(0, Math.round(pr) - 30) + ',' + Math.max(0, Math.round(pg) - 25) + ',' + Math.max(0, Math.round(pb) - 20) + ',0.12)';
+      ctx.lineWidth = 0.5;
+      for (let l = 0; l < 5; l++) {
+        const ly = -plankH / 4 + gap + Math.random() * (plankH / 2 - gap * 2);
+        ctx.beginPath();
+        ctx.moveTo(-plankW / 2 + gap, ly);
+        ctx.lineTo(plankW / 2 - gap, ly + (Math.random() - 0.5) * 3);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+  return canvas;
+}
+
+// ===== SLATE TEXTURE =====
+function generateSlateTexture(width, height) {
+  width = width || 1024; height = height || 1024;
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  // Dark grey-blue base
+  ctx.fillStyle = '#3a3d42';
+  ctx.fillRect(0, 0, width, height);
+  // Layered horizontal strata
+  for (let i = 0; i < 80; i++) {
+    const y = Math.random() * height;
+    const shade = Math.random() > 0.5 ? 20 + Math.random() * 15 : -(10 + Math.random() * 15);
+    ctx.strokeStyle = 'rgba(' + (58 + shade) + ',' + (61 + shade) + ',' + (66 + shade) + ',' + (0.15 + Math.random() * 0.2) + ')';
+    ctx.lineWidth = 1 + Math.random() * 4;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    const segs = 4 + Math.floor(Math.random() * 4);
+    const sw = width / segs;
+    for (let s = 0; s < segs; s++) {
+      ctx.lineTo((s + 1) * sw, y + (Math.random() - 0.5) * 6);
+    }
+    ctx.stroke();
+  }
+  // Micro-fractures (thin lighter lines)
+  for (let i = 0; i < 25; i++) {
+    ctx.strokeStyle = 'rgba(90,95,100,' + (0.08 + Math.random() * 0.1) + ')';
+    ctx.lineWidth = 0.3 + Math.random() * 0.8;
+    ctx.beginPath();
+    const x1 = Math.random() * width, y1 = Math.random() * height;
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x1 + (Math.random() - 0.5) * 150, y1 + Math.random() * 80);
+    ctx.stroke();
+  }
+  // Fine noise
+  const imgData = ctx.getImageData(0, 0, width, height);
+  const data = imgData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const noise = (Math.random() - 0.5) * 10;
+    data[i] = Math.min(255, Math.max(0, data[i] + noise));
+    data[i+1] = Math.min(255, Math.max(0, data[i+1] + noise));
+    data[i+2] = Math.min(255, Math.max(0, data[i+2] + noise));
+  }
+  ctx.putImageData(imgData, 0, 0);
   return canvas;
 }
 
