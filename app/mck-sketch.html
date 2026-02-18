@@ -21954,24 +21954,17 @@ function buildCeiling3D(sceneObj, cc) {
   ceilMesh.rotation.x = Math.PI / 2; ceilMesh.position.set(L / 2, cH, W / 2);
   ceilMesh.receiveShadow = true; ceilMesh.userData.ceil3d = true; scene.add(ceilMesh);
 
-  // Main beams (along X) with chamfer strips
+  // Main beams (along X) — TimberMember with chamfer profile
   for (let i = 0; i <= cc.beamsX; i++) {
     const bz = i * W / cc.beamsX;
-    const beamMesh = new THREE.Mesh(new THREE.BoxGeometry(L, bD, bW), mat);
+    const beamGeo = createTimberMember(L, bW, bD, 'chamfer', 'x');
+    const beamMesh = new THREE.Mesh(beamGeo, mat);
     beamMesh.position.set(L / 2, cH - bD / 2, bz);
     beamMesh.castShadow = true; beamMesh.receiveShadow = true; beamMesh.userData.ceil3d = true;
     scene.add(beamMesh);
-    // Chamfer strips on bottom edges (subtle bevels)
-    const chamferSize = Math.min(bW, bD) * 0.08;
-    [-1, 1].forEach(side => {
-      const chMesh = new THREE.Mesh(new THREE.BoxGeometry(L, chamferSize, chamferSize), mat);
-      chMesh.position.set(L / 2, cH - bD + chamferSize / 2, bz + side * (bW / 2 - chamferSize / 2));
-      chMesh.rotation.x = Math.PI / 4;
-      chMesh.userData.ceil3d = true; scene.add(chMesh);
-    });
   }
 
-  // Cross beams (along Z) with chamfer strips
+  // Cross beams (along Z) — TimberMember with chamfer profile
   for (let j = 0; j <= cc.beamsY; j++) {
     const bx2 = j * L / cc.beamsY;
     for (let i = 0; i < cc.beamsX; i++) {
@@ -21979,17 +21972,10 @@ function buildCeiling3D(sceneObj, cc) {
       const z2 = (i + 1) * W / cc.beamsX - bW / 2;
       const crossLen = z2 - z1;
       if (crossLen <= 0) continue;
-      const crossMesh = new THREE.Mesh(new THREE.BoxGeometry(cW2, cD2, crossLen), mat);
+      const crossGeo = createTimberMember(crossLen, cW2, cD2, 'chamfer', 'z');
+      const crossMesh = new THREE.Mesh(crossGeo, mat);
       crossMesh.position.set(bx2, cH - bD + cD2 / 2, (z1 + z2) / 2);
       crossMesh.castShadow = true; crossMesh.userData.ceil3d = true; scene.add(crossMesh);
-      // Chamfer strips on bottom edges
-      const chSz = Math.min(cW2, cD2) * 0.08;
-      [-1, 1].forEach(side => {
-        const chMesh2 = new THREE.Mesh(new THREE.BoxGeometry(chSz, chSz, crossLen), mat);
-        chMesh2.position.set(bx2 + side * (cW2 / 2 - chSz / 2), cH - bD + chSz / 2, (z1 + z2) / 2);
-        chMesh2.rotation.z = Math.PI / 4;
-        chMesh2.userData.ceil3d = true; scene.add(chMesh2);
-      });
     }
   }
 
@@ -22024,11 +22010,13 @@ function buildCeiling3D(sceneObj, cc) {
     scene.add(wMesh);
   });
 
-  // Skirting boards along walls
+  // Skirting boards along walls — TimberMember with chamfer profile
   const skMat4 = getMaterial('painted', '#e8e4e0');
-  [[L / 2, 50, 9, L, 100, 18], [L / 2, 50, W - 9, L, 100, 18],
-   [9, 50, W / 2, 18, 100, W - 36], [L - 9, 50, W / 2, 18, 100, W - 36]].forEach(([x, y, z, gw, gh, gd]) => {
-    const skM = new THREE.Mesh(new THREE.BoxGeometry(gw, gh, gd), skMat4);
+  // [x, y, z, length, width, thickness, grainAxis]
+  [[L / 2, 50, 9, L, 18, 100, 'x'], [L / 2, 50, W - 9, L, 18, 100, 'x'],
+   [9, 50, W / 2, W - 36, 18, 100, 'z'], [L - 9, 50, W / 2, W - 36, 18, 100, 'z']].forEach(([x, y, z, len, sw, sh, axis]) => {
+    const skGeo = createTimberMember(len, sw, sh, 'chamfer', axis);
+    const skM = new THREE.Mesh(skGeo, skMat4);
     skM.position.set(x, y, z); skM.castShadow = true; skM.userData.ceil3d = true; scene.add(skM);
   });
 
