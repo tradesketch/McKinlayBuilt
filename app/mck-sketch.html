@@ -54598,7 +54598,7 @@ window.closeWarehouse = closeWarehouse;
 
 async function whLoadCategories() {
   try {
-    const config = await window.electronAPI.getConfig();
+    const config = await window.api.getConfig();
     const res = await fetch('http://localhost:3141/api/warehouse/categories', {
       headers: { 'Authorization': 'Bearer ' + config.authToken }
     });
@@ -54641,7 +54641,7 @@ window.whSelectCategory = whSelectCategory;
 
 async function whLoadItems(search) {
   try {
-    const config = await window.electronAPI.getConfig();
+    const config = await window.api.getConfig();
     let url = 'http://localhost:3141/api/warehouse/items?limit=100';
     if (whCurrentCategory) url += '&category=' + encodeURIComponent(whCurrentCategory);
     if (whCurrentSubcategory) url += '&subcategory=' + encodeURIComponent(whCurrentSubcategory);
@@ -54710,7 +54710,7 @@ function getCategoryIcon(cat) {
 
 async function whShowDetail(id) {
   try {
-    const config = await window.electronAPI.getConfig();
+    const config = await window.api.getConfig();
     const res = await fetch('http://localhost:3141/api/warehouse/item/' + id, { headers: { 'Authorization': 'Bearer ' + config.authToken } });
     const item = await res.json();
     document.getElementById('wh-detail-title').textContent = item.name;
@@ -54786,7 +54786,7 @@ async function whPlaceItem(id) {
   closeWarehouse();
 
   try {
-    const config = await window.electronAPI.getConfig();
+    const config = await window.api.getConfig();
     const modelUrl = 'http://localhost:3141/api/warehouse/item/' + id + '/model';
 
     gltfLoader.setRequestHeader({ 'Authorization': 'Bearer ' + config.authToken });
