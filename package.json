@@ -10,6 +10,7 @@
     "build:all": "electron-builder --mac --win"
   },
   "dependencies": {
+    "@sentry/electron": "^7.8.0",
     "electron": "^33.0.0",
     "electron-updater": "^6.8.3",
     "three": "^0.182.0"

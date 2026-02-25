@@ -3,6 +3,13 @@ const path = require('path');
 const fs = require('fs');
 const { autoUpdater } = require('electron-updater');
 
+if (app.isPackaged) {
+  try {
+    const Sentry = require('@sentry/electron');
+    Sentry.init({ dsn: process.env.SENTRY_DSN });
+  } catch(e) {}
+}
+
 // Only load electron-reload in dev (crashes in production builds)
 if (!app.isPackaged) {
   try {
