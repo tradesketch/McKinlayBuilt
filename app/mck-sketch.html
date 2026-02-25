@@ -3836,6 +3836,20 @@ kbd {
 .tutorial-btn-row  { display: flex; gap: 8px; justify-content: flex-end; }
 .tutorial-next { background: var(--accent); color: #fff; border: none; border-radius: 4px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-weight: 600; }
 .tutorial-skip { background: none; border: 1px solid var(--border); color: var(--text-secondary); border-radius: 4px; padding: 6px 10px; font-size: 12px; cursor: pointer; }
+#feedback-panel {
+  position: fixed; top: 0; right: -360px; width: 340px; height: 100vh;
+  background: var(--bg-panel); border-left: 1px solid var(--border);
+  box-shadow: -4px 0 20px rgba(0,0,0,0.15); z-index: 1200;
+  transition: right 0.25s ease; display: flex; flex-direction: column; padding: 20px;
+  box-sizing: border-box;
+}
+#feedback-panel.open { right: 0; }
+#feedback-message {
+  width: 100%; min-height: 140px; resize: vertical;
+  background: var(--bg-input); color: var(--text-primary);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 8px; font-size: 13px; margin-bottom: 12px; box-sizing: border-box;
+}
 #announcement-banner a { color: #fff; font-weight: 700; margin-left: 8px; }
 #ann-dismiss {
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
@@ -3884,6 +3898,22 @@ kbd {
   <span id="ann-text"></span>
   <a id="ann-link" href="#" target="_blank" style="display:none"></a>
   <button id="ann-dismiss" onclick="dismissAnnouncement()">&times;</button>
+</div>
+<div id="feedback-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="font-size:15px;font-weight:600">Send Feedback</div>
+    <button onclick="closeFeedback()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-secondary)">&times;</button>
+  </div>
+  <label style="font-size:12px;font-weight:600;margin-bottom:6px;display:block">Email (optional)</label>
+  <input type="email" id="feedback-email" placeholder="you@example.com"
+    style="width:100%;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:var(--radius);padding:6px 8px;font-size:13px;margin-bottom:12px;box-sizing:border-box">
+  <label style="font-size:12px;font-weight:600;margin-bottom:6px;display:block">Message</label>
+  <textarea id="feedback-message" placeholder="Bug report, feature request, anything..."></textarea>
+  <button onclick="submitFeedback()"
+    style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:10px;font-size:13px;cursor:pointer;font-weight:600;width:100%">
+    Send Feedback
+  </button>
+  <div id="feedback-status" style="margin-top:10px;font-size:12px;color:var(--text-secondary);text-align:center"></div>
 </div>
 <div id="app">
   <header id="header">
@@ -4076,6 +4106,7 @@ kbd {
         <span class="weather-temp" id="weather-temp">--°C</span>
         <span class="weather-loc" id="weather-loc">Loading...</span>
       </div>
+      <button class="btn" onclick="openFeedback()" style="font-size:12px" title="Send feedback">&#9993; Feedback</button>
       <button class="btn primary" onclick="saveProject()">Save Project</button>
     </div>
   </header>
@@ -54569,6 +54600,38 @@ function dismissAnnouncement() {
   banner.style.display = 'none';
 }
 window.dismissAnnouncement = dismissAnnouncement;
+
+// ===== FEEDBACK FORM =====
+
+function openFeedback() { document.getElementById('feedback-panel').classList.add('open'); }
+function closeFeedback() { document.getElementById('feedback-panel').classList.remove('open'); }
+window.openFeedback = openFeedback;
+window.closeFeedback = closeFeedback;
+
+async function submitFeedback() {
+  var msg = document.getElementById('feedback-message').value.trim();
+  var email = document.getElementById('feedback-email').value.trim();
+  var statusEl = document.getElementById('feedback-status');
+  if (msg.length < 5) { statusEl.textContent = 'Please write a bit more.'; return; }
+  statusEl.textContent = 'Sending...';
+  try {
+    var r = await fetch('http://localhost:3141/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg, email: email })
+    });
+    if (r.ok) {
+      statusEl.textContent = 'Sent! Thank you.';
+      document.getElementById('feedback-message').value = '';
+      setTimeout(closeFeedback, 1500);
+    } else {
+      statusEl.textContent = 'Failed to send — try again.';
+    }
+  } catch(e) {
+    statusEl.textContent = 'Network error — is server running?';
+  }
+}
+window.submitFeedback = submitFeedback;
 
 // ===== GUIDED TUTORIAL =====
 
