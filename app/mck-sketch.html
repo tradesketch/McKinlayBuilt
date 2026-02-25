@@ -3756,6 +3756,7 @@ kbd {
 }
 .fp-tool-btn:hover { background: var(--bg-hover); }
 .fp-tool-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.unit-toggle-btn.active { background: var(--accent); color: #fff; }
 .fp-elec-sym-btn {
   padding: 4px; border: 1px solid var(--border); border-radius: var(--radius);
   background: var(--bg-surface); cursor: pointer; display: flex;
@@ -18935,6 +18936,12 @@ kbd {
       <button class="fp-tool-btn"        onclick="fpToggleRegs()" title="UK Building Regulations reference">&#128220; Regs</button>
       <button class="fp-tool-btn"        onclick="fpClear()" style="color:#c0392b">&#128465; Clear</button>
       <button class="fp-tool-btn"        onclick="fpGenerate3D()" style="background:var(--accent);color:#fff;border-color:var(--accent)">&#9654; View 3D</button>
+      <div style="display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-left:8px">
+        <button class="unit-toggle-btn active" data-units="metric" onclick="fpSetUnits('metric')"
+          style="padding:5px 10px;border:none;background:transparent;cursor:pointer;font-size:11px;color:var(--text-secondary)">mm</button>
+        <button class="unit-toggle-btn" data-units="imperial" onclick="fpSetUnits('imperial')"
+          style="padding:5px 10px;border:none;background:transparent;cursor:pointer;font-size:11px;color:var(--text-secondary)">ft</button>
+      </div>
     </div>
     <button class="fp-close" onclick="closeFloorPlan()">&times;</button>
   </div>
@@ -54793,6 +54800,50 @@ function fpClear() {
 }
 window.fpClear = fpClear;
 
+// ===== UNIT HELPERS =====
+
+var fpUnitSystem = localStorage.getItem('fp-units') || 'metric';
+
+function fpToDisplay(mm, system) {
+  system = system || fpUnitSystem;
+  if (system === 'imperial') {
+    var totalInches = mm / 25.4;
+    var feet = Math.floor(totalInches / 12);
+    var inches = (totalInches % 12).toFixed(1);
+    return feet + "'-" + inches + '"';
+  }
+  if (mm >= 1000) return (mm / 1000).toFixed(2).replace(/\.?0+$/, '') + 'm';
+  return Math.round(mm) + 'mm';
+}
+window.fpToDisplay = fpToDisplay;
+
+function fpFromInput(str, system) {
+  str = (str || '').trim();
+  system = system || fpUnitSystem;
+  if (system === 'imperial') {
+    var feetMatch = str.match(/^(\d+)'[-\s]?(\d+(?:\.\d+)?)"?$/);
+    if (feetMatch) return (parseInt(feetMatch[1]) * 12 + parseFloat(feetMatch[2])) * 25.4;
+    var feetOnly = str.match(/^(\d+(?:\.\d+)?)'$/);
+    if (feetOnly) return parseFloat(feetOnly[1]) * 304.8;
+    var inchOnly = str.match(/^(\d+(?:\.\d+)?)"$/);
+    if (inchOnly) return parseFloat(inchOnly[1]) * 25.4;
+  }
+  if (str.toLowerCase().endsWith('m') && !str.toLowerCase().endsWith('mm'))
+    return parseFloat(str) * 1000;
+  return parseFloat(str) || 0;
+}
+
+function fpSetUnits(system) {
+  fpUnitSystem = system;
+  localStorage.setItem('fp-units', system);
+  document.querySelectorAll('.unit-toggle-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.units === system);
+  });
+  fpRedraw();
+  fpSetStatus('Units: ' + (system === 'metric' ? 'Metric (mm/m)' : 'Imperial (ft/in)'));
+}
+window.fpSetUnits = fpSetUnits;
+
 // ===== ELECTRICAL TOOL =====
 
 var FP_ELEC_SYMBOLS = [
@@ -55442,7 +55493,7 @@ function fpDraw2DWalls(ctx) {
       var len = Math.round(Math.hypot(w.x2-w.x1, w.y2-w.y1));
       var mid = fpW2S((w.x1+w.x2)/2, (w.y1+w.y2)/2);
       ctx.save(); ctx.fillStyle = '#333'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(len+' mm', mid.x, mid.y - 5); ctx.restore();
+      ctx.fillText(fpToDisplay(len), mid.x, mid.y - 5); ctx.restore();
     }
   });
 }
@@ -55625,16 +55676,7 @@ function fpDrawMeasureLine(ctx, wx1, wy1, wx2, wy2) {
   ctx.restore();
 }
 
-function fpParseLength(str) {
-  if (!str) return 0;
-  str = str.trim();
-  if (str.toLowerCase().endsWith('m')) {
-    var val = parseFloat(str.slice(0, -1));
-    return isNaN(val) ? 0 : val * 1000;
-  }
-  var val = parseFloat(str);
-  return isNaN(val) ? 0 : val;
-}
+function fpParseLength(str) { return fpFromInput(str, fpUnitSystem); }
 window.fpParseLength = fpParseLength;
 
 function fpExactLengthPoint(snapPt, overrideLen) {
