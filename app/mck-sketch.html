@@ -3811,6 +3811,16 @@ kbd {
 .fp-room-item { font-size: 12px; padding: 4px 8px; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .fp-room-item:hover { background: var(--bg-hover); }
 /* Regs panel */
+#announcement-banner {
+  display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 2000;
+  background: var(--accent); color: #fff; padding: 10px 44px 10px 16px;
+  font-size: 13px; text-align: center;
+}
+#announcement-banner a { color: #fff; font-weight: 700; margin-left: 8px; }
+#ann-dismiss {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: #fff; font-size: 18px; cursor: pointer;
+}
 .fp-regs-panel {
   position: absolute; top: 8px; left: 192px; z-index: 10;
   width: 340px; max-height: calc(100% - 16px);
@@ -3850,6 +3860,11 @@ kbd {
   </style>
 </head>
 <body>
+<div id="announcement-banner">
+  <span id="ann-text"></span>
+  <a id="ann-link" href="#" target="_blank" style="display:none"></a>
+  <button id="ann-dismiss" onclick="dismissAnnouncement()">&times;</button>
+</div>
 <div id="app">
   <header id="header">
     <div class="logo">
@@ -54622,6 +54637,38 @@ async function whPlaceItem(id) {
   }
 }
 window.whPlaceItem = whPlaceItem;
+
+// ===== ANNOUNCEMENT BANNER =====
+
+(function pollAnnouncements() {
+  var seen = localStorage.getItem('mck-ann-seen') || '0';
+  fetch('http://localhost:3141/api/announcements/latest')
+    .then(function(r){ return r.json(); })
+    .then(function(ann) {
+      if (!ann || String(ann.id) === seen) return;
+      var banner = document.getElementById('announcement-banner');
+      document.getElementById('ann-text').textContent = ann.message;
+      var link = document.getElementById('ann-link');
+      if (ann.link_url && ann.link_text) {
+        link.textContent = ann.link_text;
+        link.href = ann.link_url;
+        link.style.display = '';
+      } else {
+        link.style.display = 'none';
+      }
+      banner.dataset.annId = ann.id;
+      banner.style.display = 'block';
+    })
+    .catch(function(){});
+  setTimeout(pollAnnouncements, 60*60*1000);
+})();
+
+function dismissAnnouncement() {
+  var banner = document.getElementById('announcement-banner');
+  if (banner.dataset.annId) localStorage.setItem('mck-ann-seen', banner.dataset.annId);
+  banner.style.display = 'none';
+}
+window.dismissAnnouncement = dismissAnnouncement;
 
 // ===== FLOOR PLAN ENGINE =====
 // Full-overlay floor plan: draw walls in 2D, generate 3D view, place items from warehouse.
