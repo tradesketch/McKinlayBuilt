@@ -19094,142 +19094,18 @@ kbd {
       <div class="fp-regs-panel" id="fp-regs-panel" style="display:none">
         <div class="fp-regs-header">
           <span>&#128220; Building Regulations</span>
-          <div class="fp-regs-tabs">
-            <button class="fp-regs-tab active" id="fp-regs-tab-scotland" onclick="fpSetRegsRegion('scotland')">Scotland</button>
-            <button class="fp-regs-tab"        id="fp-regs-tab-england"  onclick="fpSetRegsRegion('england')">England &amp; Wales</button>
-          </div>
+          <select id="fp-regs-country-sel" onchange="fpSetRegsCountry(this.value)"
+            style="background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:11px;margin-right:8px">
+            <option value="scotland">Scotland</option>
+            <option value="england">England &amp; Wales</option>
+            <option value="usa">USA (IRC)</option>
+            <option value="canada">Canada (NBC)</option>
+            <option value="australia">Australia (NCC)</option>
+          </select>
           <button class="fp-regs-close" onclick="fpToggleRegs()">&times;</button>
         </div>
         <div class="fp-regs-body">
-
-          <!-- SCOTLAND -->
-          <div id="fp-regs-scotland-content">
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Ceiling Heights (Section 3.10)</div>
-              <table class="fp-regs-table">
-                <tr><td>Habitable rooms</td><td>Min 2.1m</td></tr>
-                <tr><td>Kitchen / utility</td><td>Min 2.1m</td></tr>
-                <tr><td>Bathroom / WC</td><td>Min 2.0m</td></tr>
-                <tr><td>Loft conversion (50% area)</td><td>Min 2.1m</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Room Sizes (Guidance)</div>
-              <table class="fp-regs-table">
-                <tr><td>Single bedroom</td><td>Min 7.0 m²</td></tr>
-                <tr><td>Double bedroom</td><td>Min 10.0 m²</td></tr>
-                <tr><td>Kitchen (standalone)</td><td>Min 5.5 m²</td></tr>
-                <tr><td>Habitable room min width</td><td>2.1m</td></tr>
-                <tr><td>Living room</td><td>Min 13.0 m²</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Doors &amp; Openings (Section 4.1)</div>
-              <table class="fp-regs-table">
-                <tr><td>Main entrance clear width</td><td>Min 775mm</td></tr>
-                <tr><td>Internal doors clear width</td><td>Min 750mm</td></tr>
-                <tr><td>Wheelchair accessible</td><td>Min 900mm</td></tr>
-                <tr><td>Door height</td><td>Min 2.0m</td></tr>
-                <tr><td>Threshold</td><td>Max 15mm rise</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Circulation (Section 4.1)</div>
-              <table class="fp-regs-table">
-                <tr><td>Hallway / corridor width</td><td>Min 900mm</td></tr>
-                <tr><td>Landing size</td><td>Min 900×900mm</td></tr>
-                <tr><td>Accessible toilet turning</td><td>1500mm dia.</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Stairs (Section 4.3)</div>
-              <table class="fp-regs-table">
-                <tr><td>Max rise</td><td>220mm</td></tr>
-                <tr><td>Min rise</td><td>150mm</td></tr>
-                <tr><td>Min going</td><td>225mm</td></tr>
-                <tr><td>Min stair width</td><td>800mm</td></tr>
-                <tr><td>Headroom</td><td>Min 2.0m</td></tr>
-                <tr><td>Max pitch</td><td>42°</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Windows / Ventilation (Section 3.14)</div>
-              <table class="fp-regs-table">
-                <tr><td>Habitable room daylight</td><td>Min 10% floor area</td></tr>
-                <tr><td>Habitable room ventilation</td><td>Min 1/30 floor area</td></tr>
-                <tr><td>Background ventilator</td><td>Min 8000mm²</td></tr>
-                <tr><td>Bathroom ventilation</td><td>15 l/s extract (fan)</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-note">Scottish Building Standards — Technical Handbooks Domestic. Always verify with local authority building control.</div>
-          </div>
-
-          <!-- ENGLAND & WALES -->
-          <div id="fp-regs-england-content" style="display:none">
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Ceiling Heights (No statutory min)</div>
-              <table class="fp-regs-table">
-                <tr><td>Habitable rooms (guidance)</td><td>Min 2.3m</td></tr>
-                <tr><td>Loft conversion (50% area)</td><td>Min 2.1m</td></tr>
-                <tr><td>Basement habitable</td><td>Min 2.1m</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Room Sizes — NDSS / Part M</div>
-              <table class="fp-regs-table">
-                <tr><td>1-bed flat (1 person)</td><td>Min 39 m²</td></tr>
-                <tr><td>1-bed flat (2 person)</td><td>Min 50 m²</td></tr>
-                <tr><td>2-bed flat (3 person)</td><td>Min 61 m²</td></tr>
-                <tr><td>Single bedroom</td><td>Min 7.5 m²</td></tr>
-                <tr><td>Double / twin bedroom</td><td>Min 11.5 m²</td></tr>
-                <tr><td>Single bedroom width</td><td>Min 2.15m</td></tr>
-                <tr><td>Double bedroom width</td><td>Min 2.75m</td></tr>
-                <tr><td>Storage (1-bed)</td><td>Min 1.0 m²</td></tr>
-                <tr><td>Storage (2-bed)</td><td>Min 1.5 m²</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Doors &amp; Openings (Part M)</div>
-              <table class="fp-regs-table">
-                <tr><td>Main entrance clear width</td><td>Min 775mm</td></tr>
-                <tr><td>Internal doors clear width</td><td>Min 750mm</td></tr>
-                <tr><td>Cat 2 (accessible) entrance</td><td>Min 850mm</td></tr>
-                <tr><td>Cat 2 internal doors</td><td>Min 775mm</td></tr>
-                <tr><td>Door height</td><td>Min 2.0m</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Circulation (Part M)</div>
-              <table class="fp-regs-table">
-                <tr><td>Hallway width (straight)</td><td>Min 1200mm</td></tr>
-                <tr><td>Hallway width (with turn)</td><td>Min 1200mm</td></tr>
-                <tr><td>Landing size</td><td>Min 900×900mm</td></tr>
-                <tr><td>WC turning circle</td><td>1500mm dia.</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Stairs (Part K)</div>
-              <table class="fp-regs-table">
-                <tr><td>Max rise (private)</td><td>220mm</td></tr>
-                <tr><td>Min going (private)</td><td>220mm</td></tr>
-                <tr><td>Min stair width (private)</td><td>600mm</td></tr>
-                <tr><td>Headroom</td><td>Min 2.0m</td></tr>
-                <tr><td>Max pitch (private)</td><td>42°</td></tr>
-                <tr><td>Handrail height</td><td>900–1000mm</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-section">
-              <div class="fp-regs-section-title">Windows / Ventilation (Part F)</div>
-              <table class="fp-regs-table">
-                <tr><td>Habitable room ventilation</td><td>Min 1/20 floor area</td></tr>
-                <tr><td>Background ventilator</td><td>Min 8000mm²</td></tr>
-                <tr><td>Kitchen extract</td><td>30 l/s (adjacent hob) or 60 l/s</td></tr>
-                <tr><td>Bathroom extract</td><td>15 l/s (fan) or 4 ACH</td></tr>
-              </table>
-            </div>
-            <div class="fp-regs-note">England &amp; Wales Approved Documents (2024). NDSS applies to dwellings in GLA / many councils. Always verify with local building control.</div>
-          </div>
-
+          <div id="fp-regs-dynamic-content"></div>
         </div>
       </div>
     </div>
@@ -56275,16 +56151,118 @@ window.fp3DWalk = fp3DWalk;
 
 function fpToggleRegs() {
   var panel = document.getElementById('fp-regs-panel');
-  if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+  if (!panel) return;
+  var opening = panel.style.display === 'none';
+  panel.style.display = opening ? '' : 'none';
+  if (opening) {
+    var sel = document.getElementById('fp-regs-country-sel');
+    if (sel) sel.value = fpRegsCountry;
+    fpRenderRegsContent();
+  }
 }
 window.fpToggleRegs = fpToggleRegs;
 
-function fpSetRegsRegion(region) {
-  document.getElementById('fp-regs-scotland-content').style.display = region === 'scotland' ? '' : 'none';
-  document.getElementById('fp-regs-england-content').style.display  = region === 'england'  ? '' : 'none';
-  document.getElementById('fp-regs-tab-scotland').classList.toggle('active', region === 'scotland');
-  document.getElementById('fp-regs-tab-england').classList.toggle('active', region === 'england');
+// ===== INTERNATIONAL BUILDING STANDARDS =====
+
+var FP_REGS_DATA = {
+  scotland:  { label:'Scotland (BSD Warrant)',    minCeil:2.1,  winRatio:'1/10',  minDoor:775,  maxStairPitch:42, minHead:2.0,
+    sections: [
+      { title:'Ceiling Heights (Section 3.10)', rows:[['Habitable rooms','Min 2.1m'],['Kitchen / utility','Min 2.1m'],['Bathroom / WC','Min 2.0m'],['Loft conversion (50% area)','Min 2.1m']] },
+      { title:'Room Sizes (Section 3.10)', rows:[['Single bedroom','Min 7.0 m²'],['Double bedroom','Min 10.0 m²'],['Living room (guidance)','Min 13.5 m²']] },
+      { title:'Doors & Openings (Section 3.9)', rows:[['Main entrance clear width','Min 775mm'],['Internal doors clear width','Min 775mm'],['Door height','Min 2.0m'],['Wheelchair-accessible entrance','Min 900mm']] },
+      { title:'Stairs (Section 3.7)', rows:[['Max rise','220mm'],['Min going','225mm'],['Min stair width','800mm'],['Max pitch','42°'],['Headroom','Min 2.0m'],['Handrail height','840–1000mm']] },
+      { title:'Windows / Ventilation (Section 3.14)', rows:[['Habitable room openable area','Min 1/30 floor area'],['Background ventilator (Sec 3.14)','Min 8000mm²'],['Kitchen extract','30 l/s or 60 l/s ducted'],['Bathroom extract','15 l/s (fan)'],['Glazing area (daylight)','Min 1/10 floor area']] },
+      { title:'Fire (Section 2.9)', rows:[['Smoke alarm – ground floor','Required'],['Smoke alarm – upper floors','Required'],['CO alarm – gas appliance','Required'],['Max travel to escape','Varies (10m–35m)']] },
+    ]
+  },
+  england:   { label:'England & Wales (Approved Docs)',
+    sections: [
+      { title:'Ceiling Heights', rows:[['Habitable rooms (guidance)','Min 2.3m'],['Loft conversion (50% area)','Min 2.1m'],['Basement habitable','Min 2.1m']] },
+      { title:'Room Sizes — NDSS / Part M', rows:[['1-bed flat (1 person)','Min 39 m²'],['1-bed flat (2 person)','Min 50 m²'],['2-bed flat (3 person)','Min 61 m²'],['Single bedroom','Min 7.5 m²'],['Double/twin bedroom','Min 11.5 m²'],['Single bedroom width','Min 2.15m'],['Double bedroom width','Min 2.75m']] },
+      { title:'Doors & Openings (Part M)', rows:[['Main entrance clear width','Min 775mm'],['Internal doors clear width','Min 750mm'],['Cat 2 (accessible) entrance','Min 850mm'],['Cat 2 internal doors','Min 775mm'],['Door height','Min 2.0m']] },
+      { title:'Circulation (Part M)', rows:[['Hallway width (straight)','Min 1200mm'],['Landing size','Min 900×900mm'],['WC turning circle','1500mm dia.']] },
+      { title:'Stairs (Part K)', rows:[['Max rise (private)','220mm'],['Min going (private)','220mm'],['Min stair width (private)','600mm'],['Headroom','Min 2.0m'],['Max pitch','42°'],['Handrail height','900–1000mm']] },
+      { title:'Windows / Ventilation (Part F)', rows:[['Habitable room ventilation','Min 1/20 floor area'],['Background ventilator','Min 8000mm²'],['Kitchen extract','30 l/s (adjacent hob) or 60 l/s'],['Bathroom extract','15 l/s (fan) or 4 ACH']] },
+    ]
+  },
+  usa:       { label:'USA (IRC 2021)',
+    sections: [
+      { title:'Ceiling Heights (R305)', rows:[['Habitable rooms','Min 7ft (2.13m)'],['Bathrooms, halls, corridors','Min 6ft 8in (2.03m)'],['Basement (habitable)','Min 7ft (2.13m)'],['Beams/girders clearance','Min 6ft 4in (1.93m)']] },
+      { title:'Room Sizes (R304)', rows:[['Minimum habitable room','70 sq ft (6.5 m²)'],['Min dimension (any room)','7ft (2.13m)'],['Min bedroom area (guidance)','120 sq ft (11.1 m²)']] },
+      { title:'Doors (R311)', rows:[['Main entry door width','Min 3ft (914mm)'],['Other egress doors','Min 32in (813mm)'],['Door height','Min 6ft 8in (2.03m)']] },
+      { title:'Stairs (R311.7)', rows:[['Max riser height','7¾in (197mm)'],['Min tread depth','10in (254mm)'],['Min stair width','36in (914mm)'],['Headroom','Min 6ft 8in (2.03m)'],['Handrail height','34–38in (864–965mm)']] },
+      { title:'Windows / Ventilation (R303)', rows:[['Glazing area (habitable)','Min 8% floor area'],['Openable ventilation','Min 4% floor area'],['Bathroom ventilation','Min 50 CFM fan or openable window']] },
+    ]
+  },
+  canada:    { label:'Canada (NBC 2020)',
+    sections: [
+      { title:'Ceiling Heights (9.7.2)', rows:[['Habitable rooms','Min 2.1m (6ft 10¾in)'],['Bathroom / WC','Min 1.95m'],['Basement (habitable)','Min 1.95m']] },
+      { title:'Room Sizes (9.5.2)', rows:[['Min floor area (1 room unit)','Min 13.5 m²'],['Bedroom min area','7.0 m²'],['Min room dimension','1.8m']] },
+      { title:'Doors (9.6.2)', rows:[['Exterior door width','Min 810mm'],['Interior door width','Min 810mm'],['Door height','Min 1980mm'],['Accessible entrance','Min 850mm']] },
+      { title:'Stairs (9.8.2)', rows:[['Max riser height','200mm'],['Min tread depth','235mm'],['Min stair width','860mm'],['Headroom','Min 1.95m'],['Handrail height','865–965mm']] },
+      { title:'Windows / Ventilation (9.32)', rows:[['Glazing area (habitable)','Min 1/10 floor area'],['Openable ventilation','Min 1/20 floor area'],['Kitchen exhaust fan','Min 50 L/s'],['Bathroom exhaust','Min 5 ACH or 25 L/s']] },
+    ]
+  },
+  australia: { label:'Australia (NCC 2022)',
+    sections: [
+      { title:'Ceiling Heights (F6C4)', rows:[['Habitable rooms','Min 2.4m'],['Non-habitable (corridor, bathroom)','Min 2.1m'],['Sloped ceiling (at least 2/3 of area)','Min 2.4m']] },
+      { title:'Room Sizes', rows:[['Bedroom (guidance)','Min 7.0 m²'],['Main bedroom (guidance)','Min 10.0 m²'],['Living area (guidance)','Min 12.0 m²']] },
+      { title:'Doors', rows:[['External doorway width','Min 820mm'],['Internal doorway width','Min 820mm'],['Accessible entrance (DTS)','Min 850mm clear'],['Door height','Min 2.0m']] },
+      { title:'Stairs (D3D14)', rows:[['Max riser height','190mm'],['Min tread depth','240mm'],['Min stair width','1000mm (public), 600mm (private)'],['Headroom','Min 2.0m'],['Handrail height','865–1000mm']] },
+      { title:'Ventilation (F4)', rows:[['Habitable room openable area','Min 5% floor area (cooling climate) or mechanical'],['Bathroom exhaust','Min 25 L/s'],['Kitchen exhaust','Min 40 L/s'],['Condensation control','Continuous exhaust in wet areas']] },
+    ]
+  },
+};
+
+var fpRegsCountry = localStorage.getItem('fp-regs-country') || 'scotland';
+
+function fpSetRegsCountry(country) {
+  fpRegsCountry = country;
+  localStorage.setItem('fp-regs-country', country);
+  var sel = document.getElementById('fp-regs-country-sel');
+  if (sel) sel.value = country;
+  fpRenderRegsContent();
 }
+window.fpSetRegsCountry = fpSetRegsCountry;
+
+function fpRenderRegsContent() {
+  var container = document.getElementById('fp-regs-dynamic-content');
+  if (!container) return;
+  var data = FP_REGS_DATA[fpRegsCountry];
+  if (!data) return;
+  // Clear
+  while (container.firstChild) container.removeChild(container.firstChild);
+  // Label
+  var lbl = document.createElement('div');
+  lbl.className = 'fp-regs-note';
+  lbl.style.marginBottom = '8px';
+  lbl.textContent = data.label;
+  container.appendChild(lbl);
+  // Sections
+  data.sections.forEach(function(sec) {
+    var secDiv = document.createElement('div');
+    secDiv.className = 'fp-regs-section';
+    var titleDiv = document.createElement('div');
+    titleDiv.className = 'fp-regs-section-title';
+    titleDiv.textContent = sec.title;
+    secDiv.appendChild(titleDiv);
+    var table = document.createElement('table');
+    table.className = 'fp-regs-table';
+    sec.rows.forEach(function(row) {
+      var tr = document.createElement('tr');
+      var td1 = document.createElement('td'); td1.textContent = row[0];
+      var td2 = document.createElement('td'); td2.textContent = row[1];
+      tr.appendChild(td1); tr.appendChild(td2);
+      table.appendChild(tr);
+    });
+    secDiv.appendChild(table);
+    container.appendChild(secDiv);
+  });
+}
+window.fpRenderRegsContent = fpRenderRegsContent;
+
+// Keep old function name working (redirects to new system)
+function fpSetRegsRegion(region) { fpSetRegsCountry(region); }
 window.fpSetRegsRegion = fpSetRegsRegion;
 
 function fpSetPreset(w, h, sill) {
