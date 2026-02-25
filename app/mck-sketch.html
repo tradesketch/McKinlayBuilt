@@ -18935,6 +18935,8 @@ kbd {
       <button class="fp-tool-btn"        id="fp-btn-undo" onclick="fpUndo()" title="Undo last action (Cmd+Z)">&#8630; Undo</button>
       <button class="fp-tool-btn"        onclick="fpToggleRegs()" title="UK Building Regulations reference">&#128220; Regs</button>
       <button class="fp-tool-btn"        onclick="fpClear()" style="color:#c0392b">&#128465; Clear</button>
+      <button class="fp-tool-btn" onclick="fpExportSVG()" title="Export as SVG vector">&#8659; SVG</button>
+      <button class="fp-tool-btn" onclick="fpExportOBJ()" title="Export 3D as OBJ">&#8659; OBJ</button>
       <button class="fp-tool-btn"        onclick="fpGenerate3D()" style="background:var(--accent);color:#fff;border-color:var(--accent)">&#9654; View 3D</button>
       <div style="display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-left:8px">
         <button class="unit-toggle-btn active" data-units="metric" onclick="fpSetUnits('metric')"
@@ -54860,6 +54862,94 @@ function fpClear() {
   fpSetStatus('Floor plan cleared. Click to start drawing walls.');
 }
 window.fpClear = fpClear;
+
+// ===== SVG / OBJ EXPORT =====
+
+function fpExportSVG() {
+  if (!fpState || fpState.walls.length === 0) {
+    fpSetStatus('Draw some walls first.'); return;
+  }
+  var xs = [], ys = [];
+  fpState.walls.forEach(function(w){ xs.push(w.x1,w.x2); ys.push(w.y1,w.y2); });
+  var minX=Math.min.apply(null,xs), maxX=Math.max.apply(null,xs);
+  var minY=Math.min.apply(null,ys), maxY=Math.max.apply(null,ys);
+  var pad=500, W=maxX-minX+pad*2, H=maxY-minY+pad*2;
+  var sc=800/Math.max(W,H);
+  var svgW=Math.round(W*sc), svgH=Math.round(H*sc);
+  function wx(x){ return Math.round((x-minX+pad)*sc); }
+  function wy(y){ return Math.round((maxY-y+pad)*sc); }
+
+  var lines=['<?xml version="1.0" encoding="UTF-8"?>',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="'+svgW+'" height="'+svgH+'">',
+    '<rect width="'+svgW+'" height="'+svgH+'" fill="#f4f4f0"/>'];
+
+  fpState.walls.forEach(function(w) {
+    var dx=w.x2-w.x1, dy=w.y2-w.y1, len=Math.hypot(dx,dy); if(len<1) return;
+    var t=w.thickness*sc/2, nx=-dy/len*t, ny=dx/len*t;
+    var pts=[[wx(w.x1+nx),wy(w.y1+ny)],[wx(w.x2+nx),wy(w.y2+ny)],
+              [wx(w.x2-nx),wy(w.y2-ny)],[wx(w.x1-nx),wy(w.y1-ny)]];
+    lines.push('<polygon points="'+pts.map(function(p){return p[0]+','+p[1];}).join(' ')+
+      '" fill="#c8c8bc" stroke="#444" stroke-width="0.5"/>');
+  });
+
+  fpState.openings.forEach(function(o) {
+    var w=fpState.walls[o.wallIndex]; if(!w) return;
+    var dx=w.x2-w.x1, dy=w.y2-w.y1, len=Math.hypot(dx,dy); if(len<1) return;
+    var ux=dx/len, uy=dy/len, cx=w.x1+o.t*dx, cy=w.y1+o.t*dy;
+    var p1=[wx(cx-ux*(o.width/2)),wy(cy-uy*(o.width/2))];
+    var p2=[wx(cx+ux*(o.width/2)),wy(cy+uy*(o.width/2))];
+    var col=o.type==='door'?'#2a6ebb':'#3a9a3a';
+    lines.push('<line x1="'+p1[0]+'" y1="'+p1[1]+'" x2="'+p2[0]+'" y2="'+p2[1]+
+      '" stroke="'+col+'" stroke-width="2"/>');
+  });
+
+  var barPx=Math.round(1000*sc);
+  lines.push('<line x1="20" y1="'+(svgH-20)+'" x2="'+(20+barPx)+'" y2="'+(svgH-20)+
+    '" stroke="#333" stroke-width="2"/>');
+  lines.push('<text x="20" y="'+(svgH-25)+'" font-size="10" fill="#333">1m</text>');
+  lines.push('</svg>');
+
+  var blob=new Blob([lines.join('\n')],{type:'image/svg+xml'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a'); a.href=url; a.download='floor-plan.svg';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  fpSetStatus('Floor plan exported as SVG.');
+}
+window.fpExportSVG = fpExportSVG;
+
+function fpExportOBJ() {
+  if (!fpState || fpState.walls.length === 0) {
+    fpSetStatus('Draw some walls first.'); return;
+  }
+  var verts=[], faces=[], vi=1;
+  fpState.walls.forEach(function(w) {
+    var dx=w.x2-w.x1, dy=w.y2-w.y1, len=Math.hypot(dx,dy); if(len<1) return;
+    var ux=dx/len, uy=dy/len, h=w.thickness/2, H=w.height, m=0.001;
+    var nx=-uy*h, ny=ux*h;
+    var c=[[w.x1+nx,0,w.y1+ny],[w.x2+nx,0,w.y2+ny],
+            [w.x2-nx,0,w.y2-ny],[w.x1-nx,0,w.y1-ny],
+            [w.x1+nx,H,w.y1+ny],[w.x2+nx,H,w.y2+ny],
+            [w.x2-nx,H,w.y2-ny],[w.x1-nx,H,w.y1-ny]];
+    c.forEach(function(p){ verts.push('v '+(p[0]*m).toFixed(4)+' '+(p[1]*m).toFixed(4)+' '+(p[2]*m).toFixed(4)); });
+    var base=vi;
+    faces.push('f '+base+' '+(base+1)+' '+(base+2)+' '+(base+3));
+    faces.push('f '+(base+4)+' '+(base+7)+' '+(base+6)+' '+(base+5));
+    faces.push('f '+base+' '+(base+4)+' '+(base+5)+' '+(base+1));
+    faces.push('f '+(base+1)+' '+(base+5)+' '+(base+6)+' '+(base+2));
+    faces.push('f '+(base+2)+' '+(base+6)+' '+(base+7)+' '+(base+3));
+    faces.push('f '+(base+3)+' '+(base+7)+' '+(base+4)+' '+base);
+    vi+=8;
+  });
+  var obj=['# McK Sketch OBJ export','# Units: metres',''].concat(verts).concat(['']).concat(faces).join('\n');
+  var blob=new Blob([obj],{type:'text/plain'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a'); a.href=url; a.download='floor-plan.obj';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  fpSetStatus('3D model exported as OBJ (opens in Blender / SketchUp).');
+}
+window.fpExportOBJ = fpExportOBJ;
 
 // ===== UNIT HELPERS =====
 
