@@ -3816,6 +3816,26 @@ kbd {
   background: var(--accent); color: #fff; padding: 10px 44px 10px 16px;
   font-size: 13px; text-align: center;
 }
+#tutorial-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 3000; pointer-events: none;
+}
+#tutorial-backdrop.active { display: block; pointer-events: all; }
+.tutorial-highlight {
+  position: absolute; border-radius: 6px;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
+  transition: all 0.3s ease; pointer-events: none;
+}
+#tutorial-tooltip {
+  position: absolute; background: var(--bg-panel); color: var(--text-primary);
+  border: 1px solid var(--border); border-radius: 8px; padding: 16px;
+  max-width: 280px; z-index: 3001; pointer-events: all;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+#tutorial-tooltip h3 { margin: 0 0 8px; font-size: 14px; }
+#tutorial-tooltip p  { margin: 0 0 12px; font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.tutorial-btn-row  { display: flex; gap: 8px; justify-content: flex-end; }
+.tutorial-next { background: var(--accent); color: #fff; border: none; border-radius: 4px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-weight: 600; }
+.tutorial-skip { background: none; border: 1px solid var(--border); color: var(--text-secondary); border-radius: 4px; padding: 6px 10px; font-size: 12px; cursor: pointer; }
 #announcement-banner a { color: #fff; font-weight: 700; margin-left: 8px; }
 #ann-dismiss {
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
@@ -16424,6 +16444,10 @@ kbd {
       </div>
 
       <!-- Save / Logout -->
+      <div style="margin-bottom:16px">
+        <div class="dd-section-title" style="margin-bottom:8px">Help</div>
+        <button class="dd-btn dd-btn-secondary" style="font-size:12px" onclick="localStorage.removeItem('mck-tutorial-done');tutorialStart();closeSettings()">&#127793; Restart Floor Plan Tour</button>
+      </div>
       <div style="display:flex;gap:10px;justify-content:space-between;padding-top:16px;border-top:1px solid var(--border)">
         <button class="dd-btn" style="font-size:12px;color:var(--error);background:none;border:1px solid var(--error)" onclick="logout()">Log Out</button>
         <div style="display:flex;gap:10px">
@@ -54670,6 +54694,64 @@ function dismissAnnouncement() {
 }
 window.dismissAnnouncement = dismissAnnouncement;
 
+// ===== GUIDED TUTORIAL =====
+
+var tutorialStep = 0;
+var tutorialSteps = [
+  { id:'fp-btn-wall',       title:'Draw Walls',           desc:'Click Wall, then click two points to draw. Type a number for exact length. Snap to grid for accuracy.' },
+  { id:'fp-btn-door',       title:'Add Doors & Windows',  desc:'Click Door or Window, then click on any wall to place it. Set dimensions in the sidebar.' },
+  { id:'fp-btn-electrical', title:'Electrical Symbols',   desc:'Select a BS7671 symbol from the panel on the left, then click the floor plan to place it. Use Wire to join them.' },
+  { id:'fp-btn-undo',       title:'Undo',                 desc:'Made a mistake? Click Undo or press Cmd+Z (Mac) / Ctrl+Z (Windows).' },
+  { id:null,                title:"You're Ready!",        desc:'Draw your house, then click View 3D to see it. Good luck with your build!' },
+];
+
+function tutorialStart() {
+  if (localStorage.getItem('mck-tutorial-done')) return;
+  tutorialStep = 0;
+  document.getElementById('tutorial-backdrop').classList.add('active');
+  tutorialShow();
+}
+window.tutorialStart = tutorialStart;
+
+function tutorialShow() {
+  var step = tutorialSteps[tutorialStep];
+  document.getElementById('tutorial-title').textContent = step.title;
+  document.getElementById('tutorial-desc').textContent = step.desc;
+  document.getElementById('tutorial-prog').textContent = (tutorialStep+1)+' / '+tutorialSteps.length;
+  document.getElementById('tutorial-next-btn').textContent = tutorialStep === tutorialSteps.length-1 ? 'Done' : 'Next';
+  var hl = document.getElementById('tutorial-hl');
+  var tip = document.getElementById('tutorial-tooltip');
+  if (step.id) {
+    var el = document.getElementById(step.id);
+    if (el) {
+      var rect = el.getBoundingClientRect(), pad = 6;
+      hl.style.left   = (rect.left-pad)+'px';   hl.style.top    = (rect.top-pad)+'px';
+      hl.style.width  = (rect.width+pad*2)+'px'; hl.style.height = (rect.height+pad*2)+'px';
+      var tipTop = rect.bottom + 12;
+      if (tipTop + 180 > window.innerHeight) tipTop = rect.top - 190;
+      tip.style.top  = tipTop+'px';
+      tip.style.left = Math.max(8, Math.min(rect.left, window.innerWidth-290))+'px';
+      tip.style.transform = '';
+    }
+  } else {
+    hl.style.cssText = 'width:0;height:0;box-shadow:none';
+    tip.style.top = '50%'; tip.style.left = '50%'; tip.style.transform = 'translate(-50%,-50%)';
+  }
+}
+
+function tutorialNext() {
+  tutorialStep++;
+  if (tutorialStep >= tutorialSteps.length) { tutorialEnd(); return; }
+  tutorialShow();
+}
+window.tutorialNext = tutorialNext;
+
+function tutorialEnd() {
+  localStorage.setItem('mck-tutorial-done', '1');
+  document.getElementById('tutorial-backdrop').classList.remove('active');
+}
+window.tutorialEnd = tutorialEnd;
+
 // ===== FLOOR PLAN ENGINE =====
 // Full-overlay floor plan: draw walls in 2D, generate 3D view, place items from warehouse.
 
@@ -54773,6 +54855,7 @@ function openFloorPlan() {
   if (fpState.walls.length > 0) fpFitAll();
   else { fpState.panX = fpCanvas.width / 2; fpState.panY = fpCanvas.height / 2; }
   fpRedraw();
+  setTimeout(tutorialStart, 600);
 }
 window.openFloorPlan = openFloorPlan;
 
@@ -56250,5 +56333,17 @@ window.addEventListener('resize',function(){
 
 window.addEventListener('DOMContentLoaded', init);
 </script>
+<div id="tutorial-backdrop">
+  <div class="tutorial-highlight" id="tutorial-hl"></div>
+  <div id="tutorial-tooltip">
+    <h3 id="tutorial-title"></h3>
+    <p id="tutorial-desc"></p>
+    <div class="tutorial-btn-row">
+      <button class="tutorial-skip" onclick="tutorialEnd()">Skip tour</button>
+      <button class="tutorial-next" onclick="tutorialNext()" id="tutorial-next-btn">Next</button>
+    </div>
+    <div id="tutorial-prog" style="text-align:center;font-size:10px;color:var(--text-secondary);margin-top:8px"></div>
+  </div>
+</div>
 </body>
 </html>
