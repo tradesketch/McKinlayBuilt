@@ -18982,6 +18982,60 @@ kbd {
         <div class="fp-sidebar-title">Electrical Symbols</div>
         <div id="fp-elec-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;"></div>
       </div>
+      <div class="fp-sidebar-section" id="fp-wall-finishes">
+        <div class="fp-sidebar-title">External Finish</div>
+        <select id="fp-ext-finish" onchange="fpSetDefaultExtFinish(this.value)"
+          style="width:100%;margin-bottom:8px;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:4px;font-size:11px">
+          <option value="roughcast">Roughcast / Pebbledash</option>
+          <option value="smooth-render">Smooth Render</option>
+          <option value="timber-h">Timber Cladding (Horizontal)</option>
+          <option value="timber-v">Timber Cladding (Vertical)</option>
+          <option value="pvc-cladding">PVC Cladding</option>
+          <option value="stone">Natural Stone</option>
+          <option value="brick">Facing Brick</option>
+          <option value="block-painted">Painted Block</option>
+          <option value="metal-cladding">Metal Cladding</option>
+        </select>
+        <div class="fp-sidebar-title">Internal Finish</div>
+        <select id="fp-int-finish" onchange="fpSetDefaultIntFinish(this.value)"
+          style="width:100%;margin-bottom:8px;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:4px;font-size:11px">
+          <option value="plaster">Plaster (smooth)</option>
+          <option value="plaster-textured">Plaster (textured)</option>
+          <option value="timber-panel">Timber Panelling</option>
+          <option value="mdf-panel">MDF Panelling (painted)</option>
+          <option value="brick-internal">Exposed Brick</option>
+          <option value="tile">Ceramic Tile</option>
+          <option value="stone-internal">Stone</option>
+        </select>
+        <div class="fp-sidebar-title">Paint Colour</div>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
+          <input type="color" id="fp-paint-colour" value="#F5F0EB"
+            onchange="fpSetDefaultPaintColour(this.value)"
+            style="width:36px;height:28px;border:none;border-radius:4px;cursor:pointer;padding:0">
+          <select id="fp-paint-preset" onchange="fpApplyPaintPreset(this.value)"
+            style="flex:1;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:4px;font-size:10px">
+            <option value="">— Farrow &amp; Ball presets —</option>
+            <option value="#F5F0EB">Wimborne White</option>
+            <option value="#E8E0D5">String</option>
+            <option value="#D5C9B8">Elephant's Breath</option>
+            <option value="#C5B9A8">Skimming Stone</option>
+            <option value="#B8C4C2">Mizzle</option>
+            <option value="#8FA39B">Mole's Breath</option>
+            <option value="#4A5A5C">Hague Blue</option>
+            <option value="#2C3E40">Inchyra Blue</option>
+            <option value="#F0E8D5">Clunch</option>
+            <option value="#E5DDD0">Parchment</option>
+          </select>
+        </div>
+        <div class="fp-sidebar-title" style="margin-top:8px">Fascia / Soffit</div>
+        <select id="fp-fascia-mat"
+          style="width:100%;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:4px;font-size:11px">
+          <option value="pvc-white">PVC White</option>
+          <option value="pvc-anthracite">PVC Anthracite Grey</option>
+          <option value="timber-painted">Painted Timber</option>
+          <option value="aluminium">Aluminium</option>
+        </select>
+      </div>
       <div class="fp-sidebar-section">
         <div class="fp-sidebar-title">View</div>
         <div class="fp-prop-row"><label>Grid</label><input type="number" id="fp-grid-size" value="300" min="100" max="1000" step="100" onchange="fpRedraw()"> mm</div>
@@ -54606,6 +54660,10 @@ function fpNewState() {
     typedMeasure: '',   // typed distance for measure tool
     // Typed exact length while drawing
     typedLength: '',
+    // Wall finish defaults
+    defaultExternalFinish: 'roughcast',
+    defaultInternalFinish: 'plaster',
+    defaultPaintColour: '#F5F0EB',
   };
 }
 
@@ -54643,7 +54701,10 @@ function openFloorPlan() {
           if (wlen > 1) {
             fpPushUndo();
             fpState.walls.push({ x1:fpState.startX, y1:fpState.startY, x2:endPt.x, y2:endPt.y,
-              thickness:fpState.wallThickness, height:fpState.wallHeight });
+              thickness:fpState.wallThickness, height:fpState.wallHeight,
+              externalFinish: fpState.defaultExternalFinish,
+              internalFinish: fpState.defaultInternalFinish,
+              paintColour: fpState.defaultPaintColour });
             fpState.drawing = false; fpState.typedLength = '';
             lenInput.value = ''; lenInput.placeholder = 'free';
             fpCanvas.focus();
@@ -55046,6 +55107,54 @@ function fpBuildElecPalette() {
 }
 window.fpBuildElecPalette = fpBuildElecPalette;
 
+// ===== WALL FINISH HELPERS =====
+
+var fp3DExtMatConfig = {
+  'roughcast':      { color:0xd4cfc8, roughness:0.95, metalness:0.0 },
+  'smooth-render':  { color:0xe8e4dc, roughness:0.75, metalness:0.0 },
+  'timber-h':       { color:0xc8924a, roughness:0.7,  metalness:0.0 },
+  'timber-v':       { color:0xb8824a, roughness:0.7,  metalness:0.0 },
+  'pvc-cladding':   { color:0xf0f0f0, roughness:0.4,  metalness:0.05 },
+  'stone':          { color:0x9a9080, roughness:0.9,  metalness:0.0 },
+  'brick':          { color:0xb05030, roughness:0.85, metalness:0.0 },
+  'block-painted':  { color:0xe0ddd8, roughness:0.8,  metalness:0.0 },
+  'metal-cladding': { color:0x9090a0, roughness:0.3,  metalness:0.7 },
+};
+
+function fpSetDefaultExtFinish(val) {
+  if (fpState) fpState.defaultExternalFinish = val;
+  if (fpState && fpState.selectedWall >= 0 && fpState.walls[fpState.selectedWall])
+    fpState.walls[fpState.selectedWall].externalFinish = val;
+  fpRedraw();
+}
+window.fpSetDefaultExtFinish = fpSetDefaultExtFinish;
+
+function fpSetDefaultIntFinish(val) {
+  if (fpState) fpState.defaultInternalFinish = val;
+  if (fpState && fpState.selectedWall >= 0 && fpState.walls[fpState.selectedWall])
+    fpState.walls[fpState.selectedWall].internalFinish = val;
+  fpRedraw();
+}
+window.fpSetDefaultIntFinish = fpSetDefaultIntFinish;
+
+function fpSetDefaultPaintColour(val) {
+  if (fpState) fpState.defaultPaintColour = val;
+  if (fpState && fpState.selectedWall >= 0 && fpState.walls[fpState.selectedWall])
+    fpState.walls[fpState.selectedWall].paintColour = val;
+  fpRedraw();
+}
+window.fpSetDefaultPaintColour = fpSetDefaultPaintColour;
+
+function fpApplyPaintPreset(val) {
+  if (!val) return;
+  var picker = document.getElementById('fp-paint-colour');
+  if (picker) picker.value = val;
+  fpSetDefaultPaintColour(val);
+  var sel = document.getElementById('fp-paint-preset');
+  if (sel) sel.value = '';
+}
+window.fpApplyPaintPreset = fpApplyPaintPreset;
+
 // Coordinate helpers
 function fpW2S(wx, wy) { return { x: fpState.panX + wx * fpState.scale, y: fpState.panY - wy * fpState.scale }; }
 function fpS2W(sx, sy) { return { x: (sx - fpState.panX) / fpState.scale, y: -(sy - fpState.panY) / fpState.scale }; }
@@ -55128,7 +55237,10 @@ function fpMouseDown(e) {
       if (len > fpState.wallThickness) {
         fpPushUndo();
         fpState.walls.push({ x1:fpState.startX, y1:fpState.startY, x2:endPt.x, y2:endPt.y,
-          thickness:fpState.wallThickness, height:fpState.wallHeight });
+          thickness:fpState.wallThickness, height:fpState.wallHeight,
+          externalFinish: fpState.defaultExternalFinish,
+          internalFinish: fpState.defaultInternalFinish,
+          paintColour: fpState.defaultPaintColour });
         fpState.drawing = false;
         fpState.typedLength = '';
         var lenEl = document.getElementById('fp-exact-length');
@@ -55334,7 +55446,10 @@ document.addEventListener('keydown', function(e) {
         if (wlen2 > 1) {
           fpPushUndo();
           fpState.walls.push({ x1:fpState.startX, y1:fpState.startY, x2:endPt2.x, y2:endPt2.y,
-            thickness:fpState.wallThickness, height:fpState.wallHeight });
+            thickness:fpState.wallThickness, height:fpState.wallHeight,
+            externalFinish: fpState.defaultExternalFinish,
+            internalFinish: fpState.defaultInternalFinish,
+            paintColour: fpState.defaultPaintColour });
           fpState.drawing = false; fpState.typedLength = '';
           if (lenEl3) { lenEl3.value = ''; lenEl3.placeholder = 'free'; }
           fpSetStatus('Wall placed. Click to start next wall.');
@@ -55487,7 +55602,9 @@ function fpDraw2DWalls(ctx) {
     ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     pts.slice(1).forEach(function(p){ ctx.lineTo(p.x, p.y); });
     ctx.closePath();
-    ctx.fillStyle = i === fpState.selectedWall ? '#b8d4ff' : '#c8c8bc';
+    var cfg = fp3DExtMatConfig[w.externalFinish] || fp3DExtMatConfig['roughcast'];
+    var r = (cfg.color >> 16) & 0xff, g = (cfg.color >> 8) & 0xff, b = cfg.color & 0xff;
+    ctx.fillStyle = i === fpState.selectedWall ? '#b8d4ff' : ('rgb('+r+','+g+','+b+')');
     ctx.fill(); ctx.strokeStyle = '#444'; ctx.lineWidth = 1; ctx.stroke();
     if (fpState.scale > 0.07) {
       var len = Math.round(Math.hypot(w.x2-w.x1, w.y2-w.y1));
