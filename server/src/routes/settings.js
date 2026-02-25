@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', requireAuth, (req, res) => {
   const db = getDb();
   const settings = db.prepare(
-    'SELECT weather_city, spotify_access_token FROM user_settings WHERE user_id = ?'
+    'SELECT weather_city FROM user_settings WHERE user_id = ?'
   ).get(req.userId);
 
   const user = db.prepare(
@@ -17,7 +17,6 @@ router.get('/', requireAuth, (req, res) => {
 
   res.json({
     weatherCity: settings?.weather_city || 'Clydebank',
-    spotifyConnected: !!settings?.spotify_access_token,
     displayName: user?.display_name || ''
   });
 });

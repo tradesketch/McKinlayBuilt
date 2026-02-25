@@ -9,7 +9,6 @@ const authRoutes = require('./src/routes/auth');
 const weatherRoutes = require('./src/routes/weather');
 const smsRoutes = require('./src/routes/sms');
 const emailRoutes = require('./src/routes/email');
-const spotifyRoutes = require('./src/routes/spotify');
 const settingsRoutes = require('./src/routes/settings');
 const warehouseRoutes = require('./src/routes/warehouse');
 
@@ -43,7 +42,6 @@ app.use('/auth', authLimiter, authRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/sms', smsRoutes);
 app.use('/api/email', emailRoutes);
-app.use('/api/spotify', spotifyRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/warehouse', warehouseRoutes);
 
