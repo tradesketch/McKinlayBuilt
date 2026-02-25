@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { autoUpdater } = require('electron-updater');
 
 // Only load electron-reload in dev (crashes in production builds)
 if (!app.isPackaged) {
@@ -31,10 +32,20 @@ function createWindow() {
 
   mainWindow.loadFile('app/mck-sketch.html');
 
+  mainWindow.webContents.on('did-finish-load', function() {
+    if (app.isPackaged) autoUpdater.checkForUpdatesAndNotify();
+  });
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
 }
+
+autoUpdater.on('update-downloaded', function(info) {
+  if (mainWindow) mainWindow.webContents.send('update-downloaded', info.version);
+});
+
+ipcMain.on('restart-and-update', function() { autoUpdater.quitAndInstall(); });
 
 // ===== CONFIG =====
 
