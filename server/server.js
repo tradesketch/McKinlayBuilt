@@ -13,6 +13,7 @@ const settingsRoutes = require('./src/routes/settings');
 const warehouseRoutes = require('./src/routes/warehouse');
 const announcementRoutes = require('./src/routes/announcements');
 const feedbackRoutes = require('./src/routes/feedback');
+const newsletterRoutes = require('./src/routes/newsletter');
 
 const app = express();
 const PORT = process.env.PORT || 3141;
@@ -49,6 +50,7 @@ app.use('/api/warehouse', warehouseRoutes);
 app.use('/api/announcements', announcementRoutes);
 const feedbackLimiter = rateLimit({ windowMs: 60*60*1000, max: 10 });
 app.use('/api/feedback', feedbackLimiter, feedbackRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

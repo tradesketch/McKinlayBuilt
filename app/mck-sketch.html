@@ -16474,6 +16474,19 @@ kbd {
         </div>
       </div>
 
+      <!-- Newsletter -->
+      <div style="padding:16px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">Stay updated</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">Get notified about new features.</div>
+        <div style="display:flex;gap:6px">
+          <input type="email" id="nl-email" placeholder="your@email.com"
+            style="flex:1;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:12px">
+          <button onclick="subscribeNewsletter()"
+            style="background:var(--accent);color:#fff;border:none;border-radius:4px;padding:6px 12px;font-size:12px;cursor:pointer">Subscribe</button>
+        </div>
+        <div id="nl-status" style="font-size:11px;margin-top:6px;color:var(--text-secondary)"></div>
+      </div>
+
       <!-- Save / Logout -->
       <div style="margin-bottom:16px">
         <div class="dd-section-title" style="margin-bottom:8px">Help</div>
@@ -54632,6 +54645,26 @@ async function submitFeedback() {
   }
 }
 window.submitFeedback = submitFeedback;
+
+// ===== NEWSLETTER =====
+
+async function subscribeNewsletter() {
+  var email = document.getElementById('nl-email').value.trim();
+  var statusEl = document.getElementById('nl-status');
+  if (!email || !email.includes('@')) { statusEl.textContent = 'Enter a valid email.'; return; }
+  statusEl.textContent = 'Subscribing...';
+  try {
+    var r = await fetch('http://localhost:3141/api/newsletter/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    });
+    statusEl.textContent = r.ok ? 'Subscribed! Thanks.' : 'Error — try again.';
+  } catch(e) {
+    statusEl.textContent = 'Network error.';
+  }
+}
+window.subscribeNewsletter = subscribeNewsletter;
 
 // ===== GUIDED TUTORIAL =====
 
