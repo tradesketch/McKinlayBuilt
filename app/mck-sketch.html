@@ -4046,6 +4046,119 @@ kbd {
   font-weight: 600; cursor: pointer;
 }
 .wh-place-btn:hover { filter: brightness(1.1); }
+
+/* ===== FLOOR PLAN ===== */
+#floorplan-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--bg-app); z-index: 900;
+  display: none; flex-direction: column;
+}
+#floorplan-overlay.active { display: flex; }
+.fp-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 16px; height: 44px; min-height: 44px;
+  background: var(--bg-panel); border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.fp-header h2 { font-size: 15px; font-weight: 600; margin: 0; }
+.fp-tools { display: flex; gap: 4px; margin-left: 8px; }
+.fp-tool-btn {
+  padding: 5px 10px; font-size: 12px; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text-primary); cursor: pointer; white-space: nowrap;
+}
+.fp-tool-btn:hover { background: var(--bg-hover); }
+.fp-tool-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.fp-elec-sym-btn {
+  padding: 4px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-surface); cursor: pointer; display: flex;
+  flex-direction: column; align-items: center; transition: border-color 0.15s;
+}
+.fp-elec-sym-btn:hover, .fp-elec-sym-btn.active { border-color: var(--accent); background: var(--bg-hover); }
+.fp-close { margin-left: auto; background: none; border: none; font-size: 22px; color: var(--text-secondary); cursor: pointer; line-height: 1; padding: 0 4px; }
+.fp-close:hover { color: var(--text-primary); }
+.fp-body { flex: 1; display: flex; overflow: hidden; }
+.fp-2d-panel { flex: 1; position: relative; overflow: hidden; background: #f8f8f6; }
+#fp-canvas { display: block; cursor: crosshair; }
+.fp-2d-panel.tool-select #fp-canvas { cursor: default; }
+.fp-2d-panel.tool-door #fp-canvas,
+.fp-2d-panel.tool-window #fp-canvas { cursor: cell; }
+.fp-3d-panel {
+  width: 50%; min-width: 300px; border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+}
+.fp-3d-header {
+  padding: 8px 12px; background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; font-size: 12px;
+  color: var(--text-secondary);
+}
+.fp-3d-container { flex: 1; background: #1a1a1e; position: relative; overflow: hidden; }
+.fp-status {
+  position: absolute; bottom: 8px; left: 8px;
+  font-size: 11px; color: var(--text-muted);
+  background: var(--bg-panel); padding: 3px 8px;
+  border-radius: 4px; border: 1px solid var(--border);
+  pointer-events: none;
+}
+.fp-dim-label {
+  position: absolute; font-size: 10px; color: #666;
+  background: rgba(255,255,255,0.9); padding: 1px 4px;
+  border-radius: 2px; pointer-events: none; white-space: nowrap;
+}
+.fp-sidebar {
+  width: 180px; border-right: 1px solid var(--border);
+  background: var(--bg-panel); display: flex; flex-direction: column;
+  overflow-y: auto; flex-shrink: 0;
+}
+.fp-sidebar-section { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.fp-sidebar-title { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.fp-prop-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; }
+.fp-prop-row label { color: var(--text-secondary); }
+.fp-prop-row input { width: 70px; padding: 2px 6px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-size: 12px; text-align: right; }
+.fp-room-list { padding: 8px 12px; }
+.fp-preset-btn { font-size: 10px; padding: 2px 6px; background: var(--bg-control,#2a2a3a); border: 1px solid var(--border); border-radius: 3px; cursor: pointer; color: var(--text-primary,#eee); }
+.fp-preset-btn:hover { background: var(--accent,#4a9eff); color: #fff; }
+.fp-presets { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.fp-room-item { font-size: 12px; padding: 4px 8px; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.fp-room-item:hover { background: var(--bg-hover); }
+/* Regs panel */
+.fp-regs-panel {
+  position: absolute; top: 8px; left: 192px; z-index: 10;
+  width: 340px; max-height: calc(100% - 16px);
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.fp-regs-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px 0; flex-shrink: 0;
+}
+.fp-regs-header span { font-size: 13px; font-weight: 600; flex: 1; }
+.fp-regs-tabs { display: flex; gap: 4px; }
+.fp-regs-tab {
+  font-size: 11px; padding: 3px 10px; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text-secondary); cursor: pointer;
+}
+.fp-regs-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.fp-regs-close { background: none; border: none; font-size: 18px; color: var(--text-secondary); cursor: pointer; line-height: 1; padding: 0 2px; margin-left: 4px; }
+.fp-regs-close:hover { color: var(--text-primary); }
+.fp-regs-body { overflow-y: auto; padding: 10px 12px 12px; flex: 1; }
+.fp-regs-section { margin-bottom: 10px; }
+.fp-regs-section-title {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--accent,#4a9eff);
+  margin-bottom: 4px; padding-bottom: 3px;
+  border-bottom: 1px solid var(--border);
+}
+.fp-regs-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.fp-regs-table td { padding: 3px 4px; vertical-align: top; }
+.fp-regs-table td:first-child { color: var(--text-secondary); width: 55%; }
+.fp-regs-table td:last-child { color: var(--text-primary); font-weight: 500; text-align: right; }
+.fp-regs-table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+.fp-regs-note { font-size: 10px; color: var(--text-muted,#888); margin-top: 6px; line-height: 1.4; font-style: italic; }
+.fp-room-item.selected { background: rgba(var(--accent-rgb),0.15); }
   </style>
 </head>
 <body>
@@ -4228,6 +4341,7 @@ kbd {
           <div class="menu-opt" onclick="openTimesheet()">Timesheet Tracker</div>
         </div>
       </div>
+      <div class="menu-item" onclick="openFloorPlan()" style="cursor:pointer">Floor Plan</div>
       <div class="menu-item" onclick="openWarehouse()" style="cursor:pointer">Warehouse</div>
       <div class="menu-item" onclick="openSettings()" style="cursor:pointer">Settings</div>
     </nav>
@@ -19194,6 +19308,230 @@ kbd {
   </div>
 </div>
 
+<!-- ===== FLOOR PLAN ===== -->
+<div id="floorplan-overlay">
+  <div class="fp-header">
+    <h2>Floor Plan</h2>
+    <div class="fp-tools">
+      <button class="fp-tool-btn active" id="fp-btn-wall"    onclick="fpSetTool('wall')">&#9645; Wall</button>
+      <button class="fp-tool-btn"        id="fp-btn-door"    onclick="fpSetTool('door')">&#128682; Door</button>
+      <button class="fp-tool-btn"        id="fp-btn-window"  onclick="fpSetTool('window')">&#9633; Window</button>
+      <button class="fp-tool-btn"        id="fp-btn-select"  onclick="fpSetTool('select')">&#9654; Select</button>
+      <button class="fp-tool-btn"        id="fp-btn-measure"     onclick="fpSetTool('measure')"     title="Tape Measure - click two points to measure distance">&#8596; Measure</button>
+      <button class="fp-tool-btn"        id="fp-btn-electrical"  onclick="fpSetTool('electrical')"  title="Place Electrical Symbol (BS 7671)">&#9889; Symbol</button>
+      <button class="fp-tool-btn"        id="fp-btn-wire"        onclick="fpSetTool('wire')"        title="Draw Wire Run">&#9135; Wire</button>
+      <button class="fp-tool-btn"        id="fp-btn-undo" onclick="fpUndo()" title="Undo last action (Cmd+Z)">&#8630; Undo</button>
+      <button class="fp-tool-btn"        onclick="fpToggleRegs()" title="UK Building Regulations reference">&#128220; Regs</button>
+      <button class="fp-tool-btn"        onclick="fpClear()" style="color:#c0392b">&#128465; Clear</button>
+      <button class="fp-tool-btn"        onclick="fpGenerate3D()" style="background:var(--accent);color:#fff;border-color:var(--accent)">&#9654; View 3D</button>
+    </div>
+    <button class="fp-close" onclick="closeFloorPlan()">&times;</button>
+  </div>
+  <div class="fp-body">
+    <div class="fp-sidebar">
+      <div class="fp-sidebar-section">
+        <div class="fp-sidebar-title">Wall</div>
+        <div class="fp-prop-row"><label>Thickness</label><input type="number" id="fp-wall-thickness" value="300" min="50" max="600" step="1" onchange="fpUpdateDefaults()"> mm</div>
+        <div class="fp-presets" style="margin-bottom:6px">
+          <button class="fp-preset-btn" onclick="fpSetThickness(70)"  title="3×2 CLS (45×70mm dressed)">3×2</button>
+          <button class="fp-preset-btn" onclick="fpSetThickness(95)"  title="4×2 CLS (45×95mm dressed)">4×2</button>
+          <button class="fp-preset-btn" onclick="fpSetThickness(145)" title="6×2 CLS (45×145mm dressed)">6×2</button>
+          <button class="fp-preset-btn" onclick="fpSetThickness(150)" title="6 inch block (150mm)">6&#34; blk</button>
+          <button class="fp-preset-btn" onclick="fpSetThickness(300)" title="External timber kit (300mm)">Ext</button>
+        </div>
+        <div class="fp-prop-row"><label>Height</label><input type="number" id="fp-wall-height" value="2400" min="1800" max="4000" step="100" onchange="fpUpdateDefaults()"> mm</div>
+        <div class="fp-prop-row" id="fp-length-row" style="display:none"><label>Length</label><input type="text" id="fp-exact-length" placeholder="free" autocomplete="off"> mm</div>
+      </div>
+      <div class="fp-sidebar-section" id="fp-opening-opts" style="display:none">
+        <div class="fp-sidebar-title" id="fp-opening-title">Door</div>
+        <div class="fp-prop-row"><label>Width</label><input type="number" id="fp-op-width" value="900" min="300" max="3600" step="1"> mm</div>
+        <div class="fp-prop-row"><label>Height</label><input type="number" id="fp-op-height" value="2100" min="500" max="3000" step="1"> mm</div>
+        <div class="fp-prop-row" id="fp-sill-row" style="display:none"><label>Sill</label><input type="number" id="fp-op-sill" value="900" min="0" max="2000" step="1"> mm</div>
+        <div class="fp-presets" id="fp-door-presets">
+          <button class="fp-preset-btn" onclick="fpSetPreset(762,2040)">762</button>
+          <button class="fp-preset-btn" onclick="fpSetPreset(838,2040)">838</button>
+          <button class="fp-preset-btn" onclick="fpSetPreset(914,2040)">914</button>
+          <button class="fp-preset-btn" onclick="fpSetPreset(1200,2040)">1200</button>
+        </div>
+        <div class="fp-presets" id="fp-win-presets" style="display:none">
+          <button class="fp-preset-btn" onclick="fpSetPreset(600,900,900)">600</button>
+          <button class="fp-preset-btn" onclick="fpSetPreset(900,1050,900)">900</button>
+          <button class="fp-preset-btn" onclick="fpSetPreset(1200,1050,900)">1200</button>
+          <button class="fp-preset-btn" onclick="fpSetPreset(1800,1050,900)">1800</button>
+        </div>
+      </div>
+      <div class="fp-sidebar-section" id="fp-elec-palette" style="display:none">
+        <div class="fp-sidebar-title">Electrical Symbols</div>
+        <div id="fp-elec-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;"></div>
+      </div>
+      <div class="fp-sidebar-section">
+        <div class="fp-sidebar-title">View</div>
+        <div class="fp-prop-row"><label>Grid</label><input type="number" id="fp-grid-size" value="300" min="100" max="1000" step="100" onchange="fpRedraw()"> mm</div>
+      </div>
+      <div class="fp-sidebar-section">
+        <div class="fp-sidebar-title">Rooms</div>
+        <div id="fp-room-list" class="fp-room-list"></div>
+      </div>
+    </div>
+    <div class="fp-2d-panel" id="fp-2d-panel">
+      <canvas id="fp-canvas" tabindex="0"></canvas>
+      <div class="fp-status" id="fp-status">Click to place walls. Snap to grid.</div>
+
+      <!-- Building Regulations Panel -->
+      <div class="fp-regs-panel" id="fp-regs-panel" style="display:none">
+        <div class="fp-regs-header">
+          <span>&#128220; Building Regulations</span>
+          <div class="fp-regs-tabs">
+            <button class="fp-regs-tab active" id="fp-regs-tab-scotland" onclick="fpSetRegsRegion('scotland')">Scotland</button>
+            <button class="fp-regs-tab"        id="fp-regs-tab-england"  onclick="fpSetRegsRegion('england')">England &amp; Wales</button>
+          </div>
+          <button class="fp-regs-close" onclick="fpToggleRegs()">&times;</button>
+        </div>
+        <div class="fp-regs-body">
+
+          <!-- SCOTLAND -->
+          <div id="fp-regs-scotland-content">
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Ceiling Heights (Section 3.10)</div>
+              <table class="fp-regs-table">
+                <tr><td>Habitable rooms</td><td>Min 2.1m</td></tr>
+                <tr><td>Kitchen / utility</td><td>Min 2.1m</td></tr>
+                <tr><td>Bathroom / WC</td><td>Min 2.0m</td></tr>
+                <tr><td>Loft conversion (50% area)</td><td>Min 2.1m</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Room Sizes (Guidance)</div>
+              <table class="fp-regs-table">
+                <tr><td>Single bedroom</td><td>Min 7.0 m²</td></tr>
+                <tr><td>Double bedroom</td><td>Min 10.0 m²</td></tr>
+                <tr><td>Kitchen (standalone)</td><td>Min 5.5 m²</td></tr>
+                <tr><td>Habitable room min width</td><td>2.1m</td></tr>
+                <tr><td>Living room</td><td>Min 13.0 m²</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Doors &amp; Openings (Section 4.1)</div>
+              <table class="fp-regs-table">
+                <tr><td>Main entrance clear width</td><td>Min 775mm</td></tr>
+                <tr><td>Internal doors clear width</td><td>Min 750mm</td></tr>
+                <tr><td>Wheelchair accessible</td><td>Min 900mm</td></tr>
+                <tr><td>Door height</td><td>Min 2.0m</td></tr>
+                <tr><td>Threshold</td><td>Max 15mm rise</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Circulation (Section 4.1)</div>
+              <table class="fp-regs-table">
+                <tr><td>Hallway / corridor width</td><td>Min 900mm</td></tr>
+                <tr><td>Landing size</td><td>Min 900×900mm</td></tr>
+                <tr><td>Accessible toilet turning</td><td>1500mm dia.</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Stairs (Section 4.3)</div>
+              <table class="fp-regs-table">
+                <tr><td>Max rise</td><td>220mm</td></tr>
+                <tr><td>Min rise</td><td>150mm</td></tr>
+                <tr><td>Min going</td><td>225mm</td></tr>
+                <tr><td>Min stair width</td><td>800mm</td></tr>
+                <tr><td>Headroom</td><td>Min 2.0m</td></tr>
+                <tr><td>Max pitch</td><td>42°</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Windows / Ventilation (Section 3.14)</div>
+              <table class="fp-regs-table">
+                <tr><td>Habitable room daylight</td><td>Min 10% floor area</td></tr>
+                <tr><td>Habitable room ventilation</td><td>Min 1/30 floor area</td></tr>
+                <tr><td>Background ventilator</td><td>Min 8000mm²</td></tr>
+                <tr><td>Bathroom ventilation</td><td>15 l/s extract (fan)</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-note">Scottish Building Standards — Technical Handbooks Domestic. Always verify with local authority building control.</div>
+          </div>
+
+          <!-- ENGLAND & WALES -->
+          <div id="fp-regs-england-content" style="display:none">
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Ceiling Heights (No statutory min)</div>
+              <table class="fp-regs-table">
+                <tr><td>Habitable rooms (guidance)</td><td>Min 2.3m</td></tr>
+                <tr><td>Loft conversion (50% area)</td><td>Min 2.1m</td></tr>
+                <tr><td>Basement habitable</td><td>Min 2.1m</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Room Sizes — NDSS / Part M</div>
+              <table class="fp-regs-table">
+                <tr><td>1-bed flat (1 person)</td><td>Min 39 m²</td></tr>
+                <tr><td>1-bed flat (2 person)</td><td>Min 50 m²</td></tr>
+                <tr><td>2-bed flat (3 person)</td><td>Min 61 m²</td></tr>
+                <tr><td>Single bedroom</td><td>Min 7.5 m²</td></tr>
+                <tr><td>Double / twin bedroom</td><td>Min 11.5 m²</td></tr>
+                <tr><td>Single bedroom width</td><td>Min 2.15m</td></tr>
+                <tr><td>Double bedroom width</td><td>Min 2.75m</td></tr>
+                <tr><td>Storage (1-bed)</td><td>Min 1.0 m²</td></tr>
+                <tr><td>Storage (2-bed)</td><td>Min 1.5 m²</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Doors &amp; Openings (Part M)</div>
+              <table class="fp-regs-table">
+                <tr><td>Main entrance clear width</td><td>Min 775mm</td></tr>
+                <tr><td>Internal doors clear width</td><td>Min 750mm</td></tr>
+                <tr><td>Cat 2 (accessible) entrance</td><td>Min 850mm</td></tr>
+                <tr><td>Cat 2 internal doors</td><td>Min 775mm</td></tr>
+                <tr><td>Door height</td><td>Min 2.0m</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Circulation (Part M)</div>
+              <table class="fp-regs-table">
+                <tr><td>Hallway width (straight)</td><td>Min 1200mm</td></tr>
+                <tr><td>Hallway width (with turn)</td><td>Min 1200mm</td></tr>
+                <tr><td>Landing size</td><td>Min 900×900mm</td></tr>
+                <tr><td>WC turning circle</td><td>1500mm dia.</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Stairs (Part K)</div>
+              <table class="fp-regs-table">
+                <tr><td>Max rise (private)</td><td>220mm</td></tr>
+                <tr><td>Min going (private)</td><td>220mm</td></tr>
+                <tr><td>Min stair width (private)</td><td>600mm</td></tr>
+                <tr><td>Headroom</td><td>Min 2.0m</td></tr>
+                <tr><td>Max pitch (private)</td><td>42°</td></tr>
+                <tr><td>Handrail height</td><td>900–1000mm</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-section">
+              <div class="fp-regs-section-title">Windows / Ventilation (Part F)</div>
+              <table class="fp-regs-table">
+                <tr><td>Habitable room ventilation</td><td>Min 1/20 floor area</td></tr>
+                <tr><td>Background ventilator</td><td>Min 8000mm²</td></tr>
+                <tr><td>Kitchen extract</td><td>30 l/s (adjacent hob) or 60 l/s</td></tr>
+                <tr><td>Bathroom extract</td><td>15 l/s (fan) or 4 ACH</td></tr>
+              </table>
+            </div>
+            <div class="fp-regs-note">England &amp; Wales Approved Documents (2024). NDSS applies to dwellings in GLA / many councils. Always verify with local building control.</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="fp-3d-panel">
+      <div class="fp-3d-header">
+        <span>3D View</span>
+        <button class="fp-tool-btn" onclick="fpGenerate3D()" style="padding:3px 8px">&#8635; Rebuild</button>
+        <button class="fp-tool-btn" onclick="fp3DOrbit()" id="fp-btn-orbit" style="padding:3px 8px">Orbit</button>
+        <button class="fp-tool-btn" onclick="fp3DWalk()"  id="fp-btn-walk"  style="padding:3px 8px">Walk</button>
+      </div>
+      <div class="fp-3d-container" id="fp-3d-container"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ===== McK WAREHOUSE ===== -->
 <div id="warehouse-overlay">
   <div class="wh-header">
@@ -22413,7 +22751,10 @@ window.mck3D = {
   addRoomContext,
   autoFrameCamera,
   THREE,
-  RoundedBoxGeometry
+  RoundedBoxGeometry,
+  GLTFLoader,
+  OrbitControls,
+  RoomEnvironment
 };
 </script>
 
@@ -54576,12 +54917,26 @@ function fpDrawShape(ctx,shape,sc,ox,oy){
 // ===== END FLOOR PLAN TOOLS =====
 
 // ===== McK WAREHOUSE =====
+// THREE.js objects live in the ES module — pull them through window.mck3D
+var THREE, GLTFLoader, OrbitControls, RoomEnvironment;
+document.addEventListener('DOMContentLoaded', function() {
+  THREE = window.mck3D.THREE;
+  GLTFLoader = window.mck3D.GLTFLoader;
+  OrbitControls = window.mck3D.OrbitControls;
+  RoomEnvironment = window.mck3D.RoomEnvironment;
+  whInit();
+});
+
 let whCategories = {};
 let whItems = [];
 let whCurrentCategory = null;
 let whCurrentSubcategory = null;
 let whDetailScene = null;
-const gltfLoader = new GLTFLoader();
+let gltfLoader;
+
+function whInit() {
+  gltfLoader = new GLTFLoader();
+}
 
 async function openWarehouse() {
   document.getElementById('warehouse-overlay').classList.add('active');
@@ -54709,6 +55064,7 @@ function getCategoryIcon(cat) {
 }
 
 async function whShowDetail(id) {
+  window.whCurrentItemId = id;
   try {
     const config = await window.api.getConfig();
     const res = await fetch('http://localhost:3141/api/warehouse/item/' + id, { headers: { 'Authorization': 'Bearer ' + config.authToken } });
@@ -54733,36 +55089,11 @@ async function whShowDetail(id) {
     subMeta.textContent = 'Subcategory: ' + (item.subcategory || '\u2014');
     infoEl.appendChild(subMeta);
 
-    const typeMeta = document.createElement('div');
-    typeMeta.className = 'wh-detail-meta';
-    typeMeta.textContent = 'Type: ' + item.type;
-    infoEl.appendChild(typeMeta);
-
     if (item.tags) {
       const tagsMeta = document.createElement('div');
       tagsMeta.className = 'wh-detail-meta';
       tagsMeta.textContent = 'Tags: ' + item.tags;
       infoEl.appendChild(tagsMeta);
-    }
-
-    if (item.description) {
-      const descEl = document.createElement('div');
-      descEl.style.cssText = 'margin-top:12px;font-size:13px;color:var(--text-secondary)';
-      descEl.textContent = item.description;
-      infoEl.appendChild(descEl);
-    }
-
-    if (item.parameters) {
-      const paramWrap = document.createElement('div');
-      paramWrap.style.cssText = 'margin-top:12px;font-size:11px;color:var(--text-muted)';
-      const paramLabel = document.createElement('b');
-      paramLabel.textContent = 'Parameters:';
-      paramWrap.appendChild(paramLabel);
-      const paramPre = document.createElement('pre');
-      paramPre.style.cssText = 'margin-top:4px;white-space:pre-wrap';
-      paramPre.textContent = JSON.stringify(JSON.parse(item.parameters), null, 2);
-      paramWrap.appendChild(paramPre);
-      infoEl.appendChild(paramWrap);
     }
 
     const placeBtn = document.createElement('button');
@@ -54771,14 +55102,173 @@ async function whShowDetail(id) {
     placeBtn.onclick = function() { whPlaceItem(item.id); };
     infoEl.appendChild(placeBtn);
 
+    // Admin: capture thumbnail from 3D preview
+    if (config.userId === 1) {
+      const thumbBtn = document.createElement('button');
+      thumbBtn.className = 'wh-place-btn';
+      thumbBtn.style.cssText = 'margin-top:8px;background:var(--bg-panel);color:var(--text-secondary);border:1px solid var(--border)';
+      thumbBtn.textContent = 'Capture Thumbnail';
+      thumbBtn.onclick = function() { whCaptureThumbnail(item.id, config.authToken, thumbBtn); };
+      infoEl.appendChild(thumbBtn);
+    }
+
     document.getElementById('wh-detail').classList.add('active');
+
+    // Start 3D preview
+    whRenderPreview(item);
   } catch (e) { console.error('Warehouse detail error:', e); }
 }
 window.whShowDetail = whShowDetail;
 
+function whRenderPreview(item) {
+  if (whDetailScene) { whDetailScene.dispose(); whDetailScene = null; }
+  const container = document.getElementById('wh-detail-preview');
+  container.textContent = '';
+
+  if (!item.model_filename) {
+    container.style.cssText = 'display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px';
+    container.textContent = 'No model available';
+    return;
+  }
+  container.style.cssText = '';
+
+  const w = container.clientWidth || 600;
+  const h = container.clientHeight || 500;
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled = true;
+  container.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x1a1a1e);
+
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environment = envTex;
+  pmrem.dispose();
+
+  const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+  const key = new THREE.DirectionalLight(0xffffff, 2.0);
+  key.position.set(2, 4, 3); key.castShadow = true;
+  const fill = new THREE.DirectionalLight(0xc8d8f0, 0.6);
+  fill.position.set(-3, 2, -2);
+  const rim = new THREE.DirectionalLight(0xf0e8d0, 0.8);
+  rim.position.set(1, -1, -3);
+  scene.add(ambient, key, fill, rim);
+
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(4, 4),
+    new THREE.MeshStandardMaterial({ color: 0x222228, roughness: 0.8, metalness: 0.1 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  const camera = new THREE.PerspectiveCamera(35, w / h, 0.001, 100);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  const loader = new GLTFLoader();
+  loader.load('http://localhost:3141/api/warehouse/item/' + item.id + '/model', function(gltf) {
+    const model = gltf.scene;
+    model.traverse(function(child) {
+      if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; }
+    });
+
+    const box3 = new THREE.Box3().setFromObject(model);
+    const size = box3.getSize(new THREE.Vector3());
+    const center = box3.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+
+    model.position.y -= box3.min.y;
+    center.y = size.y / 2;
+    scene.add(model);
+
+    const dist = maxDim * 2.2;
+    camera.position.set(center.x + dist * 0.7, center.y + dist * 0.5, center.z + dist * 0.7);
+    camera.near = maxDim * 0.001;
+    camera.far = maxDim * 50;
+    camera.updateProjectionMatrix();
+    controls.target.copy(center);
+    controls.update();
+  }, undefined, function(err) {
+    console.error('Preview load error:', err);
+  });
+
+  let animId;
+  function animate() {
+    animId = requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  const ro = new ResizeObserver(function() {
+    const nw = container.clientWidth, nh = container.clientHeight;
+    renderer.setSize(nw, nh);
+    camera.aspect = nw / nh;
+    camera.updateProjectionMatrix();
+  });
+  ro.observe(container);
+
+  whDetailScene = {
+    dispose() {
+      cancelAnimationFrame(animId);
+      ro.disconnect();
+      controls.dispose();
+      renderer.dispose();
+      envTex.dispose();
+      scene.traverse(function(child) {
+        if (child.isMesh) {
+          child.geometry.dispose();
+          if (Array.isArray(child.material)) {
+            child.material.forEach(function(m) { m.dispose(); });
+          } else if (child.material) {
+            child.material.dispose();
+          }
+        }
+      });
+      container.textContent = '';
+    }
+  };
+}
+
+async function whCaptureThumbnail(id, authToken, btn) {
+  const canvas = document.querySelector('#wh-detail-preview canvas');
+  if (!canvas) { alert('3D preview not ready'); return; }
+  const dataUrl = canvas.toDataURL('image/png');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('http://localhost:3141/api/warehouse/item/' + id + '/thumbnail', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dataUrl })
+    });
+    if (res.ok) {
+      btn.textContent = 'Saved!';
+      await whLoadItems();
+    } else {
+      btn.textContent = 'Failed';
+    }
+  } catch (e) {
+    console.error('Thumbnail capture error:', e);
+    btn.textContent = 'Error';
+  }
+  setTimeout(function() { btn.textContent = 'Capture Thumbnail'; btn.disabled = false; }, 2000);
+}
+window.whCaptureThumbnail = whCaptureThumbnail;
+
 function whCloseDetail() {
   document.getElementById('wh-detail').classList.remove('active');
   if (whDetailScene) { whDetailScene.dispose(); whDetailScene = null; }
+  window.whCurrentItemId = null;
 }
 window.whCloseDetail = whCloseDetail;
 
@@ -54788,8 +55278,6 @@ async function whPlaceItem(id) {
   try {
     const config = await window.api.getConfig();
     const modelUrl = 'http://localhost:3141/api/warehouse/item/' + id + '/model';
-
-    gltfLoader.setRequestHeader({ 'Authorization': 'Bearer ' + config.authToken });
 
     gltfLoader.load(
       modelUrl,
@@ -54831,17 +55319,20 @@ async function whPlaceItem(id) {
         }
 
         // Fallback: try the room viewer
-        if (rvState && rvState.scene) {
+        if (typeof rvState !== 'undefined' && rvState && rvState.scene) {
+          // Sit on floor (y=0)
+          const b = new THREE.Box3().setFromObject(model);
+          model.position.y = -b.min.y;
           rvState.scene.add(model);
-          console.log('Placed warehouse item', id, 'in room viewer');
           return;
         }
 
-        console.warn('No active 3D scene found to place warehouse item');
+        alert('Open a 3D designer or room viewer first, then place the item.');
       },
       undefined,
       function(error) {
         console.error('Failed to load warehouse model:', error);
+        alert('Could not load model — is the server running?');
       }
     );
   } catch (e) {
@@ -54849,6 +55340,1375 @@ async function whPlaceItem(id) {
   }
 }
 window.whPlaceItem = whPlaceItem;
+
+// ===== FLOOR PLAN ENGINE =====
+// Full-overlay floor plan: draw walls in 2D, generate 3D view, place items from warehouse.
+
+var fpState = null;
+var fpCanvas = null, fpCtx = null;
+var fp3DScene = null, fp3DRenderer = null, fp3DCamera = null, fp3DControls = null;
+var fp3DAnimFrame = null;
+var fp2DRafPending = false;   // RAF throttle — collapses many mousemove redraws into one per frame
+function fpRequestRedraw() {
+  if (!fp2DRafPending) {
+    fp2DRafPending = true;
+    requestAnimationFrame(function() { fp2DRafPending = false; fpRedraw(); });
+  }
+}
+
+function fpNewState() {
+  return {
+    walls: [],      // [{x1,y1,x2,y2,thickness,height}]
+    openings: [],   // [{wallIndex,t,width,height,type:'door'|'window',sillHeight}]
+    items3D: [],    // [{modelUrl,x,y,rot,mesh}] — placed warehouse items
+    electricals: [], // [{id,symbolId,x,y,rotation}] — floor plan electrical symbols
+    wires: [],       // [{id,x1,y1,x2,y2}] — wire runs
+    tool: 'wall',
+    drawing: false, startX: 0, startY: 0,
+    snapX: 0, snapY: 0,
+    mouseX: 0, mouseY: 0,
+    wallThickness: 300, wallHeight: 2400, gridSize: 300,
+    panX: 0, panY: 0, scale: 0.15,
+    panning: false, panSX: 0, panSY: 0, panPX: 0, panPY: 0,
+    selectedWall: -1,
+    // Alignment guides (populated by fpSnap each frame)
+    alignGuides: [],
+    // Undo stack — each entry is {walls, openings, electricals, wires} snapshot
+    undoStack: [],
+    // Measure tool
+    measuring: false, measureStart: null, measures: [],
+    typedMeasure: '',   // typed distance for measure tool
+    // Typed exact length while drawing
+    typedLength: '',
+  };
+}
+
+function openFloorPlan() {
+  document.getElementById('floorplan-overlay').classList.add('active');
+  if (!fpState) fpState = fpNewState();
+  fpCanvas = document.getElementById('fp-canvas');
+  fpCtx = fpCanvas.getContext('2d');
+  document.getElementById('fp-wall-thickness').value = fpState.wallThickness;
+  document.getElementById('fp-wall-height').value = fpState.wallHeight;
+  document.getElementById('fp-grid-size').value = fpState.gridSize;
+  fpResizeCanvas();
+  fpCanvas.onmousedown = fpMouseDown;
+  fpCanvas.onmousemove = fpMouseMove;
+  fpCanvas.onmouseup = fpMouseUp;
+  fpCanvas.oncontextmenu = fpContextMenu;
+  fpCanvas.onwheel = fpWheel;
+  fpCanvas.setAttribute('tabindex', '0');
+  fpCanvas.style.outline = 'none';
+  // Exact length input: let browser handle typing natively, sync to state
+  var lenInput = document.getElementById('fp-exact-length');
+  if (lenInput) {
+    lenInput.oninput = function() {
+      if (fpState && fpState.drawing) { fpState.typedLength = lenInput.value; fpRequestRedraw(); }
+    };
+    lenInput.onkeydown = function(e) {
+      if (!fpState || !fpState.drawing) return;
+      if (e.key === 'Enter') {
+        e.preventDefault(); e.stopPropagation();
+        var exact = fpParseLength(lenInput.value);
+        if (exact > 0) {
+          var sn = {x: fpState.snapX, y: fpState.snapY};
+          var endPt = fpExactLengthPoint(sn, exact);
+          var wlen = Math.hypot(endPt.x - fpState.startX, endPt.y - fpState.startY);
+          if (wlen > 1) {
+            fpPushUndo();
+            fpState.walls.push({ x1:fpState.startX, y1:fpState.startY, x2:endPt.x, y2:endPt.y,
+              thickness:fpState.wallThickness, height:fpState.wallHeight });
+            fpState.drawing = false; fpState.typedLength = '';
+            lenInput.value = ''; lenInput.placeholder = 'free';
+            fpCanvas.focus();
+            fpSetStatus('Wall placed. Click to start next wall.');
+            fpRedraw();
+          }
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault(); e.stopPropagation();
+        fpState.drawing = false; fpState.typedLength = '';
+        lenInput.value = ''; lenInput.placeholder = 'free';
+        fpCanvas.focus();
+        fpSetStatus('Wall cancelled.'); fpRedraw();
+      }
+    };
+  }
+  if (fpState.walls.length > 0) fpFitAll();
+  else { fpState.panX = fpCanvas.width / 2; fpState.panY = fpCanvas.height / 2; }
+  fpRedraw();
+}
+window.openFloorPlan = openFloorPlan;
+
+function closeFloorPlan() {
+  document.getElementById('floorplan-overlay').classList.remove('active');
+  fpStop3D();
+}
+window.closeFloorPlan = closeFloorPlan;
+
+function fpStop3D() {
+  if (fp3DAnimFrame) { cancelAnimationFrame(fp3DAnimFrame); fp3DAnimFrame = null; }
+  if (fp3DControls) { fp3DControls.dispose(); }
+  if (fp3DRenderer) { fp3DRenderer.dispose(); fp3DRenderer = null; }
+  fp3DScene = null; fp3DCamera = null; fp3DControls = null;
+}
+
+function fpResizeCanvas() {
+  var panel = document.getElementById('fp-2d-panel');
+  if (!panel || !fpCanvas) return;
+  fpCanvas.width = panel.clientWidth || 600;
+  fpCanvas.height = panel.clientHeight || 500;
+  fpRedraw();
+}
+
+function fpUpdateDefaults() {
+  if (!fpState) return;
+  fpState.wallThickness = parseInt(document.getElementById('fp-wall-thickness').value) || 100;
+  fpState.wallHeight = parseInt(document.getElementById('fp-wall-height').value) || 2400;
+}
+window.fpUpdateDefaults = fpUpdateDefaults;
+
+function fpSetTool(tool) {
+  if (!fpState) { fpState = fpNewState(); }
+  fpState.drawing = false;
+  fpState.typedLength = '';
+  fpState.measuring = false;
+  fpState.measureStart = null;
+  fpState.typedMeasure = '';
+  fpState.tool = tool;
+  ['wall','door','window','select','measure','electrical','wire'].forEach(function(t) {
+    var btn = document.getElementById('fp-btn-' + t);
+    if (btn) btn.classList.toggle('active', t === tool);
+  });
+  var panel = document.getElementById('fp-2d-panel');
+  if (panel) panel.className = 'fp-2d-panel tool-' + tool;
+  // Show/hide opening options panel
+  var optsEl = document.getElementById('fp-opening-opts');
+  if (optsEl) {
+    var isOpening = (tool === 'door' || tool === 'window');
+    optsEl.style.display = isOpening ? '' : 'none';
+    if (isOpening) {
+      document.getElementById('fp-opening-title').textContent = tool === 'door' ? 'Door' : 'Window';
+      document.getElementById('fp-sill-row').style.display = tool === 'window' ? '' : 'none';
+      document.getElementById('fp-door-presets').style.display = tool === 'door' ? 'flex' : 'none';
+      document.getElementById('fp-win-presets').style.display = tool === 'window' ? 'flex' : 'none';
+      if (tool === 'door') {
+        document.getElementById('fp-op-width').value = 900;
+        document.getElementById('fp-op-height').value = 2100;
+      } else {
+        document.getElementById('fp-op-width').value = 1200;
+        document.getElementById('fp-op-height').value = 1050;
+        document.getElementById('fp-op-sill').value = 900;
+      }
+    }
+  }
+  // Show length row only for wall tool
+  var lenRow = document.getElementById('fp-length-row');
+  if (lenRow) lenRow.style.display = tool === 'wall' ? '' : 'none';
+  // Show/hide electrical palette
+  var elecPalette = document.getElementById('fp-elec-palette');
+  var isElec = (tool === 'electrical' || tool === 'wire');
+  if (elecPalette) elecPalette.style.display = isElec ? '' : 'none';
+  if (isElec) fpBuildElecPalette();
+  var msgs = {
+    wall: 'Click to start a wall, click again to place it. Type digits for exact length.',
+    door: 'Click on a wall to place a door. Set size in sidebar.',
+    window: 'Click on a wall to place a window. Set size in sidebar.',
+    select: 'Click a wall to select it. Delete key removes it.',
+    measure: 'Click first point to measure. Click second point to get distance. Esc to clear.',
+    electrical: 'Select a symbol from the panel, then click the floor plan to place it.',
+    wire: 'Click to start a wire. Click again to place end. Esc to cancel.',
+  };
+  fpSetStatus(msgs[tool] || '');
+  fpRedraw();
+}
+window.fpSetTool = fpSetTool;
+
+function fpSetStatus(msg) {
+  var el = document.getElementById('fp-status');
+  if (el) el.textContent = msg;
+}
+
+function fpPushUndo() {
+  if (!fpState) return;
+  fpState.undoStack.push({
+    walls: JSON.parse(JSON.stringify(fpState.walls)),
+    openings: JSON.parse(JSON.stringify(fpState.openings)),
+    electricals: JSON.parse(JSON.stringify(fpState.electricals)),
+    wires: JSON.parse(JSON.stringify(fpState.wires)),
+  });
+  if (fpState.undoStack.length > 50) fpState.undoStack.shift();
+  // Update undo button appearance
+  var btn = document.getElementById('fp-btn-undo');
+  if (btn) btn.style.opacity = '1';
+}
+
+function fpUndo() {
+  if (!fpState || fpState.undoStack.length === 0) {
+    fpSetStatus('Nothing to undo.');
+    return;
+  }
+  var prev = fpState.undoStack.pop();
+  fpState.walls = prev.walls;
+  fpState.openings = prev.openings;
+  fpState.electricals = prev.electricals || [];
+  fpState.wires = prev.wires || [];
+  fpState.selectedWall = -1;
+  fpState.drawing = false;
+  fpState.typedLength = '';
+  var btn = document.getElementById('fp-btn-undo');
+  if (btn) btn.style.opacity = fpState.undoStack.length > 0 ? '1' : '0.4';
+  fpSetStatus('Undone.' + (fpState.undoStack.length > 0 ? ' ' + fpState.undoStack.length + ' more step(s) available.' : ''));
+  fpRedraw();
+}
+window.fpUndo = fpUndo;
+
+function fpClear() {
+  if (!fpState) return;
+  if (fpState.walls.length > 0 && !confirm('Clear the entire floor plan?')) return;
+  fpState.walls = []; fpState.openings = []; fpState.items3D = [];
+  fpState.electricals = []; fpState.wires = [];
+  fpState.drawing = false; fpState.selectedWall = -1;
+  fpRedraw();
+  fpSetStatus('Floor plan cleared. Click to start drawing walls.');
+}
+window.fpClear = fpClear;
+
+// ===== ELECTRICAL TOOL =====
+
+var FP_ELEC_SYMBOLS = [
+  { id:'socket-single',  name:'Single Socket',  bsRef:'BS 1363' },
+  { id:'socket-double',  name:'Double Socket',  bsRef:'BS 1363' },
+  { id:'switch-1way',    name:'1-Way Switch',   bsRef:'BS 3676' },
+  { id:'switch-2way',    name:'2-Way Switch',   bsRef:'BS 3676' },
+  { id:'switch-dimmer',  name:'Dimmer',         bsRef:'BS 3676' },
+  { id:'ceiling-rose',   name:'Ceiling Rose',   bsRef:'BS 67'   },
+  { id:'downlight',      name:'Downlight',      bsRef:'BS 67'   },
+  { id:'wall-light',     name:'Wall Light',     bsRef:'BS 67'   },
+  { id:'consumer-unit',  name:'Consumer Unit',  bsRef:'BS 7671' },
+  { id:'smoke-detector', name:'Smoke Detector', bsRef:'BS 5839' },
+  { id:'co-detector',    name:'CO Detector',    bsRef:'BS 50291'},
+  { id:'extractor-fan',  name:'Extractor Fan',  bsRef:''        },
+  { id:'fused-spur',     name:'Fused Spur',     bsRef:'BS 1363' },
+  { id:'data-point',     name:'Data/Ethernet',  bsRef:''        },
+  { id:'tv-point',       name:'TV Point',       bsRef:''        },
+  { id:'doorbell',       name:'Doorbell',       bsRef:''        },
+];
+var fpActiveElecSymbol = 'socket-single';
+
+function fpDrawElecIcon(ctx, symbolId, cx, cy, r) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.strokeStyle = '#c0392b';
+  ctx.fillStyle = '#c0392b';
+  ctx.lineWidth = Math.max(1, r / 10);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  switch (symbolId) {
+    case 'socket-single':
+    case 'socket-double':
+      ctx.strokeRect(-r*0.7, -r*0.5, r*1.4, r);
+      ctx.beginPath();
+      ctx.moveTo(-r*0.25, -r*0.15); ctx.lineTo(-r*0.25, r*0.15);
+      ctx.moveTo( r*0.25, -r*0.15); ctx.lineTo( r*0.25, r*0.15);
+      ctx.stroke();
+      if (symbolId === 'socket-double') {
+        ctx.strokeRect(-r*0.7, -r*1.1, r*1.4, r*0.5);
+      }
+      break;
+
+    case 'switch-1way':
+      ctx.beginPath(); ctx.arc(0, 0, r*0.55, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(r*0.55, 0); ctx.lineTo(r*0.55, -r*0.6);
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(r*0.55, -r*0.6, r*0.12, 0, Math.PI*2); ctx.fill();
+      break;
+
+    case 'switch-2way':
+      ctx.beginPath(); ctx.arc(0, 0, r*0.55, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(r*0.55, 0); ctx.lineTo(r*0.9, -r*0.5);
+      ctx.moveTo(r*0.55, 0); ctx.lineTo(r*0.9,  r*0.5);
+      ctx.stroke();
+      break;
+
+    case 'switch-dimmer':
+      ctx.beginPath(); ctx.arc(0, 0, r*0.55, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-r*0.8, r*0.8); ctx.lineTo(r*0.8, -r*0.8);
+      ctx.moveTo(r*0.4, -r*0.8); ctx.lineTo(r*0.8, -r*0.8); ctx.lineTo(r*0.8, -r*0.4);
+      ctx.stroke();
+      break;
+
+    case 'ceiling-rose':
+      ctx.beginPath(); ctx.arc(0, 0, r*0.7, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-r*0.7, 0); ctx.lineTo(r*0.7, 0);
+      ctx.moveTo(0, -r*0.7); ctx.lineTo(0,  r*0.7);
+      ctx.stroke();
+      break;
+
+    case 'downlight':
+      ctx.beginPath(); ctx.arc(0, 0, r*0.7, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, 0, r*0.3, 0, Math.PI*2); ctx.fill();
+      break;
+
+    case 'wall-light':
+      ctx.beginPath();
+      ctx.arc(0, 0, r*0.6, 0, Math.PI);
+      ctx.closePath(); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-r*0.6, 0); ctx.lineTo(r*0.6, 0); ctx.stroke();
+      break;
+
+    case 'consumer-unit':
+      ctx.strokeRect(-r*0.8, -r*0.6, r*1.6, r*1.2);
+      ctx.beginPath();
+      ctx.moveTo(r*0.1, -r*0.35); ctx.lineTo(-r*0.2, r*0.05);
+      ctx.lineTo(r*0.05, r*0.05); ctx.lineTo(-r*0.1, r*0.35);
+      ctx.stroke();
+      break;
+
+    case 'smoke-detector':
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath(); ctx.arc(0, 0, r*0.8, 0, Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(0, 0, r*0.45, 0, Math.PI*2); ctx.stroke();
+      ctx.font = 'bold ' + Math.round(r*0.5) + 'px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('S', 0, 0);
+      break;
+
+    case 'co-detector':
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath(); ctx.arc(0, 0, r*0.8, 0, Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(0, 0, r*0.45, 0, Math.PI*2); ctx.stroke();
+      ctx.font = 'bold ' + Math.round(r*0.38) + 'px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('CO', 0, 0);
+      break;
+
+    case 'extractor-fan':
+      ctx.beginPath(); ctx.arc(0, 0, r*0.65, 0, Math.PI*2); ctx.stroke();
+      for (var i = 0; i < 4; i++) {
+        var a = (i / 4) * Math.PI * 2;
+        var bx = Math.cos(a) * r*0.32, by = Math.sin(a) * r*0.32;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(bx, by, r*0.28, a + Math.PI, a + Math.PI*1.5);
+        ctx.stroke();
+      }
+      break;
+
+    case 'fused-spur':
+      ctx.strokeRect(-r*0.6, -r*0.5, r*1.2, r);
+      ctx.font = 'bold ' + Math.round(r*0.55) + 'px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('F', 0, 0);
+      break;
+
+    case 'data-point':
+      ctx.strokeRect(-r*0.7, -r*0.5, r*1.4, r);
+      ctx.beginPath();
+      ctx.moveTo(-r*0.35, -r*0.2); ctx.lineTo(-r*0.35, r*0.2);
+      ctx.moveTo(0,       -r*0.2); ctx.lineTo(0,       r*0.2);
+      ctx.moveTo( r*0.35, -r*0.2); ctx.lineTo( r*0.35, r*0.2);
+      ctx.stroke();
+      break;
+
+    case 'tv-point':
+      ctx.strokeRect(-r*0.6, -r*0.5, r*1.2, r);
+      ctx.beginPath();
+      ctx.moveTo(0, -r*0.5);
+      ctx.lineTo(-r*0.3, -r*0.85);
+      ctx.moveTo(0, -r*0.5);
+      ctx.lineTo( r*0.3, -r*0.85);
+      ctx.stroke();
+      break;
+
+    case 'doorbell':
+      ctx.beginPath(); ctx.arc(0, 0, r*0.65, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, -r*0.1, r*0.28, Math.PI, 0);
+      ctx.lineTo(r*0.28, r*0.25); ctx.lineTo(-r*0.28, r*0.25); ctx.closePath();
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, r*0.38, r*0.07, 0, Math.PI*2); ctx.fill();
+      break;
+
+    default:
+      ctx.beginPath(); ctx.arc(0, 0, r*0.65, 0, Math.PI*2); ctx.stroke();
+      ctx.font = 'bold ' + Math.round(r*0.7) + 'px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('?', 0, 0);
+  }
+  ctx.restore();
+}
+window.fpDrawElecIcon = fpDrawElecIcon;
+
+function fpBuildElecPalette() {
+  var grid = document.getElementById('fp-elec-grid');
+  if (!grid) return;
+  while (grid.firstChild) grid.removeChild(grid.firstChild);
+  FP_ELEC_SYMBOLS.forEach(function(sym) {
+    var btn = document.createElement('button');
+    btn.className = 'fp-elec-sym-btn' + (sym.id === fpActiveElecSymbol ? ' active' : '');
+    btn.title = sym.name + (sym.bsRef ? ' (' + sym.bsRef + ')' : '');
+    var canvas = document.createElement('canvas');
+    canvas.width = 36; canvas.height = 36;
+    fpDrawElecIcon(canvas.getContext('2d'), sym.id, 18, 18, 14);
+    btn.appendChild(canvas);
+    var label = document.createElement('div');
+    label.textContent = sym.name;
+    label.style.cssText = 'font-size:9px;margin-top:2px;color:var(--text-secondary);text-align:center;line-height:1.2';
+    btn.appendChild(label);
+    btn.onclick = function() {
+      fpActiveElecSymbol = sym.id;
+      document.querySelectorAll('.fp-elec-sym-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      if (fpState && fpState.tool !== 'electrical') fpSetTool('electrical');
+      fpSetStatus('Click floor plan to place: ' + sym.name);
+    };
+    grid.appendChild(btn);
+  });
+}
+window.fpBuildElecPalette = fpBuildElecPalette;
+
+// Coordinate helpers
+function fpW2S(wx, wy) { return { x: fpState.panX + wx * fpState.scale, y: fpState.panY - wy * fpState.scale }; }
+function fpS2W(sx, sy) { return { x: (sx - fpState.panX) / fpState.scale, y: -(sy - fpState.panY) / fpState.scale }; }
+function fpSnapGrid(wx, wy) {
+  var g = fpState.gridSize;
+  return { x: Math.round(wx / g) * g, y: Math.round(wy / g) * g };
+}
+function fpSnapEndpoints(wx, wy) {
+  var thresh = 16 / fpState.scale;
+  var best = null, bestD = thresh;
+  fpState.walls.forEach(function(w) {
+    [[w.x1,w.y1],[w.x2,w.y2]].forEach(function(pt) {
+      var d = Math.hypot(pt[0]-wx, pt[1]-wy);
+      if (d < bestD) { bestD = d; best = {x:pt[0],y:pt[1]}; }
+    });
+  });
+  return best;
+}
+function fpSnap(wx, wy) {
+  fpState.alignGuides = [];
+
+  // 1. Exact endpoint snap (highest priority — locks on to a wall corner)
+  var ep = fpSnapEndpoints(wx, wy);
+  if (ep) return ep;
+
+  // 2. Grid snap as base
+  var gp = fpSnapGrid(wx, wy);
+  var rx = gp.x, ry = gp.y;
+
+  // 3. Alignment snap — if cursor X or Y is within threshold of any wall endpoint,
+  //    override that axis so the new point lines up perfectly with the existing one.
+  var thresh = 14 / fpState.scale;
+  var bestXd = thresh, bestYd = thresh, bestXpt = null, bestYpt = null;
+  fpState.walls.forEach(function(w) {
+    [[w.x1,w.y1],[w.x2,w.y2]].forEach(function(pt) {
+      var dX = Math.abs(pt[0] - wx), dY = Math.abs(pt[1] - wy);
+      if (dX < bestXd) { bestXd = dX; bestXpt = pt; }
+      if (dY < bestYd) { bestYd = dY; bestYpt = pt; }
+    });
+  });
+  if (bestXpt) { rx = bestXpt[0]; fpState.alignGuides.push({type:'x', srcX:bestXpt[0], srcY:bestXpt[1]}); }
+  if (bestYpt) { ry = bestYpt[1]; fpState.alignGuides.push({type:'y', srcX:bestYpt[0], srcY:bestYpt[1]}); }
+
+  return {x: rx, y: ry};
+}
+
+// Mouse helpers
+function fpMousePos(e) {
+  var r = fpCanvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+function fpMouseDown(e) {
+  e.preventDefault();
+  fpCanvas.focus();   // ensure canvas has keyboard focus, not sidebar inputs
+  var mp = fpMousePos(e);
+  // Middle button, alt+left, or right-click → start pan (right-click without drag = cancel)
+  if (e.button === 1 || (e.button === 0 && e.altKey) || e.button === 2) {
+    fpState.panning = true;
+    fpState.panSX = mp.x; fpState.panSY = mp.y;
+    fpState.panPX = fpState.panX; fpState.panPY = fpState.panY;
+    fpState.rightClickPos = e.button === 2 ? {x: mp.x, y: mp.y} : null;
+    return;
+  }
+  if (e.button !== 0) return;
+  var wm = fpS2W(mp.x, mp.y);
+  var sn = fpSnap(wm.x, wm.y);
+  if (fpState.tool === 'wall') {
+    if (!fpState.drawing) {
+      fpState.drawing = true;
+      fpState.typedLength = '';
+      fpState.startX = sn.x; fpState.startY = sn.y;
+      fpSetStatus('Click end point, or type exact length then Enter.');
+      // Auto-focus the length input so typing works reliably without fighting browser focus
+      var lenEl0 = document.getElementById('fp-exact-length');
+      if (lenEl0) { lenEl0.value = ''; setTimeout(function() { lenEl0.focus(); lenEl0.select(); }, 0); }
+    } else {
+      var endPt = fpExactLengthPoint(sn);
+      var len = Math.hypot(endPt.x - fpState.startX, endPt.y - fpState.startY);
+      if (len > fpState.wallThickness) {
+        fpPushUndo();
+        fpState.walls.push({ x1:fpState.startX, y1:fpState.startY, x2:endPt.x, y2:endPt.y,
+          thickness:fpState.wallThickness, height:fpState.wallHeight });
+        fpState.drawing = false;
+        fpState.typedLength = '';
+        var lenEl = document.getElementById('fp-exact-length');
+        if (lenEl) { lenEl.value = ''; lenEl.placeholder = 'free'; }
+        fpSetStatus('Wall placed. Click to start next wall.');
+      }
+      fpRequestRedraw();
+    }
+  } else if (fpState.tool === 'door' || fpState.tool === 'window') {
+    fpAddOpening(mp.x, mp.y);
+  } else if (fpState.tool === 'select') {
+    fpSelectAt(mp.x, mp.y);
+  } else if (fpState.tool === 'measure') {
+    if (!fpState.measuring) {
+      fpState.measuring = true;
+      fpState.measureStart = {x: sn.x, y: sn.y};
+      fpSetStatus('Click second point to measure distance.');
+    } else {
+      var d = Math.round(Math.hypot(sn.x - fpState.measureStart.x, sn.y - fpState.measureStart.y));
+      fpState.measures.push({x1:fpState.measureStart.x, y1:fpState.measureStart.y, x2:sn.x, y2:sn.y});
+      fpState.measuring = false;
+      fpState.measureStart = null;
+      fpSetStatus('Distance: ' + d + ' mm. Click to measure again. Esc to clear all.');
+    }
+  } else if (fpState.tool === 'electrical') {
+    if (fpActiveElecSymbol) {
+      fpPushUndo();
+      fpState.electricals.push({ id: Date.now(), symbolId: fpActiveElecSymbol, x: sn.x, y: sn.y, rotation: 0 });
+      var symName = (FP_ELEC_SYMBOLS.find(function(s){ return s.id === fpActiveElecSymbol; }) || {}).name || fpActiveElecSymbol;
+      fpSetStatus('Placed ' + symName + '. Click to place another. Right-click to cancel.');
+    } else {
+      fpSetStatus('Select a symbol from the panel on the left first.');
+    }
+  } else if (fpState.tool === 'wire') {
+    if (!fpState.drawing) {
+      fpState.drawing = true;
+      fpState.startX = sn.x; fpState.startY = sn.y;
+      fpSetStatus('Click end point for wire. Right-click to cancel.');
+    } else {
+      fpPushUndo();
+      fpState.wires.push({ id: Date.now(), x1: fpState.startX, y1: fpState.startY, x2: sn.x, y2: sn.y });
+      // Chain: start next wire from endpoint
+      fpState.startX = sn.x; fpState.startY = sn.y;
+      fpSetStatus('Wire placed. Click next point. Right-click to stop.');
+    }
+  }
+  fpRequestRedraw();
+}
+
+function fpMouseMove(e) {
+  var mp = fpMousePos(e);
+  if (fpState.panning) {
+    fpState.panX = fpState.panPX + (mp.x - fpState.panSX);
+    fpState.panY = fpState.panPY + (mp.y - fpState.panSY);
+    fpRequestRedraw(); return;
+  }
+  var wm = fpS2W(mp.x, mp.y);
+  var sn = fpSnap(wm.x, wm.y);
+  fpState.mouseX = mp.x; fpState.mouseY = mp.y;
+  fpState.snapX = sn.x; fpState.snapY = sn.y;
+  // Only request redraw when there's something dynamic to show (protractor always needs it)
+  fpRequestRedraw();
+}
+
+function fpMouseUp(e) {
+  if (e.button === 2) {
+    fpState.panning = false;
+    // If right-click barely moved, treat as cancel (context menu action)
+    if (fpState.rightClickPos) {
+      var mp = fpMousePos(e);
+      var moved = Math.hypot(mp.x - fpState.rightClickPos.x, mp.y - fpState.rightClickPos.y);
+      fpState.rightClickPos = null;
+      if (moved < 4) fpContextMenu(e);
+    }
+    return;
+  }
+  if (e.button === 1 || e.button === 0) fpState.panning = false;
+}
+
+function fpContextMenu(e) {
+  e.preventDefault();
+  if (fpState.tool === 'wall' && fpState.drawing) {
+    fpState.drawing = false;
+    fpState.typedLength = '';
+    fpSetStatus('Cancelled. Click to start a wall.');
+    fpRedraw();
+  } else if (fpState.tool === 'wire' && fpState.drawing) {
+    fpState.drawing = false;
+    fpSetStatus('Wire cancelled. Click to start a new wire run.');
+    fpRedraw();
+  }
+}
+
+function fpWheel(e) {
+  e.preventDefault();
+  var mp = fpMousePos(e);
+  if (e.ctrlKey || e.metaKey) {
+    // Pinch-to-zoom or Ctrl/Cmd+scroll → zoom into mouse position
+    var f = e.deltaY < 0 ? 1.12 : 1/1.12;
+    fpState.panX = mp.x + (fpState.panX - mp.x) * f;
+    fpState.panY = mp.y + (fpState.panY - mp.y) * f;
+    fpState.scale = Math.max(0.01, Math.min(5, fpState.scale * f));
+  } else {
+    // Two-finger swipe / scroll → pan (natural trackpad behaviour)
+    fpState.panX -= e.deltaX;
+    fpState.panY -= e.deltaY;
+  }
+  fpRequestRedraw();
+}
+
+function fpFitAll() {
+  if (!fpState || fpState.walls.length === 0) return;
+  var xs = [], ys = [];
+  fpState.walls.forEach(function(w) { xs.push(w.x1,w.x2); ys.push(w.y1,w.y2); });
+  var pad = 1200;
+  var minX = Math.min.apply(null,xs)-pad, maxX = Math.max.apply(null,xs)+pad;
+  var minY = Math.min.apply(null,ys)-pad, maxY = Math.max.apply(null,ys)+pad;
+  var W = fpCanvas.width, H = fpCanvas.height;
+  fpState.scale = Math.min(W/(maxX-minX), H/(maxY-minY)) * 0.9;
+  fpState.panX = W/2 - ((minX+maxX)/2) * fpState.scale;
+  fpState.panY = H/2 + ((minY+maxY)/2) * fpState.scale;
+}
+
+// Nearest wall index (within pixel threshold)
+function fpNearestWall(sx, sy) {
+  var wm = fpS2W(sx, sy);
+  var best = -1, bestD = 20 / fpState.scale;
+  fpState.walls.forEach(function(w, i) {
+    var dx = w.x2-w.x1, dy = w.y2-w.y1, len2 = dx*dx+dy*dy;
+    if (len2 < 1) return;
+    var t = Math.max(0, Math.min(1, ((wm.x-w.x1)*dx+(wm.y-w.y1)*dy)/len2));
+    var d = Math.hypot(wm.x-(w.x1+t*dx), wm.y-(w.y1+t*dy));
+    if (d < bestD) { bestD = d; best = i; }
+  });
+  return best;
+}
+
+function fpAddOpening(sx, sy) {
+  var wi = fpNearestWall(sx, sy);
+  if (wi < 0) { fpSetStatus('Click closer to a wall to place opening.'); return; }
+  var w = fpState.walls[wi];
+  var wm = fpS2W(sx, sy);
+  var dx = w.x2-w.x1, dy = w.y2-w.y1, len2 = dx*dx+dy*dy;
+  var t = Math.max(0.05, Math.min(0.95, ((wm.x-w.x1)*dx+(wm.y-w.y1)*dy)/len2));
+  var type = fpState.tool;
+  var opW = parseInt(document.getElementById('fp-op-width').value) || (type==='door' ? 900 : 1200);
+  var opH = parseInt(document.getElementById('fp-op-height').value) || (type==='door' ? 2100 : 1050);
+  var opS = type==='window' ? (parseInt(document.getElementById('fp-op-sill').value) || 900) : 0;
+  fpPushUndo();
+  fpState.openings.push({ wallIndex:wi, t:t, width:opW, height:opH, sillHeight:opS, type:type });
+  fpSetStatus((type==='door'?'Door':'Window') + ' placed (' + opW + '×' + opH + 'mm). Click another wall or switch tool.');
+  fpRedraw();
+}
+
+function fpSelectAt(sx, sy) {
+  fpState.selectedWall = fpNearestWall(sx, sy);
+  if (fpState.selectedWall >= 0) fpSetStatus('Wall selected. Press Delete to remove.');
+  else fpSetStatus('No wall selected.');
+  fpRedraw();
+}
+
+document.addEventListener('keydown', function(e) {
+  var ov = document.getElementById('floorplan-overlay');
+  if (!ov || !ov.classList.contains('active') || !fpState) return;
+  // Don't intercept when typing in a sidebar input
+  var tag = document.activeElement && document.activeElement.tagName;
+  var inInput = (tag === 'INPUT' || tag === 'TEXTAREA');
+
+  if (e.key === 'Escape') {
+    if (fpState.measuring) {
+      fpState.measuring = false; fpState.measureStart = null; fpState.typedMeasure = '';
+      fpSetStatus('Measure cancelled. Click to start again.'); fpRedraw();
+    } else if (fpState.measures.length > 0) {
+      fpState.measures = []; fpRedraw();
+    } else if (fpState.drawing) {
+      fpState.drawing = false; fpState.typedLength = '';
+      fpSetStatus('Wall cancelled.'); fpRedraw();
+    } else { closeFloorPlan(); }
+    return;
+  }
+
+  // Exact wall length: if user types a digit while focus is on canvas (not the length input),
+  // redirect focus to the length input so typing works reliably via native browser input.
+  if (fpState.tool === 'wall' && fpState.drawing && !inInput) {
+    if ((e.key >= '0' && e.key <= '9') || e.key === '.' || e.key === 'm') {
+      var lenElR = document.getElementById('fp-exact-length');
+      if (lenElR) {
+        lenElR.focus();
+        lenElR.value += e.key;
+        fpState.typedLength = lenElR.value;
+        fpRequestRedraw();
+      }
+      e.preventDefault(); return;
+    }
+    if (e.key === 'Enter') {
+      var lenEl3 = document.getElementById('fp-exact-length');
+      var typed = fpState.typedLength || (lenEl3 && lenEl3.value) || '';
+      var exact = fpParseLength(typed);
+      if (exact > 0) {
+        var sn2 = {x: fpState.snapX, y: fpState.snapY};
+        var endPt2 = fpExactLengthPoint(sn2, exact);
+        var wlen2 = Math.hypot(endPt2.x - fpState.startX, endPt2.y - fpState.startY);
+        if (wlen2 > 1) {
+          fpPushUndo();
+          fpState.walls.push({ x1:fpState.startX, y1:fpState.startY, x2:endPt2.x, y2:endPt2.y,
+            thickness:fpState.wallThickness, height:fpState.wallHeight });
+          fpState.drawing = false; fpState.typedLength = '';
+          if (lenEl3) { lenEl3.value = ''; lenEl3.placeholder = 'free'; }
+          fpSetStatus('Wall placed. Click to start next wall.');
+          fpRedraw();
+        }
+      }
+      e.preventDefault(); return;
+    }
+  }
+
+  // Typed exact distance for measure tool (after click 1)
+  if (fpState.tool === 'measure' && fpState.measuring && !inInput) {
+    if ((e.key >= '0' && e.key <= '9') || e.key === '.' || e.key === 'm') {
+      fpState.typedMeasure += e.key;
+      fpSetStatus('Measuring: ' + fpState.typedMeasure + ' — Enter to lock, Esc to cancel');
+      fpRedraw(); e.preventDefault(); return;
+    }
+    if (e.key === 'Backspace') {
+      fpState.typedMeasure = fpState.typedMeasure.slice(0, -1);
+      fpRedraw(); e.preventDefault(); return;
+    }
+    if (e.key === 'Enter' && fpState.typedMeasure) {
+      var exactDist = fpParseLength(fpState.typedMeasure);
+      if (exactDist > 0) {
+        var dir = {x: fpState.snapX - fpState.measureStart.x, y: fpState.snapY - fpState.measureStart.y};
+        var dirLen = Math.hypot(dir.x, dir.y);
+        var endX = dirLen > 0 ? fpState.measureStart.x + (dir.x/dirLen)*exactDist : fpState.measureStart.x + exactDist;
+        var endY = dirLen > 0 ? fpState.measureStart.y + (dir.y/dirLen)*exactDist : fpState.measureStart.y;
+        fpState.measures.push({x1:fpState.measureStart.x, y1:fpState.measureStart.y, x2:endX, y2:endY});
+        fpState.measuring = false; fpState.measureStart = null; fpState.typedMeasure = '';
+        fpSetStatus('Distance: ' + exactDist + 'mm locked. Click to measure again.');
+        fpRedraw();
+      }
+      e.preventDefault(); return;
+    }
+  }
+
+  // Undo: Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
+  if ((e.key === 'z' || e.key === 'Z') && (e.metaKey || e.ctrlKey) && !inInput) {
+    fpUndo(); e.preventDefault(); return;
+  }
+
+  if ((e.key === 'Delete' || e.key === 'Backspace') && fpState.selectedWall >= 0 && !inInput) {
+    var idx = fpState.selectedWall;
+    fpPushUndo();
+    fpState.walls.splice(idx, 1);
+    fpState.openings = fpState.openings.filter(function(o){ return o.wallIndex !== idx; });
+    fpState.openings.forEach(function(o){ if (o.wallIndex > idx) o.wallIndex--; });
+    fpState.selectedWall = -1;
+    fpRedraw();
+  }
+});
+
+// ---- 2D rendering ----
+function fpRedraw() {
+  if (!fpCtx || !fpCanvas || !fpState) return;
+  // Sync grid size input
+  var gi = document.getElementById('fp-grid-size');
+  if (gi) fpState.gridSize = parseInt(gi.value) || 300;
+  var ctx = fpCtx, W = fpCanvas.width, H = fpCanvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f4f4f0'; ctx.fillRect(0, 0, W, H);
+  fpDraw2DGrid(ctx, W, H);
+  fpDraw2DWalls(ctx);
+  fpDraw2DOpenings(ctx);
+  fpDraw2DElectricals(ctx);
+  fpDraw2DPreview(ctx);
+  fpDrawProtractor(ctx, W, H);
+}
+window.fpRedraw = fpRedraw;
+
+function fpDraw2DGrid(ctx, W, H) {
+  var g = fpState.gridSize * fpState.scale;
+  if (g < 3) return;
+  var ox = ((fpState.panX % g) + g) % g;
+  var oy = ((fpState.panY % g) + g) % g;
+  ctx.strokeStyle = 'rgba(0,0,0,0.07)'; ctx.lineWidth = 1;
+  for (var x = ox; x < W; x += g) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (var y = oy; y < H; y += g) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  // Origin cross
+  var os = fpW2S(0, 0);
+  if (os.x >= 0 && os.x <= W && os.y >= 0 && os.y <= H) {
+    ctx.save(); ctx.strokeStyle = 'rgba(100,160,255,0.35)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(os.x,0); ctx.lineTo(os.x,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,os.y); ctx.lineTo(W,os.y); ctx.stroke();
+    ctx.setLineDash([]); ctx.restore();
+  }
+}
+
+// Returns the 4 corners of wall[wi] with proper butt joints.
+// "Through" walls (more horizontal) extend past connected endpoints.
+// "Butt" walls (more vertical) stop at the face of the through wall.
+// This matches UK timber kit construction where one wall runs through and
+// the perpendicular wall butts into its face.
+// Order: [startLeft, endLeft, endRight, startRight]
+function fpGetJoinedCorners(wi) {
+  var w = fpState.walls[wi];
+  var dx = w.x2-w.x1, dy = w.y2-w.y1, len = Math.hypot(dx,dy);
+  if (len < 1) return null;
+  var ux = dx/len, uy = dy/len;
+  var h = w.thickness / 2;
+  var nx = -uy * h, ny = ux * h;
+  var SNAP = h * 6;
+
+  // More horizontal = through wall (extends at connected ends).
+  // More vertical = butt wall (shortens to stop at the through wall's face).
+  var isThrough = Math.abs(ux) >= Math.abs(uy);
+
+  var x1 = w.x1, y1 = w.y1, x2 = w.x2, y2 = w.y2;
+
+  fpState.walls.forEach(function(ow, oi) {
+    if (oi === wi) return;
+    var oh = ow.thickness / 2;
+
+    // Connected at this wall's START?
+    if (Math.min(Math.hypot(ow.x1-w.x1, ow.y1-w.y1),
+                 Math.hypot(ow.x2-w.x1, ow.y2-w.y1)) < SNAP) {
+      if (isThrough) {
+        // Extend backwards by the other wall's half-thickness
+        x1 -= ux * oh; y1 -= uy * oh;
+      } else {
+        // Shorten to stop at the other wall's inner face
+        x1 += ux * oh; y1 += uy * oh;
+      }
+    }
+
+    // Connected at this wall's END?
+    if (Math.min(Math.hypot(ow.x1-w.x2, ow.y1-w.y2),
+                 Math.hypot(ow.x2-w.x2, ow.y2-w.y2)) < SNAP) {
+      if (isThrough) {
+        x2 += ux * oh; y2 += uy * oh;
+      } else {
+        x2 -= ux * oh; y2 -= uy * oh;
+      }
+    }
+  });
+
+  return [
+    {x: x1+nx, y: y1+ny},  // startLeft
+    {x: x2+nx, y: y2+ny},  // endLeft
+    {x: x2-nx, y: y2-ny},  // endRight
+    {x: x1-nx, y: y1-ny},  // startRight
+  ];
+}
+
+function fpDraw2DWalls(ctx) {
+  fpState.walls.forEach(function(w, i) {
+    var corners = fpGetJoinedCorners(i); if (!corners) return;
+    var pts = corners.map(function(c){ return fpW2S(c.x, c.y); });
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    pts.slice(1).forEach(function(p){ ctx.lineTo(p.x, p.y); });
+    ctx.closePath();
+    ctx.fillStyle = i === fpState.selectedWall ? '#b8d4ff' : '#c8c8bc';
+    ctx.fill(); ctx.strokeStyle = '#444'; ctx.lineWidth = 1; ctx.stroke();
+    if (fpState.scale > 0.07) {
+      var len = Math.round(Math.hypot(w.x2-w.x1, w.y2-w.y1));
+      var mid = fpW2S((w.x1+w.x2)/2, (w.y1+w.y2)/2);
+      ctx.save(); ctx.fillStyle = '#333'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(len+' mm', mid.x, mid.y - 5); ctx.restore();
+    }
+  });
+}
+
+function fpDraw2DOpenings(ctx) {
+  fpState.openings.forEach(function(o) {
+    var w = fpState.walls[o.wallIndex]; if (!w) return;
+    var dx = w.x2-w.x1, dy = w.y2-w.y1, len = Math.hypot(dx,dy); if (len < 1) return;
+    var ux = dx/len, uy = dy/len;
+    var cx = w.x1+o.t*dx, cy = w.y1+o.t*dy;
+    var half = o.width/2;
+    var p1w = {x:cx-ux*half, y:cy-uy*half}, p2w = {x:cx+ux*half, y:cy+uy*half};
+    // Erase wall section
+    var nx = -uy*(w.thickness/2), ny = ux*(w.thickness/2);
+    var eraseCorners = [
+      fpW2S(p1w.x+nx, p1w.y+ny), fpW2S(p2w.x+nx, p2w.y+ny),
+      fpW2S(p2w.x-nx, p2w.y-ny), fpW2S(p1w.x-nx, p1w.y-ny),
+    ];
+    ctx.save(); ctx.beginPath();
+    ctx.moveTo(eraseCorners[0].x, eraseCorners[0].y);
+    eraseCorners.slice(1).forEach(function(c){ ctx.lineTo(c.x, c.y); });
+    ctx.closePath(); ctx.fillStyle = '#f4f4f0'; ctx.fill(); ctx.restore();
+    // Opening line
+    var p1s = fpW2S(p1w.x, p1w.y), p2s = fpW2S(p2w.x, p2w.y);
+    ctx.strokeStyle = o.type==='door' ? '#2a6ebb' : '#3a9a3a';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(p1s.x, p1s.y); ctx.lineTo(p2s.x, p2s.y); ctx.stroke();
+    if (o.type === 'door') {
+      var arcR = o.width * fpState.scale;
+      var angle = Math.atan2(-(p2w.y-p1w.y), p2w.x-p1w.x);
+      ctx.setLineDash([3,3]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(p1s.x, p1s.y, arcR, angle-Math.PI/2, angle, false); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  });
+}
+
+function fpDraw2DElectricals(ctx) {
+  if (!fpState) return;
+  // Draw wire runs as dashed orange lines
+  if (fpState.wires && fpState.wires.length > 0) {
+    ctx.save();
+    ctx.strokeStyle = '#e67e22';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    fpState.wires.forEach(function(wire) {
+      var a = fpW2S(wire.x1, wire.y1), b = fpW2S(wire.x2, wire.y2);
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    });
+    // Wire-in-progress preview
+    if (fpState.tool === 'wire' && fpState.drawing) {
+      var a = fpW2S(fpState.startX, fpState.startY);
+      var b = fpW2S(fpState.snapX, fpState.snapY);
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+  // Draw electrical symbols
+  if (fpState.electricals && fpState.electricals.length > 0) {
+    fpState.electricals.forEach(function(el) {
+      var sc = fpW2S(el.x, el.y);
+      var r = Math.max(7, 14 * fpState.scale / 0.15);
+      fpDrawElecIcon(ctx, el.symbolId, sc.x, sc.y, r);
+    });
+  }
+}
+
+function fpDrawProtractor(ctx, W, H) {
+  // Compute active angle from world coords (y-up convention: dy positive = North)
+  var activeDeg = null;   // 0-360, 0=East CCW in world (so N=90, W=180, S=270)
+  var activeCol = '#4a9eff';
+  function angleFrom(dx, dy) { return ((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360; }
+
+  if (fpState.drawing) {
+    var dx = fpState.snapX - fpState.startX, dy = fpState.snapY - fpState.startY;
+    var endPt = fpExactLengthPoint({x: fpState.snapX, y: fpState.snapY});
+    dx = endPt.x - fpState.startX; dy = endPt.y - fpState.startY;
+    if (Math.hypot(dx, dy) > 5) { activeDeg = angleFrom(dx, dy); activeCol = '#4a9eff'; }
+  } else if (fpState.measuring && fpState.measureStart) {
+    var dx = fpState.snapX - fpState.measureStart.x, dy = fpState.snapY - fpState.measureStart.y;
+    if (Math.hypot(dx, dy) > 5) { activeDeg = angleFrom(dx, dy); activeCol = '#ff8c00'; }
+  }
+
+  var cx = W - 56, cy = H - 56, R = 40;
+
+  ctx.save();
+
+  // Background disc
+  ctx.beginPath(); ctx.arc(cx, cy, R + 9, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(18,18,28,0.92)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(80,80,100,0.6)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx, cy, R + 9, 0, Math.PI * 2); ctx.stroke();
+
+  // Tick marks every 5°; world angle → screen: cos(deg), -sin(deg) (flip Y for canvas)
+  for (var d = 0; d < 360; d += 5) {
+    var rad = d * Math.PI / 180;
+    var sx = Math.cos(rad), sy = -Math.sin(rad);
+    var isMaj = d % 90 === 0, isMid = d % 45 === 0, is30 = d % 30 === 0;
+    var tLen = isMaj ? 12 : isMid ? 8 : is30 ? 6 : 3;
+    ctx.strokeStyle = isMaj ? '#888' : is30 ? '#555' : '#333';
+    ctx.lineWidth = isMaj ? 1.5 : 0.8;
+    ctx.beginPath();
+    ctx.moveTo(cx + sx*(R - tLen), cy + sy*(R - tLen));
+    ctx.lineTo(cx + sx*R, cy + sy*R);
+    ctx.stroke();
+  }
+
+  // Cardinal labels — world angles: E=0°, N=90°, W=180°, S=270°
+  ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  [['N',90],['E',0],['S',270],['W',180]].forEach(function(pair) {
+    var rad = pair[1] * Math.PI / 180;
+    var lx = cx + Math.cos(rad)*(R-17), ly = cy - Math.sin(rad)*(R-17);
+    ctx.fillStyle = pair[0]==='N' ? '#aaa' : '#666';
+    ctx.fillText(pair[0], lx, ly);
+  });
+
+  if (activeDeg !== null) {
+    var rad = activeDeg * Math.PI / 180;
+    var nx = Math.cos(rad), ny = -Math.sin(rad); // screen direction
+
+    // Needle tail
+    ctx.strokeStyle = 'rgba(74,158,255,0.2)'; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - nx*10, cy - ny*10); ctx.stroke();
+    // Needle body
+    ctx.strokeStyle = activeCol; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + nx*(R-5), cy + ny*(R-5)); ctx.stroke();
+    // Tip dot
+    ctx.fillStyle = activeCol;
+    ctx.beginPath(); ctx.arc(cx + nx*(R-5), cy + ny*(R-5), 3, 0, Math.PI*2); ctx.fill();
+    // Centre dot
+    ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI*2); ctx.fill();
+
+    // Highlight ring at the tick nearest the needle
+    var snapDeg = Math.round(activeDeg / 15) * 15;
+    var nearRad = snapDeg * Math.PI / 180;
+    ctx.strokeStyle = 'rgba(74,158,255,0.35)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx + Math.cos(nearRad)*R, cy - Math.sin(nearRad)*R, 3, 0, Math.PI*2); ctx.stroke();
+
+    // Angle text — show from-horizontal (0-90°) since that's what builders check
+    var fromHoriz = activeDeg > 180 ? 360 - activeDeg : activeDeg;
+    fromHoriz = fromHoriz > 90 ? 180 - fromHoriz : fromHoriz;
+    ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = activeCol;
+    ctx.fillText(Math.round(fromHoriz) + '\u00b0', cx, cy + 1);
+  } else {
+    // Idle: dim centre cross
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx-5,cy); ctx.lineTo(cx+5,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy-5); ctx.lineTo(cx,cy+5); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, 2, 0, Math.PI*2);
+    ctx.fillStyle = '#333'; ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function fpDrawMeasureLine(ctx, wx1, wy1, wx2, wy2) {
+  var p1 = fpW2S(wx1, wy1), p2 = fpW2S(wx2, wy2);
+  var dist = Math.round(Math.hypot(wx2-wx1, wy2-wy1));
+  ctx.save();
+  ctx.strokeStyle = '#ff8c00'; ctx.lineWidth = 1.5; ctx.setLineDash([5,3]);
+  ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  ctx.setLineDash([]);
+  var ang = Math.atan2(p2.y-p1.y, p2.x-p1.x), AL = 8;
+  [[p1, ang+Math.PI], [p2, ang]].forEach(function(pair) {
+    var p = pair[0], a = pair[1];
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y); ctx.lineTo(p.x+Math.cos(a+0.4)*AL, p.y+Math.sin(a+0.4)*AL);
+    ctx.moveTo(p.x,p.y); ctx.lineTo(p.x+Math.cos(a-0.4)*AL, p.y+Math.sin(a-0.4)*AL);
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2); ctx.fillStyle='#ff8c00'; ctx.fill();
+  });
+  var mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2;
+  ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#fff'; ctx.fillRect(mx-28, my-14, 56, 16);
+  ctx.fillStyle = '#cc5500'; ctx.fillText(dist+' mm', mx, my-2);
+  ctx.restore();
+}
+
+function fpParseLength(str) {
+  if (!str) return 0;
+  str = str.trim();
+  if (str.toLowerCase().endsWith('m')) {
+    var val = parseFloat(str.slice(0, -1));
+    return isNaN(val) ? 0 : val * 1000;
+  }
+  var val = parseFloat(str);
+  return isNaN(val) ? 0 : val;
+}
+window.fpParseLength = fpParseLength;
+
+function fpExactLengthPoint(snapPt, overrideLen) {
+  var exact = overrideLen;
+  if (!exact) {
+    // Prefer state over DOM — avoids focus-steal bug with number inputs
+    if (fpState.typedLength) {
+      exact = fpParseLength(fpState.typedLength);
+    } else {
+      var lenEl = document.getElementById('fp-exact-length');
+      exact = lenEl ? fpParseLength(lenEl.value) : 0;
+    }
+  }
+  if (!exact || exact <= 0 || !fpState.drawing) return snapPt;
+  var dx = snapPt.x - fpState.startX, dy = snapPt.y - fpState.startY;
+  var d = Math.hypot(dx, dy);
+  if (d < 1) return snapPt;
+  return { x: fpState.startX + (dx/d)*exact, y: fpState.startY + (dy/d)*exact };
+}
+window.fpExactLengthPoint = fpExactLengthPoint;
+
+function fpDraw2DPreview(ctx) {
+  // Draw stored measure lines
+  fpState.measures.forEach(function(m) { fpDrawMeasureLine(ctx, m.x1, m.y1, m.x2, m.y2); });
+  // Active measure line (use typed distance if entered)
+  if (fpState.measuring && fpState.measureStart) {
+    var mx2 = fpState.snapX, my2 = fpState.snapY;
+    var typedM = parseFloat(fpState.typedMeasure);
+    if (typedM > 0) {
+      var mdir = {x: fpState.snapX - fpState.measureStart.x, y: fpState.snapY - fpState.measureStart.y};
+      var mdirLen = Math.hypot(mdir.x, mdir.y);
+      if (mdirLen > 0) { mx2 = fpState.measureStart.x + (mdir.x/mdirLen)*typedM; my2 = fpState.measureStart.y + (mdir.y/mdirLen)*typedM; }
+      else { mx2 = fpState.measureStart.x + typedM; }
+    }
+    fpDrawMeasureLine(ctx, fpState.measureStart.x, fpState.measureStart.y, mx2, my2);
+  }
+
+  var endPt = fpExactLengthPoint({x: fpState.snapX, y: fpState.snapY});
+  var sp = fpW2S(endPt.x, endPt.y);
+
+  // Alignment guide lines — dashed lines showing what the cursor has locked onto
+  if (fpState.alignGuides && fpState.alignGuides.length > 0) {
+    fpState.alignGuides.forEach(function(g) {
+      var srcS = fpW2S(g.srcX, g.srcY);
+      ctx.save();
+      ctx.strokeStyle = 'rgba(74,158,255,0.55)';
+      ctx.lineWidth = 1; ctx.setLineDash([5,4]);
+      ctx.beginPath();
+      if (g.type === 'x') {
+        // Vertical guide: from source endpoint straight down/up to the current snap Y
+        ctx.moveTo(srcS.x, srcS.y);
+        ctx.lineTo(sp.x, sp.y);
+      } else {
+        // Horizontal guide: from source endpoint across to the current snap X
+        ctx.moveTo(srcS.x, srcS.y);
+        ctx.lineTo(sp.x, sp.y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Small square at the source endpoint to mark what we're aligning to
+      ctx.fillStyle = 'rgba(74,158,255,0.7)';
+      ctx.fillRect(srcS.x - 3, srcS.y - 3, 6, 6);
+      ctx.restore();
+    });
+  }
+
+  // Snap dot
+  var hasAlign = fpState.alignGuides && fpState.alignGuides.length > 0;
+  ctx.beginPath(); ctx.arc(sp.x, sp.y, hasAlign ? 6 : 5, 0, Math.PI*2);
+  ctx.fillStyle = hasAlign ? '#ff9f43' : '#4a9eff'; ctx.fill();
+  if (fpState.drawing) {
+    var start = fpW2S(fpState.startX, fpState.startY);
+    var thickness = fpState.wallThickness * fpState.scale;
+    ctx.save(); ctx.strokeStyle = 'rgba(74,158,255,0.55)';
+    ctx.lineWidth = Math.max(2, thickness); ctx.lineCap = 'square';
+    ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(sp.x, sp.y); ctx.stroke();
+    ctx.lineCap = 'butt'; ctx.restore();
+    var typedExact = fpParseLength(fpState.typedLength);
+    var currentLen = Math.round(Math.hypot(endPt.x-fpState.startX, endPt.y-fpState.startY));
+    var displayLen = typedExact > 0 ? (fpState.typedLength + (fpState.typedLength.toLowerCase().endsWith('m') ? '' : ' mm')) : (currentLen + ' mm');
+    var lenEl = document.getElementById('fp-exact-length');
+    if (!fpState.typedLength && lenEl) lenEl.placeholder = currentLen;
+    ctx.save(); ctx.fillStyle = '#1a1a2e'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(displayLen, (start.x+sp.x)/2, (start.y+sp.y)/2 - 10); ctx.restore();
+  }
+}
+
+// ---- 3D view ----
+function fpGenerate3D() {
+  if (!fpState || fpState.walls.length === 0) {
+    fpSetStatus('Draw some walls first, then click View 3D.'); return;
+  }
+  var T = window.mck3D && window.mck3D.THREE;
+  if (!T) { fpSetStatus('3D engine not ready — try again in a moment.'); return; }
+
+  fpStop3D();
+  var container = document.getElementById('fp-3d-container');
+  var W = container.clientWidth || 400, H = container.clientHeight || 400;
+
+  fp3DRenderer = new T.WebGLRenderer({ antialias: true });
+  fp3DRenderer.setPixelRatio(window.devicePixelRatio);
+  fp3DRenderer.setSize(W, H);
+  fp3DRenderer.shadowMap.enabled = true;
+  fp3DRenderer.toneMapping = T.ACESFilmicToneMapping;
+  fp3DRenderer.toneMappingExposure = 1.2;
+  container.innerHTML = '';
+  container.appendChild(fp3DRenderer.domElement);
+
+  fp3DScene = new T.Scene();
+  fp3DScene.background = new T.Color(0x1e1e2a);
+
+  fp3DScene.add(new T.AmbientLight(0xffffff, 0.6));
+  var sun = new T.DirectionalLight(0xffffff, 1.8);
+  sun.position.set(8000, 12000, 6000); sun.castShadow = true;
+  fp3DScene.add(sun);
+
+  // Floor
+  var floorGeo = new T.PlaneGeometry(100000, 100000);
+  var floorMat = new T.MeshStandardMaterial({ color: 0xd8cdb8, roughness: 0.9, metalness: 0 });
+  var floorMesh = new T.Mesh(floorGeo, floorMat);
+  floorMesh.rotation.x = -Math.PI/2; floorMesh.receiveShadow = true;
+  fp3DScene.add(floorMesh);
+
+  var wallMat = new T.MeshStandardMaterial({ color: 0xf2ede0, roughness: 0.85, metalness: 0, side: T.FrontSide, flatShading: true });
+
+  // Helper: build one rectangular prism segment from centerline P1→P2, yBot→yTop, with given normal half-vector
+  function fp3DAddSeg(nx, ny, cx1, cy1, cx2, cy2, yBot, yTop) {
+    if (yTop <= yBot + 1 || Math.hypot(cx2-cx1, cy2-cy1) < 1) return;
+    var c = [
+      {x:cx1+nx, y:cy1+ny}, {x:cx2+nx, y:cy2+ny},
+      {x:cx2-nx, y:cy2-ny}, {x:cx1-nx, y:cy1-ny}
+    ];
+    var verts = new Float32Array([
+      c[0].x,yBot,-c[0].y, c[1].x,yBot,-c[1].y, c[2].x,yBot,-c[2].y, c[3].x,yBot,-c[3].y,
+      c[0].x,yTop,-c[0].y, c[1].x,yTop,-c[1].y, c[2].x,yTop,-c[2].y, c[3].x,yTop,-c[3].y,
+    ]);
+    var idx = [4,7,6,4,6,5, 0,4,5,0,5,1, 1,5,6,1,6,2, 2,6,7,2,7,3, 3,7,4,3,4,0];
+    var geo = new T.BufferGeometry();
+    geo.setAttribute('position', new T.BufferAttribute(verts, 3));
+    geo.setIndex(idx);
+    geo = geo.toNonIndexed(); geo.computeVertexNormals();
+    var mesh = new T.Mesh(geo, wallMat);
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    fp3DScene.add(mesh);
+  }
+
+  fpState.walls.forEach(function(w, wi) {
+    var dx = w.x2-w.x1, dy = w.y2-w.y1, wLen = Math.hypot(dx,dy); if (wLen < 1) return;
+    var ux = dx/wLen, uy = dy/wLen;
+    var h = w.thickness/2;
+    var nx = -uy*h, ny = ux*h;
+
+    // Get butt-join adjusted centre endpoints from corners
+    var corners = fpGetJoinedCorners(wi); if (!corners) return;
+    var ax1 = (corners[0].x+corners[3].x)/2, ay1 = (corners[0].y+corners[3].y)/2;
+    var ax2 = (corners[1].x+corners[2].x)/2, ay2 = (corners[1].y+corners[2].y)/2;
+
+    // Get any openings on this wall, sorted by position along wall
+    var ops = fpState.openings.filter(function(o){ return o.wallIndex === wi; });
+    ops.sort(function(a,b){ return a.t - b.t; });
+
+    if (ops.length === 0) {
+      fp3DAddSeg(nx, ny, ax1, ay1, ax2, ay2, 0, w.height);
+      return;
+    }
+
+    // Build wall as segments around each opening
+    var prevX = ax1, prevY = ay1;
+    ops.forEach(function(o) {
+      var ocx = w.x1 + o.t*dx, ocy = w.y1 + o.t*dy;
+      var leftX = ocx - ux*o.width/2, leftY = ocy - uy*o.width/2;
+      var rightX = ocx + ux*o.width/2, rightY = ocy + uy*o.width/2;
+      // Full-height segment up to opening
+      fp3DAddSeg(nx, ny, prevX, prevY, leftX, leftY, 0, w.height);
+      // Fill above/below the opening gap
+      if (o.type === 'window') {
+        if (o.sillHeight > 0)
+          fp3DAddSeg(nx, ny, leftX, leftY, rightX, rightY, 0, o.sillHeight);
+        var winTop = o.sillHeight + o.height;
+        if (winTop < w.height)
+          fp3DAddSeg(nx, ny, leftX, leftY, rightX, rightY, winTop, w.height);
+      } else {
+        // Door: just the bit above the door (head/lintel zone)
+        var doorTop = Math.min(o.height, w.height);
+        if (doorTop < w.height)
+          fp3DAddSeg(nx, ny, leftX, leftY, rightX, rightY, doorTop, w.height);
+      }
+      prevX = rightX; prevY = rightY;
+    });
+    // Final segment after last opening to wall end
+    fp3DAddSeg(nx, ny, prevX, prevY, ax2, ay2, 0, w.height);
+  });
+
+  // Camera
+  var xs = [], ys = [];
+  fpState.walls.forEach(function(w){ xs.push(w.x1,w.x2); ys.push(w.y1,w.y2); });
+  var cxW = (Math.min.apply(null,xs)+Math.max.apply(null,xs))/2;
+  var cyW = (Math.min.apply(null,ys)+Math.max.apply(null,ys))/2;
+  var span = Math.max(Math.max.apply(null,xs)-Math.min.apply(null,xs), Math.max.apply(null,ys)-Math.min.apply(null,ys));
+
+  var maxH = fpState.walls.reduce(function(m,w){return Math.max(m,w.height);}, 2400);
+  var lookY = maxH * 0.4;
+  var viewDist = Math.max(span, maxH) * 1.8;
+  fp3DCamera = new T.PerspectiveCamera(55, W/H, 10, 200000);
+  fp3DCamera.position.set(cxW + viewDist*0.55, maxH + viewDist*0.3, -cyW + viewDist*0.55);
+  fp3DCamera.lookAt(cxW, lookY, -cyW);
+
+  var OC = window.mck3D && window.mck3D.OrbitControls;
+  if (OC) {
+    fp3DControls = new OC(fp3DCamera, fp3DRenderer.domElement);
+    fp3DControls.target.set(cxW, lookY, -cyW);
+    fp3DControls.update();
+  }
+
+  // Demand rendering — only draw when the camera actually changes.
+  // OrbitControls without damping fires 'change' on every user interaction,
+  // so we don't need a continuous RAF burning GPU the whole session.
+  function fp3DDoRender() {
+    fp3DAnimFrame = null;
+    if (fp3DRenderer && fp3DScene && fp3DCamera) fp3DRenderer.render(fp3DScene, fp3DCamera);
+  }
+  function fp3DRequestRender() {
+    if (!fp3DAnimFrame) fp3DAnimFrame = requestAnimationFrame(fp3DDoRender);
+  }
+  if (fp3DControls) fp3DControls.addEventListener('change', fp3DRequestRender);
+  fp3DRequestRender(); // initial render
+  fpSetStatus('3D view ready. Drag to orbit, scroll to zoom.');
+}
+window.fpGenerate3D = fpGenerate3D;
+
+function fp3DOrbit() {
+  if (!fp3DCamera || !fp3DControls || !fpState || fpState.walls.length === 0) return;
+  var xs = [], ys = [];
+  fpState.walls.forEach(function(w){ xs.push(w.x1,w.x2); ys.push(w.y1,w.y2); });
+  var cx = (Math.min.apply(null,xs)+Math.max.apply(null,xs))/2;
+  var cy = (Math.min.apply(null,ys)+Math.max.apply(null,ys))/2;
+  var span = Math.max(Math.max.apply(null,xs)-Math.min.apply(null,xs), Math.max.apply(null,ys)-Math.min.apply(null,ys));
+  fp3DCamera.position.set(cx, span*0.7, -cy+span*0.9);
+  fp3DControls.target.set(cx, 0, -cy);
+  fp3DControls.update();
+  document.getElementById('fp-btn-orbit').classList.add('active');
+  document.getElementById('fp-btn-walk').classList.remove('active');
+}
+window.fp3DOrbit = fp3DOrbit;
+
+function fp3DWalk() {
+  if (!fp3DCamera || !fp3DControls || !fpState || fpState.walls.length === 0) return;
+  var xs = [], ys = [];
+  fpState.walls.forEach(function(w){ xs.push(w.x1,w.x2); ys.push(w.y1,w.y2); });
+  var cx = (Math.min.apply(null,xs)+Math.max.apply(null,xs))/2;
+  var cy = (Math.min.apply(null,ys)+Math.max.apply(null,ys))/2;
+  fp3DCamera.position.set(cx, 1600, -cy + 4000);
+  fp3DControls.target.set(cx, 1600, -cy);
+  fp3DControls.update();
+  document.getElementById('fp-btn-walk').classList.add('active');
+  document.getElementById('fp-btn-orbit').classList.remove('active');
+}
+window.fp3DWalk = fp3DWalk;
+
+function fpToggleRegs() {
+  var panel = document.getElementById('fp-regs-panel');
+  if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+}
+window.fpToggleRegs = fpToggleRegs;
+
+function fpSetRegsRegion(region) {
+  document.getElementById('fp-regs-scotland-content').style.display = region === 'scotland' ? '' : 'none';
+  document.getElementById('fp-regs-england-content').style.display  = region === 'england'  ? '' : 'none';
+  document.getElementById('fp-regs-tab-scotland').classList.toggle('active', region === 'scotland');
+  document.getElementById('fp-regs-tab-england').classList.toggle('active', region === 'england');
+}
+window.fpSetRegsRegion = fpSetRegsRegion;
+
+function fpSetPreset(w, h, sill) {
+  var wEl = document.getElementById('fp-op-width');
+  var hEl = document.getElementById('fp-op-height');
+  if (wEl) wEl.value = w;
+  if (hEl) hEl.value = h;
+  if (sill !== undefined) {
+    var sEl = document.getElementById('fp-op-sill');
+    if (sEl) sEl.value = sill;
+  }
+}
+window.fpSetPreset = fpSetPreset;
+
+function fpSetThickness(mm) {
+  if (!fpState) return;
+  fpState.wallThickness = mm;
+  var el = document.getElementById('fp-wall-thickness');
+  if (el) el.value = mm;
+}
+window.fpSetThickness = fpSetThickness;
+// ===== END FLOOR PLAN ENGINE =====
 
 // ===== CANVAS RESIZE HANDLERS =====
 window.addEventListener('resize',function(){
@@ -54860,6 +56720,15 @@ window.addEventListener('resize',function(){
   if(document.getElementById('window-designer-overlay').classList.contains('open')&&wd3DScene)wd3DScene.resize();
   if(document.getElementById('staircase-designer-overlay').classList.contains('open')&&sd3DScene)sd3DScene.resize();
   if(document.getElementById('cabinet-designer-overlay').classList.contains('open')&&cab3DScene)cab3DScene.resize();
+  if(document.getElementById('floorplan-overlay').classList.contains('active')) {
+    fpResizeCanvas();
+    if(fp3DRenderer && fp3DCamera) {
+      var fpC = document.getElementById('fp-3d-container');
+      var fpW = fpC.clientWidth, fpH = fpC.clientHeight;
+      fp3DRenderer.setSize(fpW, fpH);
+      fp3DCamera.aspect = fpW/fpH; fp3DCamera.updateProjectionMatrix();
+    }
+  }
 });
 
 // ===== END PHASE 5: ADVANCED DESIGN TOOLS =====
