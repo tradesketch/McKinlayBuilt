@@ -236,6 +236,36 @@ body {
 #canvas-wrap {
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+/* V2: Floor plan as primary workspace */
+#fp-tools-bar {
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 3;
+}
+#fp-main-2d {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+  background: #f4f4f0;
+  min-height: 0;
+}
+#fp-sidebar-in-panel {
+  overflow-y: auto;
+  border-bottom: 1px solid var(--border);
+}
+#fp-sidebar-in-panel .fp-sidebar {
+  width: 100%;
 }
 
 #canvas {
@@ -4538,9 +4568,12 @@ kbd {
       <span id="vcb-value">—</span>
       <input id="vcb-input" type="text" placeholder="Type value...">
     </div>
+    <div id="fp-tools-bar"></div>
+    <div id="fp-main-2d"></div>
   </main>
 
   <aside id="panel">
+    <div id="fp-sidebar-in-panel"></div>
     <div class="section">
       <div class="section-head" onclick="toggleSec(this)">
         <span class="section-title">Properties</span>
@@ -22613,6 +22646,9 @@ function init() {
       }
     }
   });
+
+  // V2: Auto-init floor plan as primary workspace
+  openFloorPlan();
 }
 
 function resize() {
@@ -54776,7 +54812,36 @@ function fpNewState() {
 }
 
 function openFloorPlan() {
-  document.getElementById('floorplan-overlay').classList.add('active');
+  // V2: Move fp-tools to always-visible toolbar bar (first call only)
+  var toolsBar = document.getElementById('fp-tools-bar');
+  if (toolsBar && !toolsBar.hasChildNodes()) {
+    var fpTools = document.querySelector('.fp-tools');
+    if (fpTools) toolsBar.appendChild(fpTools);
+    // Update overlay header to reflect 3D-only purpose
+    var fpHeaderTitle = document.querySelector('#floorplan-overlay .fp-header h2');
+    if (fpHeaderTitle) fpHeaderTitle.textContent = '3D View';
+  }
+  // V2: Move sidebar to right panel (first call only)
+  var sidebarSlot = document.getElementById('fp-sidebar-in-panel');
+  if (sidebarSlot && !sidebarSlot.hasChildNodes()) {
+    var fpSidebar = document.querySelector('.fp-sidebar');
+    if (fpSidebar) sidebarSlot.appendChild(fpSidebar);
+  }
+  // V2: Move canvas, status, regs-panel to #fp-main-2d (first call only)
+  var main2d = document.getElementById('fp-main-2d');
+  if (main2d) {
+    var fpCv = document.getElementById('fp-canvas');
+    var fpSt = document.getElementById('fp-status');
+    var fpRg = document.getElementById('fp-regs-panel');
+    if (fpCv && fpCv.parentElement !== main2d) main2d.appendChild(fpCv);
+    if (fpSt && fpSt.parentElement !== main2d) main2d.appendChild(fpSt);
+    if (fpRg && fpRg.parentElement !== main2d) main2d.appendChild(fpRg);
+    // Hide now-empty 2D panel in overlay
+    var old2DPanel = document.getElementById('fp-2d-panel');
+    if (old2DPanel) old2DPanel.style.display = 'none';
+  }
+  // V2: Don't show overlay — it's 3D-only now
+  // (overlay is opened by fpGenerate3D instead)
   if (!fpState) fpState = fpNewState();
   fpCanvas = document.getElementById('fp-canvas');
   fpCtx = fpCanvas.getContext('2d');
@@ -54829,6 +54894,12 @@ function openFloorPlan() {
       }
     };
   }
+  // V2: ResizeObserver on fp-main-2d (set up once)
+  var main2dEl = document.getElementById('fp-main-2d');
+  if (main2dEl && !main2dEl._fpResizeObserver) {
+    main2dEl._fpResizeObserver = new ResizeObserver(function() { fpResizeCanvas(); });
+    main2dEl._fpResizeObserver.observe(main2dEl);
+  }
   if (fpState.walls.length > 0) fpFitAll();
   else { fpState.panX = fpCanvas.width / 2; fpState.panY = fpCanvas.height / 2; }
   fpRedraw();
@@ -54850,7 +54921,7 @@ function fpStop3D() {
 }
 
 function fpResizeCanvas() {
-  var panel = document.getElementById('fp-2d-panel');
+  var panel = document.getElementById('fp-main-2d') || document.getElementById('fp-2d-panel');
   if (!panel || !fpCanvas) return;
   fpCanvas.width = panel.clientWidth || 600;
   fpCanvas.height = panel.clientHeight || 500;
@@ -56085,6 +56156,10 @@ function fpGenerate3D() {
   }
   var T = window.mck3D && window.mck3D.THREE;
   if (!T) { fpSetStatus('3D engine not ready — try again in a moment.'); return; }
+
+  // V2: Open overlay for 3D view
+  var overlay = document.getElementById('floorplan-overlay');
+  if (overlay) overlay.classList.add('active');
 
   fpStop3D();
   var container = document.getElementById('fp-3d-container');
