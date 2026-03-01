@@ -55206,20 +55206,23 @@ function setAppView(view) {
   var toolsBar = document.getElementById('fp-tools-bar');
   if (toolsBar) toolsBar.style.display = isCad ? 'none' : '';
 
-  // fp-main-2d — ghost overlay in CAD (above canvas but pointer-events:none), full interactive in FP
+  // fp-main-2d: active in FP; ghost overlay in CAD (multiply blend hides beige bg, shows walls)
   var fp = document.getElementById('fp-main-2d');
   if (fp) {
     fp.style.zIndex = isCad ? '3' : '2';
     fp.style.pointerEvents = isCad ? 'none' : 'all';
-    fp.style.opacity = isCad ? '0.15' : '1';
+    fp.style.opacity = isCad ? '0.6' : '1';
+    fp.style.mixBlendMode = isCad ? 'multiply' : '';
   }
 
-  // main canvas — active in CAD, hidden in FP
+  // main canvas: active in CAD; ghost overlay in FP (multiply blend hides white bg, shows lines)
   var cv = document.getElementById('canvas');
   if (cv) {
-    cv.style.zIndex = isCad ? '2' : '0';
+    cv.style.display = '';
+    cv.style.zIndex = isCad ? '2' : '3';
     cv.style.pointerEvents = isCad ? 'all' : 'none';
-    cv.style.display = isCad ? '' : 'none';
+    cv.style.opacity = isCad ? '1' : '0.5';
+    cv.style.mixBlendMode = isCad ? '' : 'multiply';
   }
 
   // CAD-only overlays
