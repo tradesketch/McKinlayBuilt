@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="copyright" content="2026 McKinlay Built Ltd. All rights reserved.">
-  <title>McK Sketch</title>
+  <title>TradeSketch</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -30,8 +30,8 @@
   --text-muted: #606070;
   --text-dim: #50506a;
 
-  --accent: #4a9eff;
-  --accent-dim: rgba(74, 158, 255, 0.15);
+  --accent: #F5C518;
+  --accent-dim: rgba(245, 197, 24, 0.15);
   --success: #4ade80;
   --warning: #fbbf24;
   --error: #f87171;
@@ -44,8 +44,8 @@
   --shadow: 0 4px 24px rgba(0,0,0,0.5);
   --radius: 6px;
 
-  --primary: #4a9eff;
-  --primary-bg: rgba(74, 158, 255, 0.12);
+  --primary: #F5C518;
+  --primary-bg: rgba(245, 197, 24, 0.12);
   --bg-section: #2e2e38;
   --bg-sidebar: #2e2e38;
   --bg: #1e1e24;
@@ -76,7 +76,7 @@ body {
   grid-column: 1 / -1;
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
-  box-shadow: inset 0 -1px 0 0 rgba(74, 158, 255, 0.15);
+  box-shadow: inset 0 -1px 0 0 rgba(245, 197, 24, 0.15);
   display: flex;
   align-items: center;
   padding: 0 16px;
@@ -96,12 +96,12 @@ body {
 .logo-mark {
   width: 26px;
   height: 26px;
-  background: linear-gradient(135deg, #4a9eff 0%, #6c5ce7 100%);
+  background: linear-gradient(135deg, #E8A800 0%, #6B3F1F 100%);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 8px rgba(74, 158, 255, 0.3);
+  box-shadow: 0 0 8px rgba(245, 197, 24, 0.3);
 }
 
 .logo-mark svg { width: 15px; height: 15px; color: #fff; }
@@ -205,7 +205,7 @@ body {
 }
 
 .tool:hover { background: var(--bg-hover); color: var(--text-secondary); }
-.tool.active { background: var(--accent-dim); color: var(--accent); box-shadow: inset 0 0 0 1px rgba(74,158,255,0.25), 0 0 6px rgba(74,158,255,0.15); }
+.tool.active { background: var(--accent-dim); color: var(--accent); box-shadow: inset 0 0 0 1px rgba(245,197,24,0.25), 0 0 6px rgba(245,197,24,0.15); }
 .tool svg { width: 18px; height: 18px; }
 
 .tool::after {
@@ -1138,7 +1138,7 @@ body {
 }
 
 .dd-cut-table tr:hover td {
-  background: rgba(74, 158, 255, 0.1);
+  background: rgba(245, 197, 24, 0.1);
 }
 
 .dd-cut-table .part-name {
@@ -2899,7 +2899,7 @@ body {
   padding: 16px 20px;
   background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
   border-bottom: 1px solid var(--border);
-  box-shadow: inset 0 -1px 0 0 rgba(74, 158, 255, 0.12);
+  box-shadow: inset 0 -1px 0 0 rgba(245, 197, 24, 0.12);
   margin-bottom: 0;
 }
 
@@ -2972,12 +2972,12 @@ body {
 .dd-btn-primary {
   background: linear-gradient(180deg, #5ba3ff 0%, var(--accent) 100%);
   border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 2px 8px rgba(74, 158, 255, 0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow: 0 2px 8px rgba(245, 197, 24, 0.3), inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
 .dd-btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+  box-shadow: 0 4px 12px rgba(245, 197, 24, 0.4), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 
 .dd-btn-success {
@@ -3019,7 +3019,7 @@ body {
 
 .dd-input:focus, .crm-search:focus, input:focus, select:focus, textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.15);
 }
 
 .dd-input::placeholder, input::placeholder, textarea::placeholder {
@@ -3295,7 +3295,7 @@ tr:hover td {
   color: white;
   font-size: 20px;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(74, 158, 255, 0.4);
+  box-shadow: 0 4px 16px rgba(245, 197, 24, 0.4);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -3304,7 +3304,7 @@ tr:hover td {
 
 .fab:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(74, 158, 255, 0.5);
+  box-shadow: 0 6px 20px rgba(245, 197, 24, 0.5);
 }
 
 /* Keyboard Shortcuts Display */
@@ -3646,7 +3646,7 @@ kbd {
 .ke-canvas-wrap canvas { background:#fff; cursor:crosshair; }
 .ke-component { background:var(--bg-app); border:1px solid var(--border); color:var(--text-primary); padding:4px 2px; border-radius:4px; font-size:10px; cursor:pointer; }
 .ke-component:hover { border-color:var(--primary); }
-.ke-component.selected { border-color:var(--primary); background:rgba(74,158,255,0.15); }
+.ke-component.selected { border-color:var(--primary); background:rgba(245,197,24,0.15); }
 
 /* Wall Panelling Designer (wp-) */
 .wp-layout { display:flex; height:calc(100vh - 100px); gap:0; }
@@ -3661,9 +3661,9 @@ kbd {
 .mp-canvas-wrap canvas { background:#fff; }
 .mp-profile-card { display:flex; align-items:center; gap:8px; padding:6px 8px; background:var(--bg-panel); border:1px solid transparent; border-radius:4px; cursor:pointer; margin-bottom:3px; font-size:11px; color:var(--text-secondary); }
 .mp-profile-card:hover { background:var(--bg-app); border-color:var(--border); }
-.mp-profile-card.selected { background:rgba(74,158,255,0.12); border-color:var(--primary); color:var(--text-primary); }
+.mp-profile-card.selected { background:rgba(245,197,24,0.12); border-color:var(--primary); color:var(--text-primary); }
 .mp-size-badge { display:inline-block; padding:1px 5px; background:var(--bg-surface); border:1px solid var(--border); border-radius:3px; font-size:9px; color:var(--text-secondary); cursor:pointer; margin:1px; }
-.mp-size-badge.active { background:rgba(74,158,255,0.15); border-color:var(--primary); color:var(--primary); }
+.mp-size-badge.active { background:rgba(245,197,24,0.15); border-color:var(--primary); color:var(--primary); }
 
 /* Coffered Ceiling Designer (cc-) */
 .cc-layout { display:flex; height:calc(100vh - 100px); gap:0; }
@@ -3675,7 +3675,7 @@ kbd {
 #fp-panel { position:fixed; top:60px; right:10px; width:200px; background:var(--bg-surface); border:1px solid var(--border); border-radius:6px; padding:10px; z-index:1000; box-shadow:0 4px 12px rgba(0,0,0,0.3); }
 #fp-panel .fp-title { font-size:12px; font-weight:600; color:var(--text-primary); margin-bottom:8px; display:flex; justify-content:space-between; }
 #fp-panel button { display:block; width:100%; padding:5px 8px; margin-bottom:3px; background:var(--bg-app); border:1px solid var(--border); color:var(--text-primary); border-radius:4px; font-size:11px; cursor:pointer; text-align:left; }
-#fp-panel button:hover { border-color:var(--primary); background:rgba(74,158,255,0.1); }
+#fp-panel button:hover { border-color:var(--primary); background:rgba(245,197,24,0.1); }
 
 /* Print styles for Phase 4 tools */
 @media print {
@@ -3850,7 +3850,7 @@ kbd {
 .fp-prop-row input { width: 70px; padding: 2px 6px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-size: 12px; text-align: right; }
 .fp-room-list { padding: 8px 12px; }
 .fp-preset-btn { font-size: 10px; padding: 2px 6px; background: var(--bg-control,#2a2a3a); border: 1px solid var(--border); border-radius: 3px; cursor: pointer; color: var(--text-primary,#eee); }
-.fp-preset-btn:hover { background: var(--accent,#4a9eff); color: #fff; }
+.fp-preset-btn:hover { background: var(--accent,#F5C518); color: #fff; }
 .fp-presets { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .fp-room-item { font-size: 12px; padding: 4px 8px; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .fp-room-item:hover { background: var(--bg-hover); }
@@ -3924,7 +3924,7 @@ kbd {
 .fp-regs-section { margin-bottom: 10px; }
 .fp-regs-section-title {
   font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.5px; color: var(--accent,#4a9eff);
+  letter-spacing: 0.5px; color: var(--accent,#F5C518);
   margin-bottom: 4px; padding-bottom: 3px;
   border-bottom: 1px solid var(--border);
 }
@@ -3964,13 +3964,15 @@ kbd {
     <div class="logo">
       <div class="logo-mark">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 20L4 4L20 20Z"/>
-          <line x1="4" y1="17" x2="7" y2="17"/>
-          <line x1="4" y1="14" x2="6" y2="14"/>
-          <line x1="4" y1="11" x2="5" y2="11"/>
+          <!-- pencil -->
+          <rect x="10" y="2" width="4" height="3" rx="1" fill="#E06868" stroke="none"/>
+          <rect x="9.5" y="4.5" width="5" height="2" rx="0.5" fill="#BDBDBD" stroke="none"/>
+          <rect x="10" y="6" width="4" height="12" fill="#F5C518" stroke="none"/>
+          <polygon points="10,18 14,18 12,22" fill="#c89060" stroke="none"/>
+          <polygon points="11,20.5 13,20.5 12,22" fill="#2A2A2A" stroke="none"/>
         </svg>
       </div>
-      <span><b>McK</b> Sketch</span>
+      <span style="font-family:'Impact','Arial Black',sans-serif;font-weight:900;letter-spacing:-0.5px"><span style="color:var(--text-primary)">TRADE</span><span style="color:#F5C518">SKETCH</span></span>
     </div>
     
     <nav class="menu-bar">
@@ -24177,7 +24179,7 @@ function render() {
       ctx.save();
       ctx.translate(room.cx, room.cy);
       ctx.scale(1/S.sc, -1/S.sc);
-      ctx.fillStyle = 'rgba(74,158,255,0.7)';
+      ctx.fillStyle = 'rgba(245,197,24,0.7)';
       ctx.font = "600 13px 'Inter', sans-serif";
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -24191,9 +24193,9 @@ function render() {
     const ds = S.dragSel;
     const x = Math.min(ds.sx, ds.ex), y = Math.min(ds.sy, ds.ey);
     const w = Math.abs(ds.ex - ds.sx), h = Math.abs(ds.ey - ds.sy);
-    ctx.fillStyle = 'rgba(74,158,255,0.08)';
+    ctx.fillStyle = 'rgba(245,197,24,0.08)';
     ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = 'rgba(74,158,255,0.6)';
+    ctx.strokeStyle = 'rgba(245,197,24,0.6)';
     ctx.lineWidth = 1/S.sc;
     ctx.setLineDash([4/S.sc, 3/S.sc]);
     ctx.strokeRect(x, y, w, h);
@@ -24309,7 +24311,7 @@ function drawShape(s, sel) {
   const layer = S.layers[s.layer] || S.layers[0];
   const prevAlpha = ctx.globalAlpha;
   ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
-  ctx.strokeStyle = sel ? '#4a9eff' : layer.c;
+  ctx.strokeStyle = sel ? '#F5C518' : layer.c;
   ctx.lineWidth = (sel ? 3 : 2)/S.sc;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -24378,7 +24380,7 @@ function drawShape(s, sel) {
           ctx.rotate(s.angle * Math.PI / 180);
           ctx.translate(-s.x1 - fpF.w/2, -s.y1 - fpF.h/2);
         }
-        ctx.strokeStyle = sel ? '#4a9eff' : '#555'; ctx.lineWidth = 1/S.sc;
+        ctx.strokeStyle = sel ? '#F5C518' : '#555'; ctx.lineWidth = 1/S.sc;
         ctx.strokeRect(s.x1, s.y1, fpF.w, fpF.h);
         if (fpF.name.includes('Bed')) { ctx.strokeRect(s.x1+2/S.sc, s.y1+fpF.h-fpF.h*0.15, fpF.w-4/S.sc, fpF.h*0.15); }
         else if (fpF.name==='WC') { ctx.beginPath(); ctx.ellipse(s.x1+fpF.w/2, s.y1+fpF.h*0.4, fpF.w*0.35, fpF.h*0.3, 0, 0, Math.PI*2); ctx.stroke(); }
@@ -24391,7 +24393,7 @@ function drawShape(s, sel) {
         if (s.angle) ctx.restore();
       } break;
     case 'door-single': case 'door-double': case 'door-sliding':
-      ctx.strokeStyle = sel ? '#4a9eff' : '#333'; ctx.lineWidth = 1.5/S.sc;
+      ctx.strokeStyle = sel ? '#F5C518' : '#333'; ctx.lineWidth = 1.5/S.sc;
       var dLen = 810;
       ctx.beginPath(); ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x1, s.y1+dLen); ctx.lineWidth = 2/S.sc; ctx.stroke();
       ctx.lineWidth = 1/S.sc; ctx.setLineDash([4/S.sc, 4/S.sc]);
@@ -24399,7 +24401,7 @@ function drawShape(s, sel) {
       ctx.setLineDash([]); break;
     case 'window-double':
       var ww2=s.x2-s.x1, wh2=s.y2-s.y1;
-      ctx.strokeStyle = sel ? '#4a9eff' : '#333'; ctx.lineWidth = 1/S.sc;
+      ctx.strokeStyle = sel ? '#F5C518' : '#333'; ctx.lineWidth = 1/S.sc;
       ctx.strokeRect(s.x1, s.y1, ww2, wh2);
       ctx.beginPath(); ctx.moveTo(s.x1, s.y1+wh2/2); ctx.lineTo(s.x1+ww2, s.y1+wh2/2); ctx.stroke();
       ctx.strokeStyle = '#999'; ctx.lineWidth = 0.5/S.sc;
@@ -24407,7 +24409,7 @@ function drawShape(s, sel) {
       break;
     case 'stair-up':
       var stW=s.x2-s.x1, stH=s.y2-s.y1, stN=s.steps||13, stStep=stH/stN;
-      ctx.strokeStyle = sel ? '#4a9eff' : '#333'; ctx.lineWidth = 1/S.sc;
+      ctx.strokeStyle = sel ? '#F5C518' : '#333'; ctx.lineWidth = 1/S.sc;
       ctx.strokeRect(s.x1, s.y1, stW, stH);
       for(var st=1;st<stN;st++){ctx.beginPath();ctx.moveTo(s.x1,s.y1+st*stStep);ctx.lineTo(s.x1+stW,s.y1+st*stStep);ctx.stroke();}
       ctx.lineWidth = 2/S.sc; ctx.beginPath(); ctx.moveTo(s.x1+stW/2,s.y1+stH*0.2); ctx.lineTo(s.x1+stW/2,s.y1+stH*0.8); ctx.stroke();
@@ -24418,7 +24420,7 @@ function drawShape(s, sel) {
     case 'electrical':
       const sym = ELEC_SYMBOLS.find(e => e.id === s.symbolId) || {icon:'?'};
       const er = 120 / S.sc > 8 ? 8 : 120 / S.sc;
-      ctx.strokeStyle = sel ? '#4a9eff' : '#e67e22';
+      ctx.strokeStyle = sel ? '#F5C518' : '#e67e22';
       ctx.lineWidth = 1.5/S.sc;
       ctx.beginPath(); ctx.arc(s.x1, s.y1, er, 0, Math.PI*2); ctx.stroke();
       if (s.symbolId === 'switch' || s.symbolId === '2way-switch') {
@@ -24431,7 +24433,7 @@ function drawShape(s, sel) {
       ctx.restore();
       break;
     case 'elec-wire':
-      ctx.strokeStyle = sel ? '#4a9eff' : '#e67e22';
+      ctx.strokeStyle = sel ? '#F5C518' : '#e67e22';
       ctx.lineWidth = 1.5/S.sc;
       ctx.setLineDash([3/S.sc, 2/S.sc]);
       ctx.beginPath(); ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x2, s.y2); ctx.stroke();
@@ -24461,7 +24463,7 @@ function drawShape(s, sel) {
     // Professional selection handles - white fill with blue border
     for (const p of pts) {
       ctx.fillStyle = '#fff';
-      ctx.strokeStyle = '#4a9eff';
+      ctx.strokeStyle = '#F5C518';
       ctx.lineWidth = 1.5/S.sc;
       ctx.fillRect(p.x-sz/2, p.y-sz/2, sz, sz);
       ctx.strokeRect(p.x-sz/2, p.y-sz/2, sz, sz);
@@ -24628,8 +24630,8 @@ function drawDim(d) {
 function drawPreview(p) {
   const ctx = S.ctx;
   // More subtle preview styling
-  ctx.strokeStyle = 'rgba(74,158,255,0.8)';
-  ctx.fillStyle = 'rgba(74,158,255,0.08)';
+  ctx.strokeStyle = 'rgba(245,197,24,0.8)';
+  ctx.fillStyle = 'rgba(245,197,24,0.08)';
   ctx.lineWidth = 1.5/S.sc;
   ctx.setLineDash([5/S.sc, 3/S.sc]);
   
@@ -24638,7 +24640,7 @@ function drawPreview(p) {
       ctx.beginPath(); ctx.moveTo(p.x1,p.y1); ctx.lineTo(p.x2,p.y2); ctx.stroke();
       // Endpoint indicators
       ctx.setLineDash([]);
-      ctx.fillStyle = 'rgba(74,158,255,0.8)';
+      ctx.fillStyle = 'rgba(245,197,24,0.8)';
       const dotSz = 3/S.sc;
       ctx.beginPath(); ctx.arc(p.x1,p.y1,dotSz,0,Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(p.x2,p.y2,dotSz,0,Math.PI*2); ctx.fill();
@@ -24661,7 +24663,7 @@ function drawPreview(p) {
       break;
     case 'arc-preview':
       ctx.setLineDash([5/S.sc, 3/S.sc]);
-      ctx.strokeStyle = 'rgba(74,158,255,0.8)';
+      ctx.strokeStyle = 'rgba(245,197,24,0.8)';
       ctx.lineWidth = 1.5/S.sc;
       if (p.phase === 1) {
         ctx.beginPath(); ctx.moveTo(p.x1, p.y1); ctx.lineTo(p.x2, p.y2); ctx.stroke();
@@ -24905,7 +24907,7 @@ function drawOrigin() {
   ctx.fillText('Y', cx, cy - axLen - 6);
 
   // Center dot
-  ctx.fillStyle = '#4a9eff';
+  ctx.fillStyle = '#F5C518';
   ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI*2); ctx.fill();
 
   ctx.restore();
@@ -28069,7 +28071,7 @@ function ddDrawPanels(stileW, paintOverride) {
       const dx = panel.x + d * divWidth;
 
       // Panel opening background
-      doorCtx.fillStyle = isSelected ? 'rgba(74, 158, 255, 0.15)' : 'rgba(200,180,150,0.2)';
+      doorCtx.fillStyle = isSelected ? 'rgba(245, 197, 24, 0.15)' : 'rgba(200,180,150,0.2)';
       doorCtx.fillRect(dx, panel.y, divWidth, panel.height);
 
       // Actual panel (accounting for groove)
@@ -28091,7 +28093,7 @@ function ddDrawPanels(stileW, paintOverride) {
         }
 
         // Panel border
-        doorCtx.strokeStyle = isSelected ? '#4a9eff' : '#8B7355';
+        doorCtx.strokeStyle = isSelected ? '#F5C518' : '#8B7355';
         doorCtx.lineWidth = isSelected ? 2 : 1;
         doorCtx.setLineDash([]);
         doorCtx.strokeRect(actualX, actualY, actualW, actualH);
@@ -28256,7 +28258,7 @@ function ddDrawPanels(stileW, paintOverride) {
     
     // Selection highlight
     if (isSelected) {
-      doorCtx.strokeStyle = '#4a9eff';
+      doorCtx.strokeStyle = '#F5C518';
       doorCtx.lineWidth = 3;
       doorCtx.setLineDash([5, 3]);
       doorCtx.strokeRect(panel.x - 2, panel.y - 2, panel.width + 4, panel.height + 4);
@@ -45751,7 +45753,7 @@ function showEmailContacts() {
     const item = document.createElement('div');
     item.style.cssText = 'padding:8px 12px;cursor:pointer;font-size:12px;color:#ccc;border-bottom:1px solid rgba(255,255,255,0.05);';
     item.innerHTML = `<strong style="color:#f0f0f2">${c.firstName || ''} ${c.lastName || c.name || ''}</strong><br><span style="font-size:11px">${c.email}</span>`;
-    item.onmouseenter = () => item.style.background = 'rgba(74,158,255,0.15)';
+    item.onmouseenter = () => item.style.background = 'rgba(245,197,24,0.15)';
     item.onmouseleave = () => item.style.background = 'transparent';
     item.onclick = () => {
       toField.value = c.email;
@@ -56023,14 +56025,14 @@ function fpDraw2DElectricals(ctx) {
 function fpDrawProtractor(ctx, W, H) {
   // Compute active angle from world coords (y-up convention: dy positive = North)
   var activeDeg = null;   // 0-360, 0=East CCW in world (so N=90, W=180, S=270)
-  var activeCol = '#4a9eff';
+  var activeCol = '#F5C518';
   function angleFrom(dx, dy) { return ((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360; }
 
   if (fpState.drawing) {
     var dx = fpState.snapX - fpState.startX, dy = fpState.snapY - fpState.startY;
     var endPt = fpExactLengthPoint({x: fpState.snapX, y: fpState.snapY});
     dx = endPt.x - fpState.startX; dy = endPt.y - fpState.startY;
-    if (Math.hypot(dx, dy) > 5) { activeDeg = angleFrom(dx, dy); activeCol = '#4a9eff'; }
+    if (Math.hypot(dx, dy) > 5) { activeDeg = angleFrom(dx, dy); activeCol = '#F5C518'; }
   } else if (fpState.measuring && fpState.measureStart) {
     var dx = fpState.snapX - fpState.measureStart.x, dy = fpState.snapY - fpState.measureStart.y;
     if (Math.hypot(dx, dy) > 5) { activeDeg = angleFrom(dx, dy); activeCol = '#ff8c00'; }
@@ -56074,7 +56076,7 @@ function fpDrawProtractor(ctx, W, H) {
     var nx = Math.cos(rad), ny = -Math.sin(rad); // screen direction
 
     // Needle tail
-    ctx.strokeStyle = 'rgba(74,158,255,0.2)'; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(245,197,24,0.2)'; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - nx*10, cy - ny*10); ctx.stroke();
     // Needle body
     ctx.strokeStyle = activeCol; ctx.lineWidth = 2;
@@ -56088,7 +56090,7 @@ function fpDrawProtractor(ctx, W, H) {
     // Highlight ring at the tick nearest the needle
     var snapDeg = Math.round(activeDeg / 15) * 15;
     var nearRad = snapDeg * Math.PI / 180;
-    ctx.strokeStyle = 'rgba(74,158,255,0.35)'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(245,197,24,0.35)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(cx + Math.cos(nearRad)*R, cy - Math.sin(nearRad)*R, 3, 0, Math.PI*2); ctx.stroke();
 
     // Angle text — show from-horizontal (0-90°) since that's what builders check
@@ -56178,7 +56180,7 @@ function fpDraw2DPreview(ctx) {
     fpState.alignGuides.forEach(function(g) {
       var srcS = fpW2S(g.srcX, g.srcY);
       ctx.save();
-      ctx.strokeStyle = 'rgba(74,158,255,0.55)';
+      ctx.strokeStyle = 'rgba(245,197,24,0.55)';
       ctx.lineWidth = 1; ctx.setLineDash([5,4]);
       ctx.beginPath();
       if (g.type === 'x') {
@@ -56193,7 +56195,7 @@ function fpDraw2DPreview(ctx) {
       ctx.stroke();
       ctx.setLineDash([]);
       // Small square at the source endpoint to mark what we're aligning to
-      ctx.fillStyle = 'rgba(74,158,255,0.7)';
+      ctx.fillStyle = 'rgba(245,197,24,0.7)';
       ctx.fillRect(srcS.x - 3, srcS.y - 3, 6, 6);
       ctx.restore();
     });
@@ -56202,11 +56204,11 @@ function fpDraw2DPreview(ctx) {
   // Snap dot
   var hasAlign = fpState.alignGuides && fpState.alignGuides.length > 0;
   ctx.beginPath(); ctx.arc(sp.x, sp.y, hasAlign ? 6 : 5, 0, Math.PI*2);
-  ctx.fillStyle = hasAlign ? '#ff9f43' : '#4a9eff'; ctx.fill();
+  ctx.fillStyle = hasAlign ? '#ff9f43' : '#F5C518'; ctx.fill();
   if (fpState.drawing) {
     var start = fpW2S(fpState.startX, fpState.startY);
     var thickness = fpState.wallThickness * fpState.scale;
-    ctx.save(); ctx.strokeStyle = 'rgba(74,158,255,0.55)';
+    ctx.save(); ctx.strokeStyle = 'rgba(245,197,24,0.55)';
     ctx.lineWidth = Math.max(2, thickness); ctx.lineCap = 'square';
     ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(sp.x, sp.y); ctx.stroke();
     ctx.lineCap = 'butt'; ctx.restore();

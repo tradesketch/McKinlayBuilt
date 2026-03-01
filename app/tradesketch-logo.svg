@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200" width="420" height="200">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&amp;display=swap');
+    </style>
+    <linearGradient id="beltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#9B6E4C"/>
+      <stop offset="40%" style="stop-color:#7B4F2F"/>
+      <stop offset="100%" style="stop-color:#4A2A0E"/>
+    </linearGradient>
+    <linearGradient id="pouchFront" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5E3C"/>
+      <stop offset="100%" style="stop-color:#4E2C0A"/>
+    </linearGradient>
+    <linearGradient id="pouchSide" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3A1A00"/>
+      <stop offset="100%" style="stop-color:#5A3010"/>
+    </linearGradient>
+    <linearGradient id="pencilBody" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#E8A800"/>
+      <stop offset="45%" style="stop-color:#FFD740"/>
+      <stop offset="100%" style="stop-color:#E8B800"/>
+    </linearGradient>
+    <linearGradient id="pencilTip" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#C89060"/>
+      <stop offset="100%" style="stop-color:#A06840"/>
+    </linearGradient>
+    <linearGradient id="metalBuckle" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8D060"/>
+      <stop offset="40%" style="stop-color:#C8A820"/>
+      <stop offset="100%" style="stop-color:#A07810"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#00000060"/>
+    </filter>
+  </defs>
+
+  <!-- pencil is centred at x=78 -->
+
+  <!-- ===== PENCIL — drawn FIRST so belt sits on top ===== -->
+  <g transform="translate(78, 15)" filter="url(#shadow)">
+    <!-- Eraser -->
+    <rect x="-7" y="0" width="14" height="12" rx="2" fill="#E06868"/>
+    <rect x="-7" y="0" width="14" height="3" rx="2" fill="#C85050"/>
+    <!-- Ferrule -->
+    <rect x="-7.5" y="11" width="15" height="10" rx="1" fill="#BDBDBD"/>
+    <rect x="-7.5" y="11" width="15" height="3" fill="#999"/>
+    <rect x="-7.5" y="18" width="15" height="3" fill="#CCC"/>
+    <!-- Body -->
+    <rect x="-7" y="21" width="14" height="108" fill="url(#pencilBody)"/>
+    <rect x="-7" y="21" width="2.5" height="108" fill="#CC8800" opacity="0.45"/>
+    <rect x="4.5" y="21" width="2.5" height="108" fill="#FFE98A" opacity="0.45"/>
+    <!-- Wood cone -->
+    <polygon points="-7,129 7,129 0,153" fill="url(#pencilTip)"/>
+    <line x1="-4" y1="132" x2="0" y2="150" stroke="#B07840" stroke-width="0.7" opacity="0.5"/>
+    <line x1="3" y1="131" x2="0" y2="150" stroke="#B07840" stroke-width="0.7" opacity="0.5"/>
+    <!-- Graphite -->
+    <polygon points="-2.5,147 2.5,147 0,153" fill="#2A2A2A"/>
+  </g>
+
+  <!-- ===== TOOL BELT — drawn ON TOP of pencil ===== -->
+  <g>
+    <!-- Belt strap LEFT — from left edge to pencil centre -->
+    <rect x="5" y="88" width="66" height="20" rx="3" fill="url(#beltGrad)" filter="url(#shadow)"/>
+    <!-- Belt strap RIGHT — from pencil centre to right -->
+    <rect x="85" y="88" width="66" height="20" rx="3" fill="url(#beltGrad)" filter="url(#shadow)"/>
+
+    <!-- Stitching LEFT -->
+    <line x1="7" y1="91" x2="69" y2="91" stroke="#3A1A00" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.7"/>
+    <line x1="7" y1="105" x2="69" y2="105" stroke="#3A1A00" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.7"/>
+    <!-- Stitching RIGHT -->
+    <line x1="87" y1="91" x2="149" y2="91" stroke="#3A1A00" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.7"/>
+    <line x1="87" y1="105" x2="149" y2="105" stroke="#3A1A00" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.7"/>
+
+    <!-- Belt loops LEFT -->
+    <rect x="20" y="85" width="6" height="28" rx="2" fill="#6B3F1F" stroke="#3A1A00" stroke-width="0.5"/>
+    <rect x="40" y="85" width="6" height="28" rx="2" fill="#6B3F1F" stroke="#3A1A00" stroke-width="0.5"/>
+    <!-- Belt loops RIGHT -->
+    <rect x="105" y="85" width="6" height="28" rx="2" fill="#6B3F1F" stroke="#3A1A00" stroke-width="0.5"/>
+    <rect x="125" y="85" width="6" height="28" rx="2" fill="#6B3F1F" stroke="#3A1A00" stroke-width="0.5"/>
+    <!-- Hammer loop far right -->
+    <rect x="146" y="86" width="7" height="26" rx="2" fill="#5A3010" stroke="#3A1A00" stroke-width="0.8"/>
+
+    <!-- ===== CENTRE BUCKLE — sits right over the pencil ===== -->
+    <rect x="63" y="83" width="30" height="30" rx="4" fill="url(#metalBuckle)" stroke="#8B6914" stroke-width="1.2" filter="url(#shadow)"/>
+    <!-- Buckle frame inner -->
+    <rect x="67" y="87" width="22" height="22" rx="3" fill="none" stroke="#5A3D00" stroke-width="2"/>
+    <!-- Centre bar (tongue post) -->
+    <rect x="76" y="84" width="4" height="28" rx="1.5" fill="#A07810"/>
+    <!-- Buckle shine -->
+    <rect x="65" y="85" width="8" height="4" rx="2" fill="#F0E080" opacity="0.5"/>
+
+    <!-- ============================================================ -->
+    <!-- NAIL BAGS                                                     -->
+    <!-- LEFT side: large bag + small pouch                           -->
+    <!-- RIGHT side: large bag + small pouch                          -->
+    <!-- ============================================================ -->
+
+    <!-- === LEFT LARGE NAIL BAG === -->
+    <rect x="5" y="108" width="42" height="62" rx="3" fill="url(#pouchFront)" stroke="#2A1000" stroke-width="1.2" filter="url(#shadow)"/>
+    <rect x="44" y="110" width="5" height="60" rx="2" fill="url(#pouchSide)"/>
+    <!-- Open top lip -->
+    <rect x="5" y="105" width="42" height="6" rx="2" fill="#A0703A" stroke="#2A1000" stroke-width="0.8"/>
+    <!-- Inner shadow open top -->
+    <rect x="7" y="111" width="38" height="6" rx="1" fill="#2A1000" opacity="0.4"/>
+    <!-- Front pocket -->
+    <rect x="7" y="124" width="38" height="44" rx="2" fill="#7A5030" stroke="#2A1000" stroke-width="1"/>
+    <!-- Divider -->
+    <line x1="26" y1="124" x2="26" y2="168" stroke="#2A1000" stroke-width="1.5" opacity="0.6"/>
+    <!-- Stitching -->
+    <rect x="7" y="111" width="38" height="57" rx="2" fill="none" stroke="#3A1A00" stroke-width="0.7" stroke-dasharray="3,3" opacity="0.5"/>
+    <!-- Rivets -->
+    <circle cx="10" cy="112" r="2.2" fill="#C0A030" stroke="#8B6914" stroke-width="0.5"/>
+    <circle cx="43" cy="112" r="2.2" fill="#C0A030" stroke="#8B6914" stroke-width="0.5"/>
+    <!-- Nails sticking out -->
+    <line x1="14" y1="105" x2="14" y2="94" stroke="#ADADAD" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="12.5" y="92" width="3" height="2.5" rx="0.8" fill="#888"/>
+    <line x1="20" y1="105" x2="20" y2="92" stroke="#BEBEBE" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="18.5" y="90" width="3" height="2.5" rx="0.8" fill="#999"/>
+    <line x1="26" y1="105" x2="26" y2="95" stroke="#ADADAD" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="24.5" y="93" width="3" height="2.5" rx="0.8" fill="#888"/>
+    <line x1="33" y1="105" x2="33" y2="93" stroke="#BEBEBE" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="31.5" y="91" width="3" height="2.5" rx="0.8" fill="#999"/>
+    <line x1="39" y1="105" x2="39" y2="96" stroke="#ADADAD" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="37.5" y="94" width="3" height="2.5" rx="0.8" fill="#888"/>
+
+    <!-- === LEFT SMALL POUCH === -->
+    <rect x="50" y="108" width="18" height="44" rx="3" fill="url(#pouchFront)" stroke="#2A1000" stroke-width="1" filter="url(#shadow)"/>
+    <rect x="50" y="105" width="18" height="6" rx="2" fill="#A0703A" stroke="#2A1000" stroke-width="0.8"/>
+    <rect x="52" y="111" width="14" height="5" rx="1" fill="#2A1000" opacity="0.35"/>
+    <rect x="52" y="122" width="14" height="28" rx="2" fill="#7A5030" stroke="#2A1000" stroke-width="0.8"/>
+    <circle cx="52" cy="112" r="1.5" fill="#C0A030"/>
+    <circle cx="66" cy="112" r="1.5" fill="#C0A030"/>
+
+    <!-- === RIGHT LARGE NAIL BAG === -->
+    <rect x="109" y="108" width="42" height="62" rx="3" fill="url(#pouchFront)" stroke="#2A1000" stroke-width="1.2" filter="url(#shadow)"/>
+    <rect x="107" y="110" width="5" height="60" rx="2" fill="url(#pouchSide)"/>
+    <rect x="109" y="105" width="42" height="6" rx="2" fill="#A0703A" stroke="#2A1000" stroke-width="0.8"/>
+    <rect x="111" y="111" width="38" height="6" rx="1" fill="#2A1000" opacity="0.4"/>
+    <rect x="111" y="124" width="38" height="44" rx="2" fill="#7A5030" stroke="#2A1000" stroke-width="1"/>
+    <line x1="130" y1="124" x2="130" y2="168" stroke="#2A1000" stroke-width="1.5" opacity="0.6"/>
+    <rect x="111" y="111" width="38" height="57" rx="2" fill="none" stroke="#3A1A00" stroke-width="0.7" stroke-dasharray="3,3" opacity="0.5"/>
+    <circle cx="113" cy="112" r="2.2" fill="#C0A030" stroke="#8B6914" stroke-width="0.5"/>
+    <circle cx="148" cy="112" r="2.2" fill="#C0A030" stroke="#8B6914" stroke-width="0.5"/>
+    <!-- Nails -->
+    <line x1="117" y1="105" x2="117" y2="94" stroke="#ADADAD" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="115.5" y="92" width="3" height="2.5" rx="0.8" fill="#888"/>
+    <line x1="123" y1="105" x2="123" y2="92" stroke="#BEBEBE" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="121.5" y="90" width="3" height="2.5" rx="0.8" fill="#999"/>
+    <line x1="129" y1="105" x2="129" y2="95" stroke="#ADADAD" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="127.5" y="93" width="3" height="2.5" rx="0.8" fill="#888"/>
+    <line x1="136" y1="105" x2="136" y2="93" stroke="#BEBEBE" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="134.5" y="91" width="3" height="2.5" rx="0.8" fill="#999"/>
+    <line x1="142" y1="105" x2="142" y2="96" stroke="#ADADAD" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="140.5" y="94" width="3" height="2.5" rx="0.8" fill="#888"/>
+
+    <!-- === RIGHT SMALL POUCH === -->
+    <rect x="88" y="108" width="18" height="44" rx="3" fill="url(#pouchFront)" stroke="#2A1000" stroke-width="1" filter="url(#shadow)"/>
+    <rect x="88" y="105" width="18" height="6" rx="2" fill="#A0703A" stroke="#2A1000" stroke-width="0.8"/>
+    <rect x="90" y="111" width="14" height="5" rx="1" fill="#2A1000" opacity="0.35"/>
+    <rect x="90" y="122" width="14" height="28" rx="2" fill="#7A5030" stroke="#2A1000" stroke-width="0.8"/>
+    <circle cx="90" cy="112" r="1.5" fill="#C0A030"/>
+    <circle cx="104" cy="112" r="1.5" fill="#C0A030"/>
+  </g>
+
+  <!-- ===== WORDMARK ===== -->
+  <text x="172" y="112"
+    font-family="'Black Ops One', 'Impact', 'Arial Black', sans-serif"
+    font-size="46"
+    font-weight="900"
+    fill="#1A1A1A"
+    letter-spacing="-1">TRADE</text>
+  <text x="172" y="161"
+    font-family="'Black Ops One', 'Impact', 'Arial Black', sans-serif"
+    font-size="46"
+    font-weight="900"
+    fill="#F5C518"
+    letter-spacing="-1">SKETCH</text>
+  <rect x="172" y="166" width="235" height="5" rx="2" fill="#6B3F1F"/>
+  <text x="173" y="183"
+    font-family="'Arial', sans-serif"
+    font-size="11"
+    fill="#888"
+    letter-spacing="3.5">BUILT FOR THE TRADES</text>
+</svg>

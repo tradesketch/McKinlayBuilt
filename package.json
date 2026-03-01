@@ -1,7 +1,7 @@
 {
-  "name": "mck-sketch",
+  "name": "tradesketch",
   "version": "1.0.0",
-  "description": "Architectural CAD & sketching tool for bespoke joinery",
+  "description": "CAD & sketching tool built for the trades",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -20,8 +20,8 @@
     "electron-reload": "^2.0.0-alpha.1"
   },
   "build": {
-    "appId": "com.mckinlaybuilt.mck-sketch",
-    "productName": "McK Sketch",
+    "appId": "com.tradesketch.app",
+    "productName": "TradeSketch",
     "files": [
       "main.js",
       "app/**/*",
