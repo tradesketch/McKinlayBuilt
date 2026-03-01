@@ -3790,17 +3790,19 @@ kbd {
   flex-shrink: 0;
 }
 .fp-header h2 { font-size: 15px; font-weight: 600; margin: 0; }
-.fp-tools { display: flex; gap: 4px; margin-left: 8px; }
+.fp-tools { display: flex; gap: 3px; margin-left: 8px; }
 .fp-tool-btn {
-  padding: 5px 10px; font-size: 12px; border-radius: 4px;
-  border: 1px solid var(--border); background: var(--bg-input);
-  color: var(--text-primary); cursor: pointer; white-space: nowrap;
+  padding: 5px 11px; font-size: 12px; font-weight: 500; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--bg-surface);
+  color: var(--text-secondary); cursor: pointer; white-space: nowrap;
+  transition: all 0.1s; letter-spacing: 0.2px;
 }
-.fp-tool-btn:hover { background: var(--bg-hover); }
-.fp-tool-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-.unit-toggle-btn.active { background: var(--accent); color: #fff; }
-.view-toggle-btn { padding:5px 12px; border:none; background:transparent; cursor:pointer; font-size:12px; font-weight:600; color:var(--text-secondary); }
-.view-toggle-btn.active { background:var(--accent); color:#fff; }
+.fp-tool-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-strong); }
+.fp-tool-btn.active { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
+.unit-toggle-btn.active { background: var(--accent); color: #111; }
+.view-toggle-btn { padding:5px 14px; border:none; background:transparent; cursor:pointer; font-size:12px; font-weight:500; color:var(--text-secondary); transition:all 0.1s; letter-spacing:0.3px; }
+.view-toggle-btn:hover:not(.active) { background:var(--bg-hover); color:var(--text-primary); }
+.view-toggle-btn.active { background:var(--accent); color:#111; font-weight:600; }
 .fp-elec-sym-btn {
   padding: 4px; border: 1px solid var(--border); border-radius: var(--radius);
   background: var(--bg-surface); cursor: pointer; display: flex;
@@ -4137,8 +4139,8 @@ kbd {
 
     <div class="header-right">
       <div style="display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-right:8px">
-        <button class="view-toggle-btn active" data-view="floorplan" onclick="setAppView('floorplan')" title="Floor plan drawing mode">&#9633; Floor Plan</button>
-        <button class="view-toggle-btn" data-view="cad" onclick="setAppView('cad')" title="CAD drawing mode">&#9998; CAD</button>
+        <button class="view-toggle-btn active" data-view="floorplan" onclick="setAppView('floorplan')" title="Floor plan drawing mode">Floor Plan</button>
+        <button class="view-toggle-btn" data-view="cad" onclick="setAppView('cad')" title="CAD drawing mode">CAD</button>
       </div>
       <!-- Stage 39: Weather Widget -->
       <div class="weather-widget" id="weather-widget" onclick="toggleWeatherPopup()">
@@ -19057,19 +19059,19 @@ kbd {
   <div class="fp-header">
     <h2>Floor Plan</h2>
     <div class="fp-tools">
-      <button class="fp-tool-btn active" id="fp-btn-wall"    onclick="fpSetTool('wall')">&#9645; Wall</button>
-      <button class="fp-tool-btn"        id="fp-btn-door"    onclick="fpSetTool('door')">&#128682; Door</button>
-      <button class="fp-tool-btn"        id="fp-btn-window"  onclick="fpSetTool('window')">&#9633; Window</button>
-      <button class="fp-tool-btn"        id="fp-btn-select"  onclick="fpSetTool('select')">&#9654; Select</button>
-      <button class="fp-tool-btn"        id="fp-btn-measure"     onclick="fpSetTool('measure')"     title="Tape Measure - click two points to measure distance">&#8596; Measure</button>
-      <button class="fp-tool-btn"        id="fp-btn-electrical"  onclick="fpSetTool('electrical')"  title="Place Electrical Symbol (BS 7671)">&#9889; Symbol</button>
-      <button class="fp-tool-btn"        id="fp-btn-wire"        onclick="fpSetTool('wire')"        title="Draw Wire Run">&#9135; Wire</button>
-      <button class="fp-tool-btn"        id="fp-btn-undo" onclick="fpUndo()" title="Undo last action (Cmd+Z)">&#8630; Undo</button>
-      <button class="fp-tool-btn"        onclick="fpToggleRegs()" title="UK Building Regulations reference">&#128220; Regs</button>
-      <button class="fp-tool-btn"        onclick="fpClear()" style="color:#c0392b">&#128465; Clear</button>
-      <button class="fp-tool-btn" onclick="fpExportSVG()" title="Export as SVG vector">&#8659; SVG</button>
-      <button class="fp-tool-btn" onclick="fpExportOBJ()" title="Export 3D as OBJ">&#8659; OBJ</button>
-      <button class="fp-tool-btn"        onclick="fpGenerate3D()" style="background:var(--accent);color:#fff;border-color:var(--accent)">&#9654; View 3D</button>
+      <button class="fp-tool-btn active" id="fp-btn-wall"    onclick="fpSetTool('wall')">Wall</button>
+      <button class="fp-tool-btn"        id="fp-btn-door"    onclick="fpSetTool('door')">Door</button>
+      <button class="fp-tool-btn"        id="fp-btn-window"  onclick="fpSetTool('window')">Window</button>
+      <button class="fp-tool-btn"        id="fp-btn-select"  onclick="fpSetTool('select')">Select</button>
+      <button class="fp-tool-btn"        id="fp-btn-measure"     onclick="fpSetTool('measure')"     title="Tape Measure - click two points to measure distance">Measure</button>
+      <button class="fp-tool-btn"        id="fp-btn-electrical"  onclick="fpSetTool('electrical')"  title="Place Electrical Symbol (BS 7671)">Symbol</button>
+      <button class="fp-tool-btn"        id="fp-btn-wire"        onclick="fpSetTool('wire')"        title="Draw Wire Run">Wire</button>
+      <button class="fp-tool-btn"        id="fp-btn-undo" onclick="fpUndo()" title="Undo (Cmd+Z)">Undo</button>
+      <button class="fp-tool-btn"        onclick="fpToggleRegs()" title="UK Building Regulations">Regs</button>
+      <button class="fp-tool-btn"        onclick="fpClear()" style="color:#f87171" title="Clear all">Clear</button>
+      <button class="fp-tool-btn" onclick="fpExportSVG()" title="Export as SVG">SVG</button>
+      <button class="fp-tool-btn" onclick="fpExportOBJ()" title="Export 3D as OBJ">OBJ</button>
+      <button class="fp-tool-btn"        onclick="fpGenerate3D()" style="background:var(--accent);color:#111;border-color:var(--accent);font-weight:600">View 3D</button>
       <div style="display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-left:8px">
         <button class="unit-toggle-btn active" data-units="metric" onclick="fpSetUnits('metric')"
           style="padding:5px 10px;border:none;background:transparent;cursor:pointer;font-size:11px;color:var(--text-secondary)">mm</button>
@@ -55204,10 +55206,10 @@ function setAppView(view) {
   var toolsBar = document.getElementById('fp-tools-bar');
   if (toolsBar) toolsBar.style.display = isCad ? 'none' : '';
 
-  // fp-main-2d — ghost underlay in CAD, full interactive in FP
+  // fp-main-2d — ghost overlay in CAD (above canvas but pointer-events:none), full interactive in FP
   var fp = document.getElementById('fp-main-2d');
   if (fp) {
-    fp.style.zIndex = isCad ? '1' : '2';
+    fp.style.zIndex = isCad ? '3' : '2';
     fp.style.pointerEvents = isCad ? 'none' : 'all';
     fp.style.opacity = isCad ? '0.15' : '1';
   }
