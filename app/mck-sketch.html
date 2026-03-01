@@ -239,6 +239,18 @@ body {
   display: flex;
   flex-direction: column;
 }
+#canvas-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+#canvas-area canvas#canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
 /* V2: Floor plan as primary workspace */
 #fp-tools-bar {
   background: var(--bg-panel);
@@ -253,12 +265,11 @@ body {
   z-index: 3;
 }
 #fp-main-2d {
-  flex: 1;
-  position: relative;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   z-index: 2;
   background: #f4f4f0;
-  min-height: 0;
 }
 #fp-sidebar-in-panel {
   overflow-y: auto;
@@ -3788,6 +3799,8 @@ kbd {
 .fp-tool-btn:hover { background: var(--bg-hover); }
 .fp-tool-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .unit-toggle-btn.active { background: var(--accent); color: #fff; }
+.view-toggle-btn { padding:5px 12px; border:none; background:transparent; cursor:pointer; font-size:12px; font-weight:600; color:var(--text-secondary); }
+.view-toggle-btn.active { background:var(--accent); color:#fff; }
 .fp-elec-sym-btn {
   padding: 4px; border: 1px solid var(--border); border-radius: var(--radius);
   background: var(--bg-surface); cursor: pointer; display: flex;
@@ -4131,6 +4144,10 @@ kbd {
     </nav>
 
     <div class="header-right">
+      <div style="display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-right:8px">
+        <button class="view-toggle-btn active" data-view="floorplan" onclick="setAppView('floorplan')" title="Floor plan drawing mode">&#9633; Floor Plan</button>
+        <button class="view-toggle-btn" data-view="cad" onclick="setAppView('cad')" title="CAD drawing mode">&#9998; CAD</button>
+      </div>
       <!-- Stage 39: Weather Widget -->
       <div class="weather-widget" id="weather-widget" onclick="toggleWeatherPopup()">
         <span class="weather-icon" id="weather-icon">☀️</span>
@@ -4551,25 +4568,27 @@ kbd {
   </aside>
 
   <main id="canvas-wrap">
-    <canvas id="canvas"></canvas>
-    <div id="axis-indicator">
-      <svg width="50" height="50" viewBox="0 0 50 50">
-        <line x1="25" y1="25" x2="45" y2="25" stroke="#e74c3c" stroke-width="2"/>
-        <line x1="25" y1="25" x2="25" y2="5" stroke="#2ecc71" stroke-width="2"/>
-        <text x="47" y="28" fill="#e74c3c" font-size="10" font-weight="600">X</text>
-        <text x="22" y="4" fill="#2ecc71" font-size="10" font-weight="600">Y</text>
-        <circle cx="25" cy="25" r="3" fill="#3498db"/>
-      </svg>
-    </div>
-    <div id="coords"><span>X</span><strong id="cx">0</strong><span>Y</span><strong id="cy">0</strong></div>
-    <div id="scale"><div id="scale-bar" style="width:100px"></div><span id="scale-text">1m</span></div>
-    <div id="vcb">
-      <span id="vcb-label">LENGTH</span>
-      <span id="vcb-value">—</span>
-      <input id="vcb-input" type="text" placeholder="Type value...">
-    </div>
     <div id="fp-tools-bar"></div>
-    <div id="fp-main-2d"></div>
+    <div id="canvas-area">
+      <canvas id="canvas"></canvas>
+      <div id="axis-indicator">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <line x1="25" y1="25" x2="45" y2="25" stroke="#e74c3c" stroke-width="2"/>
+          <line x1="25" y1="25" x2="25" y2="5" stroke="#2ecc71" stroke-width="2"/>
+          <text x="47" y="28" fill="#e74c3c" font-size="10" font-weight="600">X</text>
+          <text x="22" y="4" fill="#2ecc71" font-size="10" font-weight="600">Y</text>
+          <circle cx="25" cy="25" r="3" fill="#3498db"/>
+        </svg>
+      </div>
+      <div id="coords"><span>X</span><strong id="cx">0</strong><span>Y</span><strong id="cy">0</strong></div>
+      <div id="scale"><div id="scale-bar" style="width:100px"></div><span id="scale-text">1m</span></div>
+      <div id="vcb">
+        <span id="vcb-label">LENGTH</span>
+        <span id="vcb-value">—</span>
+        <input id="vcb-input" type="text" placeholder="Type value...">
+      </div>
+      <div id="fp-main-2d"></div>
+    </div><!-- #canvas-area -->
   </main>
 
   <aside id="panel">
@@ -22649,10 +22668,11 @@ function init() {
 
   // V2: Auto-init floor plan as primary workspace
   openFloorPlan();
+  setAppView(localStorage.getItem('app-view') || 'floorplan');
 }
 
 function resize() {
-  const wrap = document.getElementById('canvas-wrap');
+  const wrap = document.getElementById('canvas-area') || document.getElementById('canvas-wrap');
   S.dpr = window.devicePixelRatio || 1;
   S.w = wrap.clientWidth;
   S.h = wrap.clientHeight;
@@ -54894,11 +54914,14 @@ function openFloorPlan() {
       }
     };
   }
-  // V2: ResizeObserver on fp-main-2d (set up once)
-  var main2dEl = document.getElementById('fp-main-2d');
-  if (main2dEl && !main2dEl._fpResizeObserver) {
-    main2dEl._fpResizeObserver = new ResizeObserver(function() { fpResizeCanvas(); });
-    main2dEl._fpResizeObserver.observe(main2dEl);
+  // V2: ResizeObserver on canvas-area (set up once, view-aware)
+  var canvasAreaEl = document.getElementById('canvas-area');
+  if (canvasAreaEl && !canvasAreaEl._resizeObserver) {
+    canvasAreaEl._resizeObserver = new ResizeObserver(function() {
+      if (appView === 'cad') { if (typeof resize === 'function') resize(); }
+      else { if (typeof fpResizeCanvas === 'function') fpResizeCanvas(); }
+    });
+    canvasAreaEl._resizeObserver.observe(canvasAreaEl);
   }
   if (fpState.walls.length > 0) fpFitAll();
   else { fpState.panX = fpCanvas.width / 2; fpState.panY = fpCanvas.height / 2; }
@@ -55172,6 +55195,54 @@ function fpSetUnits(system) {
   fpSetStatus('Units: ' + (system === 'metric' ? 'Metric (mm/m)' : 'Imperial (ft/in)'));
 }
 window.fpSetUnits = fpSetUnits;
+
+var appView = localStorage.getItem('app-view') || 'floorplan';
+
+function setAppView(view) {
+  appView = view;
+  localStorage.setItem('app-view', view);
+  var isCad = (view === 'cad');
+
+  // Toggle buttons
+  document.querySelectorAll('.view-toggle-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+
+  // fp-tools-bar
+  var toolsBar = document.getElementById('fp-tools-bar');
+  if (toolsBar) toolsBar.style.display = isCad ? 'none' : '';
+
+  // fp-main-2d — ghost underlay in CAD, full interactive in FP
+  var fp = document.getElementById('fp-main-2d');
+  if (fp) {
+    fp.style.zIndex = isCad ? '1' : '2';
+    fp.style.pointerEvents = isCad ? 'none' : 'all';
+    fp.style.opacity = isCad ? '0.15' : '1';
+  }
+
+  // main canvas — active in CAD, hidden in FP
+  var cv = document.getElementById('canvas');
+  if (cv) {
+    cv.style.zIndex = isCad ? '2' : '0';
+    cv.style.pointerEvents = isCad ? 'all' : 'none';
+    cv.style.display = isCad ? '' : 'none';
+  }
+
+  // CAD-only overlays
+  ['axis-indicator', 'coords', 'scale', 'vcb'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = isCad ? '' : 'none';
+  });
+
+  // fp-sidebar in right panel
+  var fpSidebar = document.getElementById('fp-sidebar-in-panel');
+  if (fpSidebar) fpSidebar.style.display = isCad ? 'none' : '';
+
+  // Resize the now-active canvas
+  if (isCad) { if (typeof resize === 'function') resize(); }
+  else { if (typeof fpResizeCanvas === 'function') fpResizeCanvas(); }
+}
+window.setAppView = setAppView;
 
 // ===== ELECTRICAL TOOL =====
 
