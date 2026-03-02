@@ -56199,9 +56199,10 @@ function fpRedraw() {
   fpDrawProtractor(ctx, W, H);
   if (fpState.showDims && fpState.walls) {
     ctx.save();
-    var dimFontSize = Math.max(100, 180/fpState.scale);
+    var dimPx = Math.max(9, Math.min(14, Math.round(fpState.scale * 90)));
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    ctx.font = 'bold ' + dimPx + 'px Helvetica,Arial,sans-serif';
     fpState.walls.forEach(function(w) {
       var ddx = w.x2-w.x1, ddy = w.y2-w.y1;
       var wlen = Math.sqrt(ddx*ddx+ddy*ddy);
@@ -56213,18 +56214,15 @@ function fpRedraw() {
       var wpy = wmy + Math.cos(wangle)*woffset;
       var useFt = document.getElementById('btn-ft') && document.getElementById('btn-ft').classList.contains('active');
       var wlabel = useFt ? (wlen/304.8).toFixed(2)+"'" : Math.round(wlen)+'mm';
-      ctx.font = 'bold '+dimFontSize+'px Helvetica,Arial,sans-serif';
       var wps = fpW2S(wpx, wpy);
-      var tw = ctx.measureText(wlabel).width + 160/fpState.scale;
-      var th = dimFontSize * 1.4;
+      var tw = ctx.measureText(wlabel).width + 12;
+      var th = dimPx * 1.5;
       ctx.fillStyle = 'rgba(255,255,255,0.92)';
       ctx.beginPath();
-      if (ctx.roundRect) { ctx.roundRect(wps.x-tw/2*fpState.scale, wps.y-th/2*fpState.scale, tw*fpState.scale, th*fpState.scale, th/2*fpState.scale); }
-      else { ctx.rect(wps.x-tw/2*fpState.scale, wps.y-th/2*fpState.scale, tw*fpState.scale, th*fpState.scale); }
+      if (ctx.roundRect) { ctx.roundRect(wps.x-tw/2, wps.y-th/2, tw, th, th/2); }
+      else { ctx.rect(wps.x-tw/2, wps.y-th/2, tw, th); }
       ctx.fill();
       ctx.fillStyle = '#1e1e24';
-      ctx.font = 'bold '+Math.max(8, Math.round(dimFontSize*fpState.scale))+'px Helvetica,Arial,sans-serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(wlabel, wps.x, wps.y);
     });
     ctx.restore();
