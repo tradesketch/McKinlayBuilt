@@ -16,6 +16,13 @@ function getDb() {
     // Run schema
     const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
     db.exec(schema);
+
+    // Migrate existing databases — safe to re-run (catches duplicate column error)
+    try {
+      db.exec('ALTER TABLE users ADD COLUMN trial_start DATETIME DEFAULT CURRENT_TIMESTAMP');
+    } catch (e) {
+      // Column already exists — safe to ignore
+    }
   }
   return db;
 }
