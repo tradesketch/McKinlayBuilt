@@ -56674,12 +56674,12 @@ if (window.api && window.api.onUpdateDownloaded) {
     <div id="tutorial-prog" style="text-align:center;font-size:10px;color:var(--text-secondary);margin-top:8px"></div>
   </div>
 </div>
-<div id="trial-expired-overlay" style="display:none">
+<div id="trial-expired-overlay">
   <div id="trial-expired-box">
     <div id="trial-expired-logo">TRADE<span>SKETCH</span></div>
     <h2>Your free trial has ended</h2>
     <p>Subscribe to keep using TradeSketch.</p>
-    <a href="#" onclick="window.api.invoke('open-external', 'https://mckinlaybuilt.github.io/McKinlayBuilt'); return false;">Visit TradeSketch.app</a>
+    <a href="#" onclick="if(window.api && window.api.openExternal) window.api.openExternal('https://mckinlaybuilt.github.io/McKinlayBuilt'); return false;">Visit TradeSketch.app</a>
     <p class="trial-expired-sub">Or <a href="#" onclick="logout(); return false;">sign out</a> to continue as guest</p>
   </div>
 </div>
