@@ -22477,7 +22477,7 @@ const S = {
   showGhostFloor: true
 };
 
-function init() {
+async function init() {
   S.cvs = document.getElementById('canvas');
   S.ctx = S.cvs.getContext('2d');
   resize();
@@ -22499,7 +22499,7 @@ function init() {
   buildFloorSwitcher();
 
   // Load app configuration and check auth
-  loadAppConfig();
+  await loadAppConfig();
   checkAuth();
 
   // Check for autosave recovery
