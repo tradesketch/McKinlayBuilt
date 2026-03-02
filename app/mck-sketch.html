@@ -19156,11 +19156,11 @@ kbd {
         <div class="fp-sidebar-title">Wall</div>
         <div class="fp-prop-row"><label>Thickness</label><input type="number" id="fp-wall-thickness" value="300" min="50" max="600" step="1" onchange="fpUpdateDefaults()"> mm</div>
         <div class="fp-presets" style="margin-bottom:6px">
-          <button class="fp-preset-btn" onclick="fpSetThickness(70)"  title="3×2 CLS (45×70mm dressed)">3×2</button>
-          <button class="fp-preset-btn" onclick="fpSetThickness(95)"  title="4×2 CLS (45×95mm dressed)">4×2</button>
-          <button class="fp-preset-btn" onclick="fpSetThickness(145)" title="6×2 CLS (45×145mm dressed)">6×2</button>
-          <button class="fp-preset-btn" onclick="fpSetThickness(150)" title="6 inch block (150mm)">6&#34; blk</button>
-          <button class="fp-preset-btn" onclick="fpSetThickness(300)" title="External timber kit (300mm)">Ext</button>
+          <button class="fp-preset-btn" onclick="fpSetThickness(70);fpSetTool('wall')" title="3×2 CLS (45×70mm dressed)">3×2</button>
+          <button class="fp-preset-btn" onclick="fpSetThickness(95);fpSetTool('wall')" title="4×2 CLS (45×95mm dressed)">4×2</button>
+          <button class="fp-preset-btn" onclick="fpSetThickness(145);fpSetTool('wall')" title="6×2 CLS (45×145mm dressed)">6×2</button>
+          <button class="fp-preset-btn" onclick="fpSetThickness(150);fpSetTool('wall')" title="6 inch block (150mm)">6&#34; blk</button>
+          <button class="fp-preset-btn" onclick="fpSetThickness(300);fpSetTool('wall')" title="External timber kit (300mm)">Ext</button>
         </div>
         <div class="fp-prop-row"><label>Height</label><input type="number" id="fp-wall-height" value="2400" min="1800" max="4000" step="100" onchange="fpUpdateDefaults()"> mm</div>
         <div class="fp-prop-row" id="fp-length-row" style="display:none"><label>Length</label><input type="text" id="fp-exact-length" placeholder="free" autocomplete="off"> mm</div>
@@ -25252,7 +25252,9 @@ function toggleGrid() {
   S.grid = !S.grid;
   document.getElementById('chkGrid').checked = S.grid;
   document.getElementById('dotGrid').classList.toggle('off', !S.grid);
+  if (typeof fpState !== 'undefined' && fpState) fpState.showGrid = S.grid;
   render();
+  if (typeof fpRedraw === 'function') fpRedraw();
 }
 
 function toggleSnap() {
@@ -55321,8 +55323,15 @@ function setAppView(view) {
   if (fpSidebar) fpSidebar.style.display = isCad ? 'none' : '';
 
   // Resize the now-active canvas
-  if (isCad) { if (typeof resize === 'function') resize(); }
-  else { if (typeof fpResizeCanvas === 'function') fpResizeCanvas(); }
+  if (isCad) {
+    // Reset CAD canvas transform when switching to CAD mode
+    var cadCv = document.getElementById('canvas');
+    if (cadCv) cadCv.style.transform = '';
+    if (typeof resize === 'function') resize();
+  } else {
+    if (typeof fpResizeCanvas === 'function') fpResizeCanvas();
+    syncCadOverlayTransform();
+  }
 }
 window.setAppView = setAppView;
 
@@ -55579,6 +55588,27 @@ window.fpApplyPaintPreset = fpApplyPaintPreset;
 // Coordinate helpers
 function fpW2S(wx, wy) { return { x: fpState.panX + wx * fpState.scale, y: fpState.panY - wy * fpState.scale }; }
 function fpS2W(sx, sy) { return { x: (sx - fpState.panX) / fpState.scale, y: -(sy - fpState.panY) / fpState.scale }; }
+
+function fpSnapCardinal(start, end) {
+  var dx = end.x - start.x;
+  var dy = end.y - start.y;
+  var len = Math.sqrt(dx*dx + dy*dy);
+  if (len < 1) return end;
+  var angle = Math.atan2(dy, dx) * 180 / Math.PI;
+  if (angle < 0) angle += 360;
+  var cardinals = [0, 90, 180, 270, 360];
+  var nearest = cardinals.reduce(function(prev, curr) {
+    return Math.abs(curr - angle) < Math.abs(prev - angle) ? curr : prev;
+  });
+  var diff = Math.abs(nearest - angle);
+  if (diff > 180) diff = 360 - diff;
+  if (diff <= 15) {
+    var snapRad = (nearest % 360) * Math.PI / 180;
+    return { x: start.x + len * Math.cos(snapRad), y: start.y + len * Math.sin(snapRad) };
+  }
+  return end;
+}
+window.fpSnapCardinal = fpSnapCardinal;
 function fpSnapGrid(wx, wy) {
   var g = fpState.gridSize;
   return { x: Math.round(wx / g) * g, y: Math.round(wy / g) * g };
@@ -55716,12 +55746,18 @@ function fpMouseMove(e) {
   if (fpState.panning) {
     fpState.panX = fpState.panPX + (mp.x - fpState.panSX);
     fpState.panY = fpState.panPY + (mp.y - fpState.panSY);
+    syncCadOverlayTransform();
     fpRequestRedraw(); return;
   }
   var wm = fpS2W(mp.x, mp.y);
   var sn = fpSnap(wm.x, wm.y);
   fpState.mouseX = mp.x; fpState.mouseY = mp.y;
   fpState.snapX = sn.x; fpState.snapY = sn.y;
+  // Cardinal direction snapping for wall tool
+  if (fpState.tool === 'wall' && fpState.drawing) {
+    var cardinalSnapped = fpSnapCardinal({ x: fpState.startX, y: fpState.startY }, { x: sn.x, y: sn.y });
+    fpState.snapX = cardinalSnapped.x; fpState.snapY = cardinalSnapped.y;
+  }
   // Only request redraw when there's something dynamic to show (protractor always needs it)
   fpRequestRedraw();
 }
@@ -55769,8 +55805,18 @@ function fpWheel(e) {
     fpState.panX -= e.deltaX;
     fpState.panY -= e.deltaY;
   }
+  syncCadOverlayTransform();
   fpRequestRedraw();
 }
+
+function syncCadOverlayTransform() {
+  if (!fpState) return;
+  var cadCanvas = document.getElementById('canvas');
+  if (!cadCanvas) return;
+  cadCanvas.style.transformOrigin = '0 0';
+  cadCanvas.style.transform = 'translate(' + fpState.panX + 'px,' + fpState.panY + 'px) scale(' + fpState.scale + ')';
+}
+window.syncCadOverlayTransform = syncCadOverlayTransform;
 
 function fpFitAll() {
   if (!fpState || fpState.walls.length === 0) return;
@@ -55932,17 +55978,58 @@ function fpRedraw() {
   if (gi) fpState.gridSize = parseInt(gi.value) || 300;
   var ctx = fpCtx, W = fpCanvas.width, H = fpCanvas.height;
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#f4f4f0'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = (fpState && fpState.archMode) ? '#f8f4ec' : '#f4f4f0'; ctx.fillRect(0, 0, W, H);
   fpDraw2DGrid(ctx, W, H);
   fpDraw2DWalls(ctx);
   fpDraw2DOpenings(ctx);
   fpDraw2DElectricals(ctx);
+  if (fpState.roofs) {
+    fpState.roofs.forEach(function(roof) { drawFpRoof(ctx, roof, false); });
+  }
+  if (fpState.roofDrawing && fpState.roofStart && fpState.roofEnd) {
+    var _rs = fpState.roofStart, _re = fpState.roofEnd;
+    drawFpRoof(ctx, {x1:Math.min(_rs.x,_re.x), y1:Math.min(_rs.y,_re.y), x2:Math.max(_rs.x,_re.x), y2:Math.max(_rs.y,_re.y), style:fpState.roofStyle||'gable'}, true);
+  }
   fpDraw2DPreview(ctx);
   fpDrawProtractor(ctx, W, H);
+  if (fpState.showDims && fpState.walls) {
+    ctx.save();
+    var dimFontSize = Math.max(100, 180/fpState.scale);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    fpState.walls.forEach(function(w) {
+      var ddx = w.x2-w.x1, ddy = w.y2-w.y1;
+      var wlen = Math.sqrt(ddx*ddx+ddy*ddy);
+      if (wlen < 50) return;
+      var wmx = (w.x1+w.x2)/2, wmy = (w.y1+w.y2)/2;
+      var wangle = Math.atan2(ddy, ddx);
+      var woffset = (w.thickness||100)/2 + 200/fpState.scale;
+      var wpx = wmx - Math.sin(wangle)*woffset;
+      var wpy = wmy + Math.cos(wangle)*woffset;
+      var useFt = document.getElementById('btn-ft') && document.getElementById('btn-ft').classList.contains('active');
+      var wlabel = useFt ? (wlen/304.8).toFixed(2)+"'" : Math.round(wlen)+'mm';
+      ctx.font = 'bold '+dimFontSize+'px Helvetica,Arial,sans-serif';
+      var wps = fpW2S(wpx, wpy);
+      var tw = ctx.measureText(wlabel).width + 160/fpState.scale;
+      var th = dimFontSize * 1.4;
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      ctx.beginPath();
+      if (ctx.roundRect) { ctx.roundRect(wps.x-tw/2*fpState.scale, wps.y-th/2*fpState.scale, tw*fpState.scale, th*fpState.scale, th/2*fpState.scale); }
+      else { ctx.rect(wps.x-tw/2*fpState.scale, wps.y-th/2*fpState.scale, tw*fpState.scale, th*fpState.scale); }
+      ctx.fill();
+      ctx.fillStyle = '#1e1e24';
+      ctx.font = 'bold '+Math.max(8, Math.round(dimFontSize*fpState.scale))+'px Helvetica,Arial,sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(wlabel, wps.x, wps.y);
+    });
+    ctx.restore();
+  }
+  syncCadOverlayTransform();
 }
 window.fpRedraw = fpRedraw;
 
 function fpDraw2DGrid(ctx, W, H) {
+  if (fpState.showGrid === false) return;
   var g = fpState.gridSize * fpState.scale;
   if (g < 3) return;
   var ox = ((fpState.panX % g) + g) % g;
