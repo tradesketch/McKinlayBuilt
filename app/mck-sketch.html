@@ -46177,7 +46177,7 @@ function useSmsTemplate(templateId) {
 
 // ===== AUTH & API =====
 
-const API_BASE = 'http://localhost:3141';
+var API_BASE = 'https://tradesketch-api.railway.app';
 let appConfig = {};
 let authState = { token: null, user: null };
 
@@ -46328,6 +46328,7 @@ function onAuthSuccess() {
 async function loadAppConfig() {
   if (window.api) {
     appConfig = await window.api.getConfig() || {};
+    if (appConfig && appConfig.serverUrl) API_BASE = appConfig.serverUrl;
   }
 }
 
@@ -54250,7 +54251,7 @@ window.closeWarehouse = closeWarehouse;
 async function whLoadCategories() {
   try {
     const config = await window.api.getConfig();
-    const res = await fetch('http://localhost:3141/api/warehouse/categories', {
+    const res = await fetch(API_BASE + '/api/warehouse/categories', {
       headers: { 'Authorization': 'Bearer ' + config.authToken }
     });
     whCategories = await res.json();
@@ -54293,7 +54294,7 @@ window.whSelectCategory = whSelectCategory;
 async function whLoadItems(search) {
   try {
     const config = await window.api.getConfig();
-    let url = 'http://localhost:3141/api/warehouse/items?limit=100';
+    let url = API_BASE + '/api/warehouse/items?limit=100';
     if (whCurrentCategory) url += '&category=' + encodeURIComponent(whCurrentCategory);
     if (whCurrentSubcategory) url += '&subcategory=' + encodeURIComponent(whCurrentSubcategory);
     if (search) url += '&search=' + encodeURIComponent(search);
@@ -54330,7 +54331,7 @@ function whRenderGrid() {
     thumb.className = 'wh-item-thumb';
     if (item.thumbnail_filename) {
       const img = document.createElement('img');
-      img.src = 'http://localhost:3141/api/warehouse/item/' + item.id + '/thumbnail';
+      img.src = API_BASE + '/api/warehouse/item/' + item.id + '/thumbnail';
       img.style.cssText = 'width:100%;height:100%;object-fit:cover';
       thumb.appendChild(img);
     } else {
@@ -54363,7 +54364,7 @@ async function whShowDetail(id) {
   window.whCurrentItemId = id;
   try {
     const config = await window.api.getConfig();
-    const res = await fetch('http://localhost:3141/api/warehouse/item/' + id, { headers: { 'Authorization': 'Bearer ' + config.authToken } });
+    const res = await fetch(API_BASE + '/api/warehouse/item/' + id, { headers: { 'Authorization': 'Bearer ' + config.authToken } });
     const item = await res.json();
     document.getElementById('wh-detail-title').textContent = item.name;
 
@@ -54471,7 +54472,7 @@ function whRenderPreview(item) {
   controls.dampingFactor = 0.08;
 
   const loader = new GLTFLoader();
-  loader.load('http://localhost:3141/api/warehouse/item/' + item.id + '/model', function(gltf) {
+  loader.load(API_BASE + '/api/warehouse/item/' + item.id + '/model', function(gltf) {
     const model = gltf.scene;
     model.traverse(function(child) {
       if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; }
@@ -54542,7 +54543,7 @@ async function whCaptureThumbnail(id, authToken, btn) {
   btn.textContent = 'Saving...';
   btn.disabled = true;
   try {
-    const res = await fetch('http://localhost:3141/api/warehouse/item/' + id + '/thumbnail', {
+    const res = await fetch(API_BASE + '/api/warehouse/item/' + id + '/thumbnail', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' },
       body: JSON.stringify({ dataUrl })
@@ -54573,7 +54574,7 @@ async function whPlaceItem(id) {
 
   try {
     const config = await window.api.getConfig();
-    const modelUrl = 'http://localhost:3141/api/warehouse/item/' + id + '/model';
+    const modelUrl = API_BASE + '/api/warehouse/item/' + id + '/model';
 
     gltfLoader.load(
       modelUrl,
@@ -54641,7 +54642,7 @@ window.whPlaceItem = whPlaceItem;
 
 (function pollAnnouncements() {
   var seen = localStorage.getItem('mck-ann-seen') || '0';
-  fetch('http://localhost:3141/api/announcements/latest')
+  fetch(API_BASE + '/api/announcements/latest')
     .then(function(r){ return r.json(); })
     .then(function(ann) {
       if (!ann || String(ann.id) === seen) return;
@@ -54683,7 +54684,7 @@ async function submitFeedback() {
   if (msg.length < 5) { statusEl.textContent = 'Please write a bit more.'; return; }
   statusEl.textContent = 'Sending...';
   try {
-    var r = await fetch('http://localhost:3141/api/feedback', {
+    var r = await fetch(API_BASE + '/api/feedback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: msg, email: email })
@@ -54709,7 +54710,7 @@ async function subscribeNewsletter() {
   if (!email || !email.includes('@')) { statusEl.textContent = 'Enter a valid email.'; return; }
   statusEl.textContent = 'Subscribing...';
   try {
-    var r = await fetch('http://localhost:3141/api/newsletter/subscribe', {
+    var r = await fetch(API_BASE + '/api/newsletter/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email })
