@@ -58,7 +58,7 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "mckinlaybuilt",
+      "owner": "tradesketch",
       "repo": "McKinlayBuilt"
     }
   }
