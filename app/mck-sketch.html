@@ -271,6 +271,7 @@ body {
   z-index: 2;
   background: #f4f4f0;
 }
+#fp-main-2d.arch-mode { background: #f8f4ec; }
 #fp-sidebar-in-panel {
   overflow-y: auto;
   border-bottom: 1px solid var(--border);
@@ -19135,6 +19136,10 @@ kbd {
       <button class="fp-tool-btn"        id="fp-btn-measure"     onclick="fpSetTool('measure')"     title="Tape Measure - click two points to measure distance">Measure</button>
       <button class="fp-tool-btn"        id="fp-btn-electrical"  onclick="fpSetTool('electrical')"  title="Place Electrical Symbol (BS 7671)">Symbol</button>
       <button class="fp-tool-btn"        id="fp-btn-wire"        onclick="fpSetTool('wire')"        title="Draw Wire Run">Wire</button>
+      <button class="fp-tool-btn"        id="fp-btn-eraser"      onclick="fpSetTool('eraser')"      title="Eraser - click to delete walls, doors, windows">Eraser</button>
+      <button class="fp-tool-btn"        id="fp-btn-dims"        onclick="fpToggleDims()"           title="Toggle dimensions">Dims</button>
+      <button class="fp-tool-btn"        id="fp-btn-archmode"    onclick="fpToggleArchMode()"       title="Architectural style">Arch</button>
+      <button class="fp-tool-btn"        id="fp-btn-roof"        onclick="fpSetTool('roof')"        title="Draw roof outline">Roof</button>
       <button class="fp-tool-btn"        id="fp-btn-undo" onclick="fpUndo()" title="Undo (Cmd+Z)">Undo</button>
       <button class="fp-tool-btn"        onclick="fpToggleRegs()" title="UK Building Regulations">Regs</button>
       <button class="fp-tool-btn"        onclick="fpClear()" style="color:#f87171" title="Clear all">Clear</button>
@@ -19181,6 +19186,16 @@ kbd {
           <button class="fp-preset-btn" onclick="fpSetPreset(900,1050,900)">900</button>
           <button class="fp-preset-btn" onclick="fpSetPreset(1200,1050,900)">1200</button>
           <button class="fp-preset-btn" onclick="fpSetPreset(1800,1050,900)">1800</button>
+        </div>
+      </div>
+      <div class="fp-sidebar-section" id="fp-roof-opts" style="display:none">
+        <div class="fp-sidebar-title">Roof</div>
+        <div class="fp-prop-row">
+          <span class="fp-prop-label">Style</span>
+          <div style="display:flex;gap:4px">
+            <button class="fp-preset-btn active" id="fp-roof-gable" onclick="fpSetRoofStyle('gable')">Gable</button>
+            <button class="fp-preset-btn" id="fp-roof-hip" onclick="fpSetRoofStyle('hip')">Hip</button>
+          </div>
         </div>
       </div>
       <div class="fp-sidebar-section" id="fp-elec-palette" style="display:none">
@@ -54909,6 +54924,12 @@ function fpNewState() {
     defaultExternalFinish: 'roughcast',
     defaultInternalFinish: 'plaster',
     defaultPaintColour: '#F5F0EB',
+    // UI toggles
+    showGrid: true,
+    showDims: false,
+    archMode: false,
+    // Roof drawing
+    roofs: [], roofStyle: 'gable', roofDrawing: false, roofStart: null, roofEnd: null,
   };
 }
 
@@ -55047,7 +55068,7 @@ function fpSetTool(tool) {
   fpState.measureStart = null;
   fpState.typedMeasure = '';
   fpState.tool = tool;
-  ['wall','door','window','select','measure','electrical','wire'].forEach(function(t) {
+  ['wall','door','window','select','measure','electrical','wire','eraser','roof'].forEach(function(t) {
     var btn = document.getElementById('fp-btn-' + t);
     if (btn) btn.classList.toggle('active', t === tool);
   });
@@ -55073,6 +55094,9 @@ function fpSetTool(tool) {
       }
     }
   }
+  // Show/hide roof options panel
+  var roofOptsEl = document.getElementById('fp-roof-opts');
+  if (roofOptsEl) roofOptsEl.style.display = (tool === 'roof') ? '' : 'none';
   // Show length row only for wall tool
   var lenRow = document.getElementById('fp-length-row');
   if (lenRow) lenRow.style.display = tool === 'wall' ? '' : 'none';
@@ -55089,6 +55113,8 @@ function fpSetTool(tool) {
     measure: 'Click first point to measure. Click second point to get distance. Esc to clear.',
     electrical: 'Select a symbol from the panel, then click the floor plan to place it.',
     wire: 'Click to start a wire. Click again to place end. Esc to cancel.',
+    eraser: 'Click a wall, door, or window to delete it.',
+    roof: 'Click and drag to draw a roof outline.',
   };
   fpSetStatus(msgs[tool] || '');
   fpRedraw();
@@ -55107,12 +55133,100 @@ function fpPushUndo() {
     openings: JSON.parse(JSON.stringify(fpState.openings)),
     electricals: JSON.parse(JSON.stringify(fpState.electricals)),
     wires: JSON.parse(JSON.stringify(fpState.wires)),
+    roofs: JSON.parse(JSON.stringify(fpState.roofs || [])),
   });
   if (fpState.undoStack.length > 50) fpState.undoStack.shift();
   // Update undo button appearance
   var btn = document.getElementById('fp-btn-undo');
   if (btn) btn.style.opacity = '1';
 }
+
+function fpToggleDims() {
+  if (!fpState) return;
+  fpState.showDims = !fpState.showDims;
+  var btn = document.getElementById('fp-btn-dims');
+  if (btn) btn.classList.toggle('active', fpState.showDims);
+  fpRedraw();
+}
+window.fpToggleDims = fpToggleDims;
+
+function fpToggleArchMode() {
+  if (!fpState) return;
+  fpState.archMode = !fpState.archMode;
+  var btn = document.getElementById('fp-btn-archmode');
+  if (btn) btn.classList.toggle('active', fpState.archMode);
+  var fpEl = document.getElementById('fp-main-2d');
+  if (fpEl) fpEl.classList.toggle('arch-mode', fpState.archMode);
+  fpRedraw();
+}
+window.fpToggleArchMode = fpToggleArchMode;
+
+function fpSetRoofStyle(style) {
+  if (fpState) fpState.roofStyle = style;
+  var g = document.getElementById('fp-roof-gable');
+  var h = document.getElementById('fp-roof-hip');
+  if (g) g.classList.toggle('active', style==='gable');
+  if (h) h.classList.toggle('active', style==='hip');
+}
+window.fpSetRoofStyle = fpSetRoofStyle;
+
+function drawFpRoof(ctx, roof, isPreview) {
+  var archMode = fpState && fpState.archMode;
+  var strokeCol = archMode ? '#111' : '#e0e0e0';
+  var fillCol = archMode ? 'rgba(240,235,220,0.7)' : 'rgba(60,60,80,0.5)';
+  var ridgeCol = archMode ? '#555' : '#aaa';
+  var lw = (isPreview ? 1.5 : 2) / fpState.scale;
+  var rx1=roof.x1, ry1=roof.y1, rx2=roof.x2, ry2=roof.y2;
+  var rw=rx2-rx1, rh=ry2-ry1;
+  var p1=fpW2S(rx1,ry1), p2=fpW2S(rx2,ry1), p3=fpW2S(rx2,ry2), p4=fpW2S(rx1,ry2);
+  ctx.save();
+  ctx.strokeStyle = isPreview ? 'rgba(255,209,0,0.8)' : strokeCol;
+  ctx.fillStyle = fillCol;
+  ctx.lineWidth = lw * fpState.scale;
+  if (isPreview) ctx.setLineDash([8,4]);
+  ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.lineTo(p3.x,p3.y); ctx.lineTo(p4.x,p4.y); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle = ridgeCol;
+  ctx.lineWidth = (isPreview?1:1.5)*fpState.scale;
+  ctx.setLineDash([12,6]);
+  if (roof.style==='gable') {
+    if (rw>=rh) {
+      var rmy=(ry1+ry2)/2;
+      var rm1=fpW2S(rx1,rmy), rm2=fpW2S(rx2,rmy);
+      ctx.beginPath(); ctx.moveTo(rm1.x,rm1.y); ctx.lineTo(rm2.x,rm2.y); ctx.stroke();
+    } else {
+      var rmx=(rx1+rx2)/2;
+      var rm3=fpW2S(rmx,ry1), rm4=fpW2S(rmx,ry2);
+      ctx.beginPath(); ctx.moveTo(rm3.x,rm3.y); ctx.lineTo(rm4.x,rm4.y); ctx.stroke();
+    }
+  } else {
+    var ov=Math.min(rw,rh)/2;
+    if (rw>=rh) {
+      var rmy2=(ry1+ry2)/2, rrx1=rx1+ov, rrx2=rx2-ov;
+      var ra=fpW2S(rrx1,rmy2), rb=fpW2S(rrx2,rmy2);
+      ctx.beginPath(); ctx.moveTo(ra.x,ra.y); ctx.lineTo(rb.x,rb.y); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(ra.x,ra.y); ctx.lineTo(p1.x,p1.y);
+      ctx.moveTo(ra.x,ra.y); ctx.lineTo(p4.x,p4.y);
+      ctx.moveTo(rb.x,rb.y); ctx.lineTo(p2.x,p2.y);
+      ctx.moveTo(rb.x,rb.y); ctx.lineTo(p3.x,p3.y);
+      ctx.stroke();
+    } else {
+      var rmx2=(rx1+rx2)/2, rry1=ry1+ov, rry2=ry2-ov;
+      var rc=fpW2S(rmx2,rry1), rd=fpW2S(rmx2,rry2);
+      ctx.beginPath(); ctx.moveTo(rc.x,rc.y); ctx.lineTo(rd.x,rd.y); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(rc.x,rc.y); ctx.lineTo(p1.x,p1.y);
+      ctx.moveTo(rc.x,rc.y); ctx.lineTo(p2.x,p2.y);
+      ctx.moveTo(rd.x,rd.y); ctx.lineTo(p4.x,p4.y);
+      ctx.moveTo(rd.x,rd.y); ctx.lineTo(p3.x,p3.y);
+      ctx.stroke();
+    }
+  }
+  ctx.setLineDash([]); ctx.restore();
+}
+window.drawFpRoof = drawFpRoof;
 
 function fpUndo() {
   if (!fpState || fpState.undoStack.length === 0) {
@@ -55124,6 +55238,7 @@ function fpUndo() {
   fpState.openings = prev.openings;
   fpState.electricals = prev.electricals || [];
   fpState.wires = prev.wires || [];
+  fpState.roofs = prev.roofs || [];
   fpState.selectedWall = -1;
   fpState.drawing = false;
   fpState.typedLength = '';
@@ -55609,6 +55724,16 @@ function fpSnapCardinal(start, end) {
   return end;
 }
 window.fpSnapCardinal = fpSnapCardinal;
+
+function fpPointNearSegment(pt, x1, y1, x2, y2, threshold) {
+  var dx = x2-x1, dy = y2-y1, len2 = dx*dx+dy*dy;
+  if (len2 === 0) return Math.sqrt(Math.pow(pt.x-x1,2)+Math.pow(pt.y-y1,2)) < threshold;
+  var t = Math.max(0, Math.min(1, ((pt.x-x1)*dx+(pt.y-y1)*dy)/len2));
+  var cx = x1+t*dx, cy = y1+t*dy;
+  return Math.sqrt(Math.pow(pt.x-cx,2)+Math.pow(pt.y-cy,2)) < threshold;
+}
+window.fpPointNearSegment = fpPointNearSegment;
+
 function fpSnapGrid(wx, wy) {
   var g = fpState.gridSize;
   return { x: Math.round(wx / g) * g, y: Math.round(wy / g) * g };
@@ -55737,6 +55862,51 @@ function fpMouseDown(e) {
       fpState.startX = sn.x; fpState.startY = sn.y;
       fpSetStatus('Wire placed. Click next point. Right-click to stop.');
     }
+  } else if (fpState.tool === 'eraser') {
+    var ept = fpS2W(mp.x, mp.y);
+    var edeleted = false;
+    // Delete wall
+    for (var ewi = fpState.walls.length - 1; ewi >= 0; ewi--) {
+      var ew = fpState.walls[ewi];
+      if (fpPointNearSegment(ept, ew.x1, ew.y1, ew.x2, ew.y2, 20 / fpState.scale)) {
+        fpPushUndo();
+        fpState.openings = fpState.openings.filter(function(o) { return o.wallIndex !== ewi; });
+        fpState.openings.forEach(function(o) { if (o.wallIndex > ewi) o.wallIndex--; });
+        fpState.walls.splice(ewi, 1);
+        fpRedraw(); fpSetStatus('Wall deleted.'); edeleted = true; break;
+      }
+    }
+    if (!edeleted) {
+      // Delete opening
+      for (var eoi = fpState.openings.length - 1; eoi >= 0; eoi--) {
+        var eop = fpState.openings[eoi];
+        var eww = fpState.walls[eop.wallIndex];
+        if (!eww) continue;
+        var ewlen = Math.sqrt(Math.pow(eww.x2-eww.x1,2)+Math.pow(eww.y2-eww.y1,2));
+        var eddx = (eww.x2-eww.x1)/ewlen, eddy = (eww.y2-eww.y1)/ewlen;
+        var emx = eww.x1 + eddx*(eop.t*ewlen + eop.width/2);
+        var emy = eww.y1 + eddy*(eop.t*ewlen + eop.width/2);
+        if (Math.sqrt(Math.pow(ept.x-emx,2)+Math.pow(ept.y-emy,2)) < eop.width/2 + 100/fpState.scale) {
+          fpPushUndo();
+          fpState.openings.splice(eoi, 1);
+          fpRedraw(); fpSetStatus((eop.type==='door'?'Door':'Window') + ' deleted.'); edeleted = true; break;
+        }
+      }
+    }
+    if (!edeleted && fpState.roofs) {
+      for (var eri = fpState.roofs.length-1; eri >= 0; eri--) {
+        var er = fpState.roofs[eri];
+        if (ept.x>=er.x1 && ept.x<=er.x2 && ept.y>=er.y1 && ept.y<=er.y2) {
+          fpPushUndo(); fpState.roofs.splice(eri,1); fpRedraw(); fpSetStatus('Roof deleted.'); break;
+        }
+      }
+    }
+    return;
+  } else if (fpState.tool === 'roof') {
+    fpState.roofDrawing = true;
+    fpState.roofStart = fpS2W(mp.x, mp.y);
+    fpState.roofEnd = fpState.roofStart;
+    return;
   }
   fpRequestRedraw();
 }
@@ -55758,6 +55928,11 @@ function fpMouseMove(e) {
     var cardinalSnapped = fpSnapCardinal({ x: fpState.startX, y: fpState.startY }, { x: sn.x, y: sn.y });
     fpState.snapX = cardinalSnapped.x; fpState.snapY = cardinalSnapped.y;
   }
+  // Roof preview update
+  if (fpState.tool === 'roof' && fpState.roofDrawing) {
+    fpState.roofEnd = fpS2W(mp.x, mp.y);
+    fpRequestRedraw(); return;
+  }
   // Only request redraw when there's something dynamic to show (protractor always needs it)
   fpRequestRedraw();
 }
@@ -55774,7 +55949,21 @@ function fpMouseUp(e) {
     }
     return;
   }
-  if (e.button === 1 || e.button === 0) fpState.panning = false;
+  if (e.button === 1 || e.button === 0) {
+    fpState.panning = false;
+    // Finish roof drawing on mouseup
+    if (fpState.tool === 'roof' && fpState.roofDrawing) {
+      fpState.roofDrawing = false;
+      var rs = fpState.roofStart, re = fpState.roofEnd;
+      if (rs && re && Math.abs(re.x-rs.x)>100 && Math.abs(re.y-rs.y)>100) {
+        fpPushUndo();
+        if (!fpState.roofs) fpState.roofs = [];
+        fpState.roofs.push({x1:Math.min(rs.x,re.x), y1:Math.min(rs.y,re.y), x2:Math.max(rs.x,re.x), y2:Math.max(rs.y,re.y), style:fpState.roofStyle||'gable'});
+      }
+      fpState.roofStart = null; fpState.roofEnd = null;
+      fpRedraw(); return;
+    }
+  }
 }
 
 function fpContextMenu(e) {
