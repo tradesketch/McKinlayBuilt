@@ -3940,6 +3940,10 @@ kbd {
   </style>
 </head>
 <body>
+<div id="trial-banner" style="display:none">
+  <span id="trial-banner-text"></span>
+  <button onclick="document.getElementById('trial-banner').style.display='none'" title="Dismiss">&#x2715;</button>
+</div>
 <div id="announcement-banner">
   <span id="ann-text"></span>
   <a id="ann-link" href="#" target="_blank" style="display:none"></a>
@@ -12486,6 +12490,76 @@ kbd {
   .trade-stat-value { color: #2563eb !important; }
   .trade-stat { border: 1px solid #ccc !important; }
 }
+
+/* ===== TRIAL UI ===== */
+#trial-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #2a2a1a;
+  border-bottom: 1px solid #5a4a00;
+  color: #F5C518;
+  font-size: 12px;
+  padding: 5px 14px;
+  gap: 8px;
+  z-index: 1000;
+}
+#trial-banner button {
+  background: none;
+  border: none;
+  color: #F5C518;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+}
+#trial-banner button:hover { opacity: 1; }
+#trial-expired-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#trial-expired-overlay.active {
+  display: flex;
+}
+#trial-expired-box {
+  background: #1e1e24;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 48px 56px;
+  text-align: center;
+  max-width: 420px;
+}
+#trial-expired-logo {
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+#trial-expired-logo span { color: #F5C518; }
+#trial-expired-box h2 { color: #fff; margin: 0 0 10px; font-size: 20px; }
+#trial-expired-box > p { color: #aaa; font-size: 14px; margin: 0 0 20px; }
+#trial-expired-box > a {
+  display: inline-block;
+  background: #F5C518;
+  color: #111;
+  font-weight: 700;
+  padding: 11px 28px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+}
+#trial-expired-box > a:hover { background: #ffd740; }
+.trial-expired-sub { margin-top: 16px !important; font-size: 12px !important; color: #666 !important; }
+.trial-expired-sub a { color: #888 !important; }
+.trial-expired-sub a:hover { color: #ccc !important; }
 </style>
 
 <!-- Project Manager Modal -->
@@ -46313,6 +46387,21 @@ async function checkAuth() {
     const user = await res.json();
     authState.token = token;
     authState.user = user;
+
+    // Trial UI — only shown when logged in
+    if (user.trialExpired) {
+      document.getElementById('trial-expired-overlay').classList.add('active');
+    } else if (typeof user.trialDaysRemaining === 'number' && user.trialDaysRemaining <= 14) {
+      var banner = document.getElementById('trial-banner');
+      var txt = document.getElementById('trial-banner-text');
+      if (banner && txt) {
+        txt.textContent = user.trialDaysRemaining === 1
+          ? '1 day left in your free trial'
+          : user.trialDaysRemaining + ' days left in your free trial';
+        banner.style.display = 'flex';
+      }
+    }
+
     onAuthSuccess();
   } catch (e) {
     showLoginModal();
@@ -56583,6 +56672,15 @@ if (window.api && window.api.onUpdateDownloaded) {
       <button class="tutorial-next" onclick="tutorialNext()" id="tutorial-next-btn">Next</button>
     </div>
     <div id="tutorial-prog" style="text-align:center;font-size:10px;color:var(--text-secondary);margin-top:8px"></div>
+  </div>
+</div>
+<div id="trial-expired-overlay" style="display:none">
+  <div id="trial-expired-box">
+    <div id="trial-expired-logo">TRADE<span>SKETCH</span></div>
+    <h2>Your free trial has ended</h2>
+    <p>Subscribe to keep using TradeSketch.</p>
+    <a href="#" onclick="window.api.invoke('open-external', 'https://mckinlaybuilt.github.io/McKinlayBuilt'); return false;">Visit TradeSketch.app</a>
+    <p class="trial-expired-sub">Or <a href="#" onclick="logout(); return false;">sign out</a> to continue as guest</p>
   </div>
 </div>
 </body>
