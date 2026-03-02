@@ -30,11 +30,13 @@
     "mac": {
       "target": "dmg",
       "category": "public.app-category.graphics-design",
-      "icon": "build/icon.png"
+      "icon": "build/icon.png",
+      "artifactName": "TradeSketch.${ext}"
     },
     "win": {
       "target": "nsis",
-      "icon": "build/icon.png"
+      "icon": "build/icon.png",
+      "artifactName": "TradeSketch-Setup.${ext}"
     },
     "nsis": {
       "oneClick": true,
