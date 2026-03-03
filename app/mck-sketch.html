@@ -56835,15 +56835,36 @@ function toggleCalculator() {
 window.calcKey = calcKey;
 window.toggleCalculator = toggleCalculator;
 
-// Draggable calculator
+// Draggable calculator + keyboard input
 window.addEventListener('DOMContentLoaded', function() {
   var header = document.getElementById('calc-header');
   var widget = document.getElementById('calc-widget');
   if (!header || !widget) return;
   var dragging=false, ox=0, oy=0;
-  header.addEventListener('mousedown', function(e) { dragging=true; ox=e.clientX-widget.offsetLeft; oy=e.clientY-widget.offsetTop; });
+  header.addEventListener('mousedown', function(e) {
+    if (e.target.tagName === 'BUTTON') return;
+    dragging=true; ox=e.clientX-widget.offsetLeft; oy=e.clientY-widget.offsetTop;
+  });
   document.addEventListener('mousemove', function(e) { if(!dragging)return; widget.style.left=(e.clientX-ox)+'px'; widget.style.top=(e.clientY-oy)+'px'; widget.style.bottom='auto'; widget.style.right='auto'; });
   document.addEventListener('mouseup', function() { dragging=false; });
+  // Keyboard support when calculator is visible
+  document.addEventListener('keydown', function(e) {
+    if (!widget || widget.style.display === 'none') return;
+    // Don't intercept if user is typing in an input field (other than calc)
+    var tag = e.target && e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    var k = e.key;
+    if (k >= '0' && k <= '9') { calcKey(k); e.preventDefault(); }
+    else if (k === '.') { calcKey('.'); e.preventDefault(); }
+    else if (k === '+') { calcKey('+'); e.preventDefault(); }
+    else if (k === '-') { calcKey('-'); e.preventDefault(); }
+    else if (k === '*') { calcKey('*'); e.preventDefault(); }
+    else if (k === '/') { calcKey('/'); e.preventDefault(); }
+    else if (k === '%') { calcKey('%'); e.preventDefault(); }
+    else if (k === 'Enter' || k === '=') { calcKey('='); e.preventDefault(); }
+    else if (k === 'Backspace') { calcKey('back'); e.preventDefault(); }
+    else if (k === 'Escape') { calcKey('C'); e.preventDefault(); }
+  });
 });
 
 // ===== INTERNATIONAL BUILDING STANDARDS =====
