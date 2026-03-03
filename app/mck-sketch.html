@@ -56320,17 +56320,26 @@ function fpGetJoinedCorners(wi) {
 }
 
 function fpDraw2DWalls(ctx) {
+  var archMode = fpState && fpState.archMode;
+  var wallFill = archMode ? '#ffffff' : null; // null means use material colour
+  var wallStroke = archMode ? '#111111' : '#444';
   fpState.walls.forEach(function(w, i) {
     var corners = fpGetJoinedCorners(i); if (!corners) return;
     var pts = corners.map(function(c){ return fpW2S(c.x, c.y); });
     ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     pts.slice(1).forEach(function(p){ ctx.lineTo(p.x, p.y); });
     ctx.closePath();
-    var cfg = fp3DExtMatConfig[w.externalFinish] || fp3DExtMatConfig['roughcast'];
-    var r = (cfg.color >> 16) & 0xff, g = (cfg.color >> 8) & 0xff, b = cfg.color & 0xff;
-    ctx.fillStyle = i === fpState.selectedWall ? '#b8d4ff' : ('rgb('+r+','+g+','+b+')');
-    ctx.fill(); ctx.strokeStyle = '#444'; ctx.lineWidth = 1; ctx.stroke();
-    if (fpState.scale > 0.07) {
+    if (i === fpState.selectedWall) {
+      ctx.fillStyle = '#b8d4ff';
+    } else if (wallFill) {
+      ctx.fillStyle = wallFill;
+    } else {
+      var cfg = fp3DExtMatConfig[w.externalFinish] || fp3DExtMatConfig['roughcast'];
+      var r = (cfg.color >> 16) & 0xff, g = (cfg.color >> 8) & 0xff, b = cfg.color & 0xff;
+      ctx.fillStyle = 'rgb('+r+','+g+','+b+')';
+    }
+    ctx.fill(); ctx.strokeStyle = wallStroke; ctx.lineWidth = archMode ? 1.5 : 1; ctx.stroke();
+    if (fpState.scale > 0.07 && !fpState.showDims) {
       var len = Math.round(Math.hypot(w.x2-w.x1, w.y2-w.y1));
       var mid = fpW2S((w.x1+w.x2)/2, (w.y1+w.y2)/2);
       ctx.save(); ctx.fillStyle = '#333'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
@@ -56356,7 +56365,7 @@ function fpDraw2DOpenings(ctx) {
     ctx.save(); ctx.beginPath();
     ctx.moveTo(eraseCorners[0].x, eraseCorners[0].y);
     eraseCorners.slice(1).forEach(function(c){ ctx.lineTo(c.x, c.y); });
-    ctx.closePath(); ctx.fillStyle = '#f4f4f0'; ctx.fill(); ctx.restore();
+    ctx.closePath(); ctx.fillStyle = (fpState && fpState.archMode) ? '#f8f4ec' : '#f4f4f0'; ctx.fill(); ctx.restore();
     // Opening line
     var p1s = fpW2S(p1w.x, p1w.y), p2s = fpW2S(p2w.x, p2w.y);
     ctx.strokeStyle = o.type==='door' ? '#2a6ebb' : '#3a9a3a';
