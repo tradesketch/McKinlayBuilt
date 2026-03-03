@@ -46418,6 +46418,22 @@ function logout() {
   showLoginModal();
 }
 
+// Admin function — callable from DevTools console: adminGrantLifetime('user@example.com')
+async function adminGrantLifetime(email) {
+  var token = localStorage.getItem('jwt') || authState.token;
+  var res = await fetch(API_BASE + '/billing/grant-lifetime', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify({ email: email })
+  });
+  var data = await res.json();
+  alert(data.message || data.error);
+}
+window.adminGrantLifetime = adminGrantLifetime;
+
 async function startCheckout(plan) {
   var errEl = document.getElementById('checkout-error');
   if (errEl) errEl.style.display = 'none';
