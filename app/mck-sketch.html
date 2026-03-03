@@ -56661,10 +56661,22 @@ function fpGenerate3D() {
   fp3DScene = new T.Scene();
   fp3DScene.background = new T.Color(0x1e1e2a);
 
-  fp3DScene.add(new T.AmbientLight(0xffffff, 0.6));
-  var sun = new T.DirectionalLight(0xffffff, 1.8);
-  sun.position.set(8000, 12000, 6000); sun.castShadow = true;
+  // Improvement 1: Better lighting — warmer ambient, sun, fill, hemisphere bounce
+  fp3DScene.add(new T.AmbientLight(0xfff8f0, 0.5));
+
+  var sun = new T.DirectionalLight(0xfff4e0, 1.6);
+  sun.position.set(8000, 12000, 6000);
+  sun.castShadow = true;
+  sun.shadow.mapSize.width = 2048;
+  sun.shadow.mapSize.height = 2048;
   fp3DScene.add(sun);
+
+  var fill = new T.DirectionalLight(0xc8d8ff, 0.4);
+  fill.position.set(-6000, 4000, -8000);
+  fp3DScene.add(fill);
+
+  var hemi = new T.HemisphereLight(0xd4e8ff, 0xb0a090, 0.35);
+  fp3DScene.add(hemi);
 
   // Floor
   var floorGeo = new T.PlaneGeometry(100000, 100000);
@@ -56767,10 +56779,201 @@ function fpGenerate3D() {
         if (doorTop < w.height)
           fp3DAddSeg(nx, ny, leftX, leftY, rightX, rightY, doorTop, w.height, wallMats);
       }
+
+      // Improvement 3: Window glass panes + frames
+      if (o.type === 'window') {
+        var wolen = Math.hypot(w.x2-w.x1, w.y2-w.y1);
+        var woux = (w.x2-w.x1)/wolen, wouy = (w.y2-w.y1)/wolen;
+        var woStartX = w.x1 + o.t*(w.x2-w.x1);
+        var woStartY = w.y1 + o.t*(w.y2-w.y1);
+        var woCentreX = woStartX + woux * o.width/2;
+        var woCentreY = woStartY + wouy * o.width/2;
+        var woEndX = woStartX + woux * o.width;
+        var woEndY = woStartY + wouy * o.width;
+        var sillH = o.sillHeight || 800;
+        var winH = o.height || 1200;
+        var winMidH = sillH + winH/2;
+        var wWallAngle = Math.atan2(w.y2-w.y1, w.x2-w.x1);
+
+        // Glass pane
+        var glassGeo = new T.PlaneGeometry(o.width - 80, winH - 80);
+        var glassMat = new T.MeshStandardMaterial({
+          color: 0xaaccdd, roughness: 0.05, metalness: 0.1,
+          transparent: true, opacity: 0.35, side: T.DoubleSide
+        });
+        var glassMesh = new T.Mesh(glassGeo, glassMat);
+        glassMesh.position.set(woCentreX, winMidH, -woCentreY);
+        glassMesh.rotation.y = -wWallAngle;
+        fp3DScene.add(glassMesh);
+
+        // Window frame
+        var frameThick = 60;
+        var frameMat = new T.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.4, metalness: 0.1 });
+        // Top frame
+        var fTop = new T.Mesh(new T.BoxGeometry(o.width+frameThick, frameThick, frameThick), frameMat);
+        fTop.position.set(woCentreX, sillH + winH + frameThick/2, -woCentreY);
+        fTop.rotation.y = -wWallAngle;
+        fp3DScene.add(fTop);
+        // Bottom sill frame
+        var fBot = new T.Mesh(new T.BoxGeometry(o.width+frameThick, frameThick, frameThick), frameMat);
+        fBot.position.set(woCentreX, sillH - frameThick/2, -woCentreY);
+        fBot.rotation.y = -wWallAngle;
+        fp3DScene.add(fBot);
+        // Left frame
+        var fLeft = new T.Mesh(new T.BoxGeometry(frameThick, winH+frameThick, frameThick), frameMat);
+        fLeft.position.set(woStartX - woux*frameThick/2, winMidH, -woStartY + wouy*frameThick/2);
+        fLeft.rotation.y = -wWallAngle;
+        fp3DScene.add(fLeft);
+        // Right frame
+        var fRight = new T.Mesh(new T.BoxGeometry(frameThick, winH+frameThick, frameThick), frameMat);
+        fRight.position.set(woEndX + woux*frameThick/2, winMidH, -woEndY - wouy*frameThick/2);
+        fRight.rotation.y = -wWallAngle;
+        fp3DScene.add(fRight);
+      }
+
+      // Improvement 4: Door leaves
+      if (o.type === 'door') {
+        var dolen = Math.hypot(w.x2-w.x1, w.y2-w.y1);
+        var doux = (w.x2-w.x1)/dolen, douy = (w.y2-w.y1)/dolen;
+        var doorH = o.height || 2100;
+        var doorW = o.width;
+        var doStartX = w.x1 + o.t*(w.x2-w.x1);
+        var doStartY = w.y1 + o.t*(w.y2-w.y1);
+        var doCentreX = doStartX + doux * doorW/2;
+        var doCentreY = doStartY + douy * doorW/2;
+        var dWallAngle = Math.atan2(w.y2-w.y1, w.x2-w.x1);
+        var doorOpenAngle = Math.PI * 0.1; // slightly ajar
+
+        // Door leaf
+        var doorGeo = new T.BoxGeometry(doorW - 40, doorH - 40, 44);
+        var doorMat = new T.MeshStandardMaterial({ color: 0xd4b896, roughness: 0.6, metalness: 0 });
+        var doorMesh = new T.Mesh(doorGeo, doorMat);
+        var hingeX = doStartX + doux * 20;
+        var hingeY = doStartY + douy * 20;
+        doorMesh.position.set(
+          hingeX + Math.cos(dWallAngle + doorOpenAngle) * doorW/2,
+          doorH/2,
+          -(hingeY + Math.sin(dWallAngle + doorOpenAngle) * doorW/2)
+        );
+        doorMesh.rotation.y = -(dWallAngle + doorOpenAngle);
+        doorMesh.castShadow = true;
+        fp3DScene.add(doorMesh);
+
+        // Door frame top
+        var dfMat = new T.MeshStandardMaterial({ color: 0xc8a87a, roughness: 0.5, metalness: 0 });
+        var dfTop = new T.Mesh(new T.BoxGeometry(doorW+100, 80, 80), dfMat);
+        dfTop.position.set(doCentreX, doorH + 40, -doCentreY);
+        dfTop.rotation.y = -dWallAngle;
+        fp3DScene.add(dfTop);
+      }
+
       prevX = rightX; prevY = rightY;
     });
     // Final segment after last opening to wall end
     fp3DAddSeg(nx, ny, prevX, prevY, ax2, ay2, 0, w.height, wallMats);
+  });
+
+  // Improvement 2: Ceiling — flat plane just above max wall height
+  (function() {
+    var maxWH = 0;
+    fpState.walls.forEach(function(w){ if ((w.height||2400) > maxWH) maxWH = (w.height||2400); });
+    var wxs = [], wys = [];
+    fpState.walls.forEach(function(w){ wxs.push(w.x1,w.x2); wys.push(w.y1,w.y2); });
+    var wxMin = Math.min.apply(null,wxs)-2000, wxMax = Math.max.apply(null,wxs)+2000;
+    var wyMin = Math.min.apply(null,wys)-2000, wyMax = Math.max.apply(null,wys)+2000;
+    var ceilW = wxMax - wxMin, ceilD = wyMax - wyMin;
+    var ceilGeo = new T.PlaneGeometry(ceilW, ceilD);
+    var ceilMat = new T.MeshStandardMaterial({ color: 0xF8F4EE, roughness: 0.9, metalness: 0, side: T.BackSide });
+    var ceilMesh = new T.Mesh(ceilGeo, ceilMat);
+    ceilMesh.rotation.x = Math.PI / 2;
+    ceilMesh.position.set((wxMin+wxMax)/2, maxWH, -(wyMin+wyMax)/2);
+    ceilMesh.receiveShadow = true;
+    fp3DScene.add(ceilMesh);
+  })();
+
+  // Improvement 5: 3D Roofs
+  (fpState.roofs || []).forEach(function(roof) {
+    var rx1=roof.x1, ry1=roof.y1, rx2=roof.x2, ry2=roof.y2;
+    var rw = rx2-rx1, rh = ry2-ry1;
+    var rcx = (rx1+rx2)/2, rcy = (ry1+ry2)/2;
+    var wallHt = 2400;
+    var pitchRad = ((roof.pitch||35) * Math.PI / 180);
+    var ridgeHt = Math.min(rw,rh)/2 * Math.tan(pitchRad);
+    var roofMat = new T.MeshStandardMaterial({ color: 0x8a6a5a, roughness: 0.9, metalness: 0, side: T.DoubleSide });
+
+    if (roof.style === 'gable') {
+      var isWide = rw >= rh;
+      if (isWide) {
+        var ridgeY = wallHt + ridgeHt;
+        var southVerts = new Float32Array([
+          rx1,wallHt,-ry2, rx2,wallHt,-ry2, rx2,ridgeY,-rcy,
+          rx1,wallHt,-ry2, rx2,ridgeY,-rcy, rx1,ridgeY,-rcy
+        ]);
+        var sg = new T.BufferGeometry(); sg.setAttribute('position', new T.BufferAttribute(southVerts,3)); sg.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(sg, roofMat));
+        var northVerts = new Float32Array([
+          rx1,wallHt,-ry1, rx1,ridgeY,-rcy, rx2,ridgeY,-rcy,
+          rx1,wallHt,-ry1, rx2,ridgeY,-rcy, rx2,wallHt,-ry1
+        ]);
+        var ng = new T.BufferGeometry(); ng.setAttribute('position', new T.BufferAttribute(northVerts,3)); ng.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(ng, roofMat));
+        var wVerts = new Float32Array([rx1,wallHt,-ry1, rx1,wallHt,-ry2, rx1,ridgeY,-rcy]);
+        var wg2geo = new T.BufferGeometry(); wg2geo.setAttribute('position', new T.BufferAttribute(wVerts,3)); wg2geo.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(wg2geo, roofMat));
+        var eVerts = new Float32Array([rx2,wallHt,-ry1, rx2,ridgeY,-rcy, rx2,wallHt,-ry2]);
+        var eg = new T.BufferGeometry(); eg.setAttribute('position', new T.BufferAttribute(eVerts,3)); eg.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(eg, roofMat));
+      } else {
+        var ridgeY2 = wallHt + ridgeHt;
+        var eVerts2 = new Float32Array([rx2,wallHt,-ry1, rx2,wallHt,-ry2, rcx,ridgeY2,-ry2, rx2,wallHt,-ry1, rcx,ridgeY2,-ry2, rcx,ridgeY2,-ry1]);
+        var eg2 = new T.BufferGeometry(); eg2.setAttribute('position', new T.BufferAttribute(eVerts2,3)); eg2.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(eg2, roofMat));
+        var wVerts2 = new Float32Array([rx1,wallHt,-ry1, rcx,ridgeY2,-ry1, rcx,ridgeY2,-ry2, rx1,wallHt,-ry1, rcx,ridgeY2,-ry2, rx1,wallHt,-ry2]);
+        var wg3 = new T.BufferGeometry(); wg3.setAttribute('position', new T.BufferAttribute(wVerts2,3)); wg3.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(wg3, roofMat));
+        var sVerts2 = new Float32Array([rx1,wallHt,-ry2, rx2,wallHt,-ry2, rcx,ridgeY2,-ry2]);
+        var sg2 = new T.BufferGeometry(); sg2.setAttribute('position', new T.BufferAttribute(sVerts2,3)); sg2.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(sg2, roofMat));
+        var nVerts2 = new Float32Array([rx1,wallHt,-ry1, rcx,ridgeY2,-ry1, rx2,wallHt,-ry1]);
+        var ng2 = new T.BufferGeometry(); ng2.setAttribute('position', new T.BufferAttribute(nVerts2,3)); ng2.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(ng2, roofMat));
+      }
+    } else if (roof.style === 'hip') {
+      var overhang = Math.min(rw,rh)/2;
+      var ridgeHtH = wallHt + ridgeHt;
+      var isWideH = rw >= rh;
+      if (isWideH) {
+        var rrx1 = rx1+overhang, rrx2 = rx2-overhang;
+        var sv = new Float32Array([rx1,wallHt,-ry2, rx2,wallHt,-ry2, rrx2,ridgeHtH,-rcy, rx1,wallHt,-ry2, rrx2,ridgeHtH,-rcy, rrx1,ridgeHtH,-rcy]);
+        var sg3 = new T.BufferGeometry(); sg3.setAttribute('position', new T.BufferAttribute(sv,3)); sg3.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(sg3, roofMat));
+        var nv = new Float32Array([rx1,wallHt,-ry1, rrx1,ridgeHtH,-rcy, rrx2,ridgeHtH,-rcy, rx1,wallHt,-ry1, rrx2,ridgeHtH,-rcy, rx2,wallHt,-ry1]);
+        var ng3 = new T.BufferGeometry(); ng3.setAttribute('position', new T.BufferAttribute(nv,3)); ng3.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(ng3, roofMat));
+        var wv = new Float32Array([rx1,wallHt,-ry1, rx1,wallHt,-ry2, rrx1,ridgeHtH,-rcy]);
+        var wg4 = new T.BufferGeometry(); wg4.setAttribute('position', new T.BufferAttribute(wv,3)); wg4.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(wg4, roofMat));
+        var ev = new Float32Array([rx2,wallHt,-ry1, rrx2,ridgeHtH,-rcy, rx2,wallHt,-ry2]);
+        var eg3 = new T.BufferGeometry(); eg3.setAttribute('position', new T.BufferAttribute(ev,3)); eg3.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(eg3, roofMat));
+      } else {
+        var ovH = Math.min(rw,rh)/2;
+        var rry1 = ry1+ovH, rry2 = ry2-ovH;
+        var ridgeHtH2 = wallHt + ridgeHt;
+        var wv2 = new Float32Array([rx1,wallHt,-ry1, rx1,wallHt,-ry2, rcx,ridgeHtH2,-rry2, rx1,wallHt,-ry1, rcx,ridgeHtH2,-rry2, rcx,ridgeHtH2,-rry1]);
+        var wg5 = new T.BufferGeometry(); wg5.setAttribute('position', new T.BufferAttribute(wv2,3)); wg5.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(wg5, roofMat));
+        var ev2 = new Float32Array([rx2,wallHt,-ry1, rcx,ridgeHtH2,-rry1, rcx,ridgeHtH2,-rry2, rx2,wallHt,-ry1, rcx,ridgeHtH2,-rry2, rx2,wallHt,-ry2]);
+        var eg4 = new T.BufferGeometry(); eg4.setAttribute('position', new T.BufferAttribute(ev2,3)); eg4.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(eg4, roofMat));
+        var sv2 = new Float32Array([rx1,wallHt,-ry2, rx2,wallHt,-ry2, rcx,ridgeHtH2,-rry2]);
+        var sg4 = new T.BufferGeometry(); sg4.setAttribute('position', new T.BufferAttribute(sv2,3)); sg4.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(sg4, roofMat));
+        var nv2 = new Float32Array([rx1,wallHt,-ry1, rcx,ridgeHtH2,-rry1, rx2,wallHt,-ry1]);
+        var ng4 = new T.BufferGeometry(); ng4.setAttribute('position', new T.BufferAttribute(nv2,3)); ng4.computeVertexNormals();
+        fp3DScene.add(new T.Mesh(ng4, roofMat));
+      }
+    }
   });
 
   // Camera
