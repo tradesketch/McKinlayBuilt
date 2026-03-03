@@ -5,7 +5,10 @@ CREATE TABLE IF NOT EXISTS users (
     display_name TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     last_login DATETIME,
-    trial_start DATETIME DEFAULT CURRENT_TIMESTAMP
+    trial_start DATETIME DEFAULT CURRENT_TIMESTAMP,
+    stripe_customer_id TEXT,
+    subscription_status TEXT DEFAULT 'trial',
+    subscription_end INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS user_settings (

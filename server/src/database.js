@@ -23,6 +23,9 @@ function getDb() {
     } catch (e) {
       // Column already exists — safe to ignore
     }
+    try { db.exec(`ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`); } catch(e){}
+    try { db.exec(`ALTER TABLE users ADD COLUMN subscription_status TEXT DEFAULT 'trial'`); } catch(e){}
+    try { db.exec(`ALTER TABLE users ADD COLUMN subscription_end INTEGER`); } catch(e){}
   }
   return db;
 }
