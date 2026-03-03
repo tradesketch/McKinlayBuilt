@@ -19213,6 +19213,10 @@ kbd {
             <button class="fp-preset-btn" id="fp-roof-hip" onclick="fpSetRoofStyle('hip')">Hip</button>
           </div>
         </div>
+        <div class="fp-prop-row">
+          <span class="fp-prop-label">Pitch</span>
+          <input type="number" id="fp-roof-pitch" value="35" min="10" max="60" style="width:55px;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:12px"> °
+        </div>
       </div>
       <div class="fp-sidebar-section" id="fp-elec-palette" style="display:none">
         <div class="fp-sidebar-title">Electrical Symbols</div>
@@ -55269,7 +55273,7 @@ function fpClear() {
   if (!fpState) return;
   if (fpState.walls.length > 0 && !confirm('Clear the entire floor plan?')) return;
   fpState.walls = []; fpState.openings = []; fpState.items3D = [];
-  fpState.electricals = []; fpState.wires = [];
+  fpState.electricals = []; fpState.wires = []; fpState.roofs = [];
   fpState.drawing = false; fpState.selectedWall = -1;
   fpRedraw();
   fpSetStatus('Floor plan cleared. Click to start drawing walls.');
@@ -55974,7 +55978,8 @@ function fpMouseUp(e) {
       if (rs && re && Math.abs(re.x-rs.x)>100 && Math.abs(re.y-rs.y)>100) {
         fpPushUndo();
         if (!fpState.roofs) fpState.roofs = [];
-        fpState.roofs.push({x1:Math.min(rs.x,re.x), y1:Math.min(rs.y,re.y), x2:Math.max(rs.x,re.x), y2:Math.max(rs.y,re.y), style:fpState.roofStyle||'gable'});
+        var pitchEl = document.getElementById('fp-roof-pitch');
+        fpState.roofs.push({x1:Math.min(rs.x,re.x), y1:Math.min(rs.y,re.y), x2:Math.max(rs.x,re.x), y2:Math.max(rs.y,re.y), style:fpState.roofStyle||'gable', pitch: parseInt(pitchEl && pitchEl.value)||35});
       }
       fpState.roofStart = null; fpState.roofEnd = null;
       fpRedraw(); return;
