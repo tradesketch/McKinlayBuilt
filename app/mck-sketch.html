@@ -55686,6 +55686,17 @@ var fp3DExtMatConfig = {
   'metal-cladding': { color:0x9090a0, roughness:0.3,  metalness:0.7 },
 };
 
+var fp3DIntMatConfig = {
+  'plaster':          { color:'#F5F0EB', roughness:0.85 },
+  'plaster-textured': { color:'#EDE8E0', roughness:0.9  },
+  'plasterboard':     { color:'#F8F5F0', roughness:0.8  },
+  'timber-panel':     { color:'#c8924a', roughness:0.7  },
+  'mdf-panel':        { color:'#E8E2D8', roughness:0.75 },
+  'brick-internal':   { color:'#b05030', roughness:0.85 },
+  'tile':             { color:'#e8e8e0', roughness:0.3  },
+  'stone-internal':   { color:'#9a9080', roughness:0.9  },
+};
+
 function fpSetDefaultExtFinish(val) {
   if (fpState) fpState.defaultExternalFinish = val;
   if (fpState && fpState.selectedWall >= 0 && fpState.walls[fpState.selectedWall])
@@ -55828,6 +55839,9 @@ function fpMouseDown(e) {
       var lenEl0 = document.getElementById('fp-exact-length');
       if (lenEl0) { lenEl0.value = ''; setTimeout(function() { lenEl0.focus(); lenEl0.select(); }, 0); }
     } else {
+      // Apply cardinal snap to placed endpoint — matches what was shown in the preview
+      var cs = fpSnapCardinal({ x: fpState.startX, y: fpState.startY }, { x: sn.x, y: sn.y });
+      sn = { x: cs.x, y: cs.y };
       var endPt = fpExactLengthPoint(sn);
       var len = Math.hypot(endPt.x - fpState.startX, endPt.y - fpState.startY);
       if (len > fpState.wallThickness) {
@@ -56661,8 +56675,15 @@ function fpGenerate3D() {
 
   var wallMat = new T.MeshStandardMaterial({ color: 0xf2ede0, roughness: 0.85, metalness: 0, side: T.FrontSide, flatShading: true });
 
-  // Helper: build one rectangular prism segment from centerline P1→P2, yBot→yTop, with given normal half-vector
-  function fp3DAddSeg(nx, ny, cx1, cy1, cx2, cy2, yBot, yTop) {
+  // Helper: build one rectangular prism segment from centerline P1→P2, yBot→yTop, with given normal half-vector.
+  // Vertex/face layout after toNonIndexed():
+  //   indices 0-5   (2 tris): TOP face
+  //   indices 6-11  (2 tris): OUTER face (c[0]/c[1] side, +nx/+ny direction)
+  //   indices 12-17 (2 tris): END face at cx2/cy2
+  //   indices 18-23 (2 tris): INNER face (c[2]/c[3] side, -nx/-ny direction)
+  //   indices 24-29 (2 tris): END face at cx1/cy1
+  // Material groups: 0=external(outer), 1=internal(inner), 2=neutral(top+ends)
+  function fp3DAddSeg(nx, ny, cx1, cy1, cx2, cy2, yBot, yTop, mats) {
     if (yTop <= yBot + 1 || Math.hypot(cx2-cx1, cy2-cy1) < 1) return;
     var c = [
       {x:cx1+nx, y:cy1+ny}, {x:cx2+nx, y:cy2+ny},
@@ -56677,7 +56698,15 @@ function fpGenerate3D() {
     geo.setAttribute('position', new T.BufferAttribute(verts, 3));
     geo.setIndex(idx);
     geo = geo.toNonIndexed(); geo.computeVertexNormals();
-    var mesh = new T.Mesh(geo, wallMat);
+    if (mats && Array.isArray(mats)) {
+      // top+ends = material 2 (neutral), outer = material 0, inner = material 1
+      geo.addGroup(0,  6, 2);  // top face
+      geo.addGroup(6,  6, 0);  // outer face (external finish)
+      geo.addGroup(12, 6, 2);  // end face 2
+      geo.addGroup(18, 6, 1);  // inner face (internal finish)
+      geo.addGroup(24, 6, 2);  // end face 1
+    }
+    var mesh = new T.Mesh(geo, mats || wallMat);
     mesh.castShadow = true; mesh.receiveShadow = true;
     fp3DScene.add(mesh);
   }
@@ -56687,6 +56716,21 @@ function fpGenerate3D() {
     var ux = dx/wLen, uy = dy/wLen;
     var h = w.thickness/2;
     var nx = -uy*h, ny = ux*h;
+
+    // Build per-wall material array: [external finish, internal finish/paint, neutral top+ends]
+    var extCfg = fp3DExtMatConfig[w.externalFinish] || fp3DExtMatConfig['roughcast'];
+    var extMat = new T.MeshStandardMaterial({
+      color: extCfg.color, roughness: extCfg.roughness, metalness: extCfg.metalness || 0,
+      side: T.FrontSide, flatShading: true
+    });
+    var intFinishCfg = fp3DIntMatConfig[w.internalFinish] || fp3DIntMatConfig['plaster'];
+    var intColour = w.paintColour ? new T.Color(w.paintColour) : new T.Color(intFinishCfg.color);
+    var intMat = new T.MeshStandardMaterial({
+      color: intColour, roughness: intFinishCfg.roughness, metalness: 0,
+      side: T.FrontSide, flatShading: true
+    });
+    var topMat = new T.MeshStandardMaterial({ color: 0xd0c8b8, roughness: 0.9, metalness: 0, flatShading: true });
+    var wallMats = [extMat, intMat, topMat];
 
     // Get butt-join adjusted centre endpoints from corners
     var corners = fpGetJoinedCorners(wi); if (!corners) return;
@@ -56698,7 +56742,7 @@ function fpGenerate3D() {
     ops.sort(function(a,b){ return a.t - b.t; });
 
     if (ops.length === 0) {
-      fp3DAddSeg(nx, ny, ax1, ay1, ax2, ay2, 0, w.height);
+      fp3DAddSeg(nx, ny, ax1, ay1, ax2, ay2, 0, w.height, wallMats);
       return;
     }
 
@@ -56709,24 +56753,24 @@ function fpGenerate3D() {
       var leftX = ocx - ux*o.width/2, leftY = ocy - uy*o.width/2;
       var rightX = ocx + ux*o.width/2, rightY = ocy + uy*o.width/2;
       // Full-height segment up to opening
-      fp3DAddSeg(nx, ny, prevX, prevY, leftX, leftY, 0, w.height);
+      fp3DAddSeg(nx, ny, prevX, prevY, leftX, leftY, 0, w.height, wallMats);
       // Fill above/below the opening gap
       if (o.type === 'window') {
         if (o.sillHeight > 0)
-          fp3DAddSeg(nx, ny, leftX, leftY, rightX, rightY, 0, o.sillHeight);
+          fp3DAddSeg(nx, ny, leftX, leftY, rightX, rightY, 0, o.sillHeight, wallMats);
         var winTop = o.sillHeight + o.height;
         if (winTop < w.height)
-          fp3DAddSeg(nx, ny, leftX, leftY, rightX, rightY, winTop, w.height);
+          fp3DAddSeg(nx, ny, leftX, leftY, rightX, rightY, winTop, w.height, wallMats);
       } else {
         // Door: just the bit above the door (head/lintel zone)
         var doorTop = Math.min(o.height, w.height);
         if (doorTop < w.height)
-          fp3DAddSeg(nx, ny, leftX, leftY, rightX, rightY, doorTop, w.height);
+          fp3DAddSeg(nx, ny, leftX, leftY, rightX, rightY, doorTop, w.height, wallMats);
       }
       prevX = rightX; prevY = rightY;
     });
     // Final segment after last opening to wall end
-    fp3DAddSeg(nx, ny, prevX, prevY, ax2, ay2, 0, w.height);
+    fp3DAddSeg(nx, ny, prevX, prevY, ax2, ay2, 0, w.height, wallMats);
   });
 
   // Camera
