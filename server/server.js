@@ -14,6 +14,7 @@ const warehouseRoutes = require('./src/routes/warehouse');
 const announcementRoutes = require('./src/routes/announcements');
 const feedbackRoutes = require('./src/routes/feedback');
 const newsletterRoutes = require('./src/routes/newsletter');
+const billingRoutes = require('./src/routes/billing');
 
 const app = express();
 const PORT = process.env.PORT || 3141;
@@ -21,7 +22,10 @@ const PORT = process.env.PORT || 3141;
 // Security
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.path === '/billing/webhook') return next();
+  express.json()(req, res, next);
+});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -51,6 +55,7 @@ app.use('/api/announcements', announcementRoutes);
 const feedbackLimiter = rateLimit({ windowMs: 60*60*1000, max: 10 });
 app.use('/api/feedback', feedbackLimiter, feedbackRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/billing', billingRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
