@@ -3171,6 +3171,19 @@ body {
   to { transform: rotate(360deg); }
 }
 
+#auth-guard {
+  position: fixed; inset: 0; z-index: 99998;
+  background: #1e1e24;
+  display: flex; align-items: center; justify-content: center;
+}
+#auth-guard.done { display: none; }
+#auth-guard-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid #333; border-top-color: #ffd100;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
 /* Tooltips */
 [data-tooltip] {
   position: relative;
@@ -3941,6 +3954,7 @@ kbd {
   </style>
 </head>
 <body>
+<div id="auth-guard"><div id="auth-guard-spinner"></div></div>
 <div id="trial-banner" style="display:none">
   <span id="trial-banner-text"></span>
   <button onclick="document.getElementById('trial-banner').style.display='none'" title="Dismiss">&#x2715;</button>
@@ -46420,7 +46434,7 @@ function logout() {
 
 // Admin function — callable from DevTools console: adminGrantLifetime('user@example.com')
 async function adminGrantLifetime(email) {
-  var token = localStorage.getItem('jwt') || authState.token;
+  var token = authState.token;
   var res = await fetch(API_BASE + '/billing/grant-lifetime', {
     method: 'POST',
     headers: {
@@ -46443,7 +46457,7 @@ async function startCheckout(plan) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('jwt')
+        'Authorization': 'Bearer ' + authState.token
       },
       body: JSON.stringify({ plan: plan })
     });
@@ -46467,9 +46481,8 @@ async function checkSubscription() {
   var btn = document.getElementById('already-subscribed-btn');
   if (btn) btn.textContent = 'Checking...';
   try {
-    var token = localStorage.getItem('jwt') || authState.token;
     var res = await fetch(API_BASE + '/auth/me', {
-      headers: { 'Authorization': 'Bearer ' + token }
+      headers: { 'Authorization': 'Bearer ' + authState.token }
     });
     var data = await res.json();
     if (data.hasActiveSubscription) {
@@ -46492,9 +46505,8 @@ window.checkSubscription = checkSubscription;
 
 async function openBillingPortal() {
   try {
-    var token = localStorage.getItem('jwt') || authState.token;
     var res = await fetch(API_BASE + '/billing/portal', {
-      headers: { 'Authorization': 'Bearer ' + token }
+      headers: { 'Authorization': 'Bearer ' + authState.token }
     });
     var data = await res.json();
     if (data.url) {
@@ -46506,14 +46518,19 @@ async function openBillingPortal() {
 window.openBillingPortal = openBillingPortal;
 
 async function checkAuth() {
+  function dismissAuthGuard() {
+    var guard = document.getElementById('auth-guard');
+    if (guard) guard.classList.add('done');
+  }
+
   const token = await loadAuthToken();
-  if (!token) { showLoginModal(); return; }
+  if (!token) { dismissAuthGuard(); showLoginModal(); return; }
 
   try {
     const res = await fetch(API_BASE + '/auth/me', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
-    if (!res.ok) { showLoginModal(); return; }
+    if (!res.ok) { dismissAuthGuard(); showLoginModal(); return; }
     const user = await res.json();
     authState.token = token;
     authState.user = user;
@@ -46541,8 +46558,10 @@ async function checkAuth() {
       }
     }
 
+    dismissAuthGuard();
     onAuthSuccess();
   } catch (e) {
+    dismissAuthGuard();
     showLoginModal();
   }
 }

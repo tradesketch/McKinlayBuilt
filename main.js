@@ -39,6 +39,20 @@ function createWindow() {
 
   mainWindow.loadFile('app/mck-sketch.html');
 
+  if (app.isPackaged) {
+    // Production: disable DevTools keyboard shortcuts
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+      if (input.key === 'F12' ||
+          (input.control && input.shift && input.key === 'I') ||
+          (input.meta && input.alt && input.key === 'i')) {
+        event.preventDefault();
+      }
+    });
+  } else {
+    // Dev: open DevTools
+    mainWindow.webContents.openDevTools();
+  }
+
   mainWindow.webContents.on('did-finish-load', function() {
     if (app.isPackaged) autoUpdater.checkForUpdatesAndNotify();
   });
