@@ -73,7 +73,7 @@ router.post('/login', async (req, res) => {
 // GET /auth/me
 router.get('/me', requireAuth, (req, res) => {
   const db = getDb();
-  const user = db.prepare('SELECT id, email, display_name, trial_start FROM users WHERE id = ?').get(req.userId);
+  const user = db.prepare('SELECT id, email, display_name, trial_start, subscription_status, subscription_end FROM users WHERE id = ?').get(req.userId);
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
@@ -83,14 +83,21 @@ router.get('/me', requireAuth, (req, res) => {
   const msPerDay = 1000 * 60 * 60 * 24;
   const daysSinceStart = Math.floor((Date.now() - trialStart.getTime()) / msPerDay);
   const trialDaysRemaining = Math.max(0, trialDays - daysSinceStart);
-  const trialExpired = trialDaysRemaining === 0;
+
+  // Determine effective access status
+  const subStatus = user.subscription_status || 'trial';
+  const hasActiveSubscription = subStatus === 'active' || subStatus === 'lifetime';
+  const isLifetime = subStatus === 'lifetime';
 
   res.json({
     id: user.id,
     email: user.email,
     displayName: user.display_name,
     trialDaysRemaining,
-    trialExpired
+    trialExpired: trialDaysRemaining === 0 && !hasActiveSubscription,
+    subscriptionStatus: subStatus,
+    hasActiveSubscription,
+    isLifetime
   });
 });
 
