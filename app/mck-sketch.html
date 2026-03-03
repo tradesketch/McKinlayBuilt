@@ -12519,10 +12519,8 @@ kbd {
 }
 #trial-banner button:hover { opacity: 1; }
 #trial-expired-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  z-index: 99999;
+  position: fixed; inset: 0; z-index: 99999;
+  background: rgba(10,10,16,0.95);
   display: none;
   align-items: center;
   justify-content: center;
@@ -12531,38 +12529,50 @@ kbd {
   display: flex;
 }
 #trial-expired-box {
-  background: #1e1e24;
+  background: #1e1e2a;
   border: 1px solid #333;
-  border-radius: 12px;
-  padding: 48px 56px;
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 540px;
+  width: 90%;
   text-align: center;
-  max-width: 420px;
+  color: #e0e0e0;
 }
 #trial-expired-logo {
-  font-family: 'Impact', 'Arial Black', sans-serif;
-  font-size: 28px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: 1px;
-  margin-bottom: 20px;
+  font-size: 22px; font-weight: 900; letter-spacing: 4px;
+  color: #ffd100; margin-bottom: 20px;
 }
-#trial-expired-logo span { color: #F5C518; }
-#trial-expired-box h2 { color: #fff; margin: 0 0 10px; font-size: 20px; }
-#trial-expired-box > p { color: #aaa; font-size: 14px; margin: 0 0 20px; }
-#trial-expired-box > a {
-  display: inline-block;
-  background: #F5C518;
-  color: #111;
-  font-weight: 700;
-  padding: 11px 28px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 14px;
+#trial-expired-box h2 { font-size: 24px; margin: 0 0 8px; color: #fff; }
+#trial-expired-box > p { color: #888; margin: 0 0 28px; font-size: 14px; }
+#pricing-cards {
+  display: flex; gap: 16px; justify-content: center; margin-bottom: 20px;
 }
-#trial-expired-box > a:hover { background: #ffd740; }
-.trial-expired-sub { margin-top: 16px !important; font-size: 12px !important; color: #666 !important; }
-.trial-expired-sub a { color: #888 !important; }
-.trial-expired-sub a:hover { color: #ccc !important; }
+.pricing-card {
+  background: #252530; border: 1px solid #444;
+  border-radius: 12px; padding: 24px; flex: 1; position: relative;
+}
+.pricing-card.featured { border-color: #ffd100; }
+.plan-badge {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: #ffd100; color: #111; font-size: 11px; font-weight: 700;
+  padding: 3px 12px; border-radius: 20px; letter-spacing: 1px;
+}
+.plan-name { font-size: 14px; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.plan-price { font-size: 32px; font-weight: 700; color: #fff; }
+.plan-price span { font-size: 14px; color: #888; }
+.plan-saving { font-size: 12px; color: #ffd100; margin: 4px 0 16px; }
+.subscribe-btn {
+  width: 100%; padding: 12px; border: none; border-radius: 8px;
+  background: #ffd100; color: #111; font-weight: 700; font-size: 14px;
+  cursor: pointer; margin-top: 16px; transition: background 0.15s;
+}
+.subscribe-btn:hover { background: #ffe040; }
+#promo-area { font-size: 12px; color: #666; margin-bottom: 16px; }
+#already-subscribed-btn {
+  background: none; border: 1px solid #444; color: #888;
+  padding: 8px 20px; border-radius: 8px; cursor: pointer; font-size: 13px;
+}
+#already-subscribed-btn:hover { border-color: #666; color: #aaa; }
 #calc-widget { position:fixed; bottom:80px; right:20px; width:220px; background:#2a2a34; border:1px solid #444; border-radius:10px; z-index:9000; box-shadow:0 8px 32px rgba(0,0,0,0.5); user-select:none; }
 #calc-header { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#1e1e24; border-radius:10px 10px 0 0; font-size:12px; color:#888; cursor:move; }
 #calc-header button { background:none; border:none; color:#888; cursor:pointer; font-size:14px; }
@@ -16574,6 +16584,7 @@ kbd {
           </div>
         </div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:4px" id="cfg-account-email"></div>
+        <button id="manage-subscription-btn" onclick="openBillingPortal()" style="display:none;margin-top:10px;background:none;border:1px solid var(--border);color:var(--text-secondary);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer">Manage Subscription</button>
       </div>
 
       <!-- Weather -->
@@ -46407,6 +46418,77 @@ function logout() {
   showLoginModal();
 }
 
+async function startCheckout(plan) {
+  var errEl = document.getElementById('checkout-error');
+  if (errEl) errEl.style.display = 'none';
+
+  try {
+    var res = await fetch(API_BASE + '/billing/create-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('jwt')
+      },
+      body: JSON.stringify({ plan: plan })
+    });
+    var data = await res.json();
+    if (data.url) {
+      if (window.api && window.api.openExternal) {
+        window.api.openExternal(data.url);
+      } else {
+        window.open(data.url, '_blank');
+      }
+    } else {
+      if (errEl) { errEl.textContent = data.error || 'Could not start checkout'; errEl.style.display = 'block'; }
+    }
+  } catch(e) {
+    if (errEl) { errEl.textContent = 'Connection error. Is the server running?'; errEl.style.display = 'block'; }
+  }
+}
+window.startCheckout = startCheckout;
+
+async function checkSubscription() {
+  var btn = document.getElementById('already-subscribed-btn');
+  if (btn) btn.textContent = 'Checking...';
+  try {
+    var token = localStorage.getItem('jwt') || authState.token;
+    var res = await fetch(API_BASE + '/auth/me', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    var data = await res.json();
+    if (data.hasActiveSubscription) {
+      var overlay = document.getElementById('trial-expired-overlay');
+      if (overlay) overlay.classList.remove('active');
+      var banner = document.getElementById('trial-banner');
+      if (banner) banner.style.display = 'none';
+      // Update manage subscription button visibility
+      var manageBtn = document.getElementById('manage-subscription-btn');
+      if (manageBtn) manageBtn.style.display = 'inline-block';
+    } else {
+      if (btn) btn.textContent = 'Not yet active — try again after payment';
+      setTimeout(function(){ if(btn) btn.textContent = "I've already subscribed \u21BB"; }, 3000);
+    }
+  } catch(e) {
+    if (btn) btn.textContent = "I've already subscribed \u21BB";
+  }
+}
+window.checkSubscription = checkSubscription;
+
+async function openBillingPortal() {
+  try {
+    var token = localStorage.getItem('jwt') || authState.token;
+    var res = await fetch(API_BASE + '/billing/portal', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    var data = await res.json();
+    if (data.url) {
+      if (window.api && window.api.openExternal) window.api.openExternal(data.url);
+      else window.open(data.url, '_blank');
+    }
+  } catch(e) { console.error('Portal error', e); }
+}
+window.openBillingPortal = openBillingPortal;
+
 async function checkAuth() {
   const token = await loadAuthToken();
   if (!token) { showLoginModal(); return; }
@@ -46420,8 +46502,17 @@ async function checkAuth() {
     authState.token = token;
     authState.user = user;
 
-    // Trial UI — only shown when logged in
-    if (user.trialExpired) {
+    // Subscription / trial UI — only shown when logged in
+    if (user.hasActiveSubscription) {
+      // Hide trial banner and overlay
+      var banner = document.getElementById('trial-banner');
+      if (banner) banner.style.display = 'none';
+      var overlay = document.getElementById('trial-expired-overlay');
+      if (overlay) overlay.classList.remove('active');
+      // Show manage subscription button
+      var manageBtn = document.getElementById('manage-subscription-btn');
+      if (manageBtn) manageBtn.style.display = 'inline-block';
+    } else if (user.trialExpired) {
       document.getElementById('trial-expired-overlay').classList.add('active');
     } else if (typeof user.trialDaysRemaining === 'number' && user.trialDaysRemaining <= 14) {
       var banner = document.getElementById('trial-banner');
@@ -57299,11 +57390,28 @@ if (window.api && window.api.onUpdateDownloaded) {
 </div>
 <div id="trial-expired-overlay">
   <div id="trial-expired-box">
-    <div id="trial-expired-logo">TRADE<span>SKETCH</span></div>
+    <div id="trial-expired-logo">TRADESKETCH</div>
     <h2>Your free trial has ended</h2>
-    <p>Subscribe to keep using TradeSketch.</p>
-    <a href="#" onclick="if(window.api && window.api.openExternal) window.api.openExternal('https://tradesketch.github.io/McKinlayBuilt'); return false;">Visit TradeSketch.app</a>
-    <p class="trial-expired-sub">Or <a href="#" onclick="logout(); return false;">sign out</a> to continue as guest</p>
+    <p>Choose a plan to continue using TradeSketch</p>
+    <div id="pricing-cards">
+      <div class="pricing-card" id="card-monthly">
+        <div class="plan-name">Monthly</div>
+        <div class="plan-price">£44.99<span>/month</span></div>
+        <button class="subscribe-btn" onclick="startCheckout('monthly')">Subscribe Monthly</button>
+      </div>
+      <div class="pricing-card featured" id="card-annual">
+        <div class="plan-badge">Best Value</div>
+        <div class="plan-name">Annual</div>
+        <div class="plan-price">£279.99<span>/year</span></div>
+        <div class="plan-saving">Save £260 vs monthly</div>
+        <button class="subscribe-btn" onclick="startCheckout('annual')">Subscribe Annually</button>
+      </div>
+    </div>
+    <div id="promo-area">
+      <span>Have a promo code? Enter it on the checkout page.</span>
+    </div>
+    <button id="already-subscribed-btn" onclick="checkSubscription()">I've already subscribed ↻</button>
+    <div id="checkout-error" style="display:none;color:#e06868;margin-top:8px"></div>
   </div>
 </div>
 <div id="calc-widget" style="display:none">
