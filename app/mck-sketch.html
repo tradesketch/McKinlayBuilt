@@ -56203,6 +56203,19 @@ function fpRedraw() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = 'bold ' + dimPx + 'px Helvetica,Arial,sans-serif';
+    // First pass: draw dashed yellow highlight lines along each wall
+    ctx.strokeStyle = '#F5C518';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 3]);
+    fpState.walls.forEach(function(w) {
+      var ddx = w.x2-w.x1, ddy = w.y2-w.y1;
+      var wlen = Math.sqrt(ddx*ddx+ddy*ddy);
+      if (wlen < 50) return;
+      var s1 = fpW2S(w.x1, w.y1), s2 = fpW2S(w.x2, w.y2);
+      ctx.beginPath(); ctx.moveTo(s1.x, s1.y); ctx.lineTo(s2.x, s2.y); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    // Second pass: draw dimension labels
     fpState.walls.forEach(function(w) {
       var ddx = w.x2-w.x1, ddy = w.y2-w.y1;
       var wlen = Math.sqrt(ddx*ddx+ddy*ddy);
