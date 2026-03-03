@@ -2,7 +2,9 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const DB_PATH = path.join(__dirname, '..', 'db', 'mck-sketch.db');
+const DB_PATH = process.env.RAILWAY_ENVIRONMENT
+  ? '/data/mck-sketch.db'
+  : path.join(__dirname, '..', 'db', 'mck-sketch.db');
 const SCHEMA_PATH = path.join(__dirname, '..', 'db', 'schema.sql');
 
 let db;
