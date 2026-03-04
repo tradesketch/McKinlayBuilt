@@ -28,6 +28,10 @@ function getDb() {
     try { db.exec(`ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`); } catch(e){}
     try { db.exec(`ALTER TABLE users ADD COLUMN subscription_status TEXT DEFAULT 'trial'`); } catch(e){}
     try { db.exec(`ALTER TABLE users ADD COLUMN subscription_end INTEGER`); } catch(e){}
+    try { db.exec(`ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0`); } catch(e){}
+    try { db.exec(`ALTER TABLE users ADD COLUMN verify_token TEXT`); } catch(e){}
+    try { db.exec(`ALTER TABLE users ADD COLUMN reset_token TEXT`); } catch(e){}
+    try { db.exec(`ALTER TABLE users ADD COLUMN reset_token_expiry INTEGER`); } catch(e){}
   }
   return db;
 }

@@ -8,7 +8,11 @@ CREATE TABLE IF NOT EXISTS users (
     trial_start DATETIME DEFAULT CURRENT_TIMESTAMP,
     stripe_customer_id TEXT,
     subscription_status TEXT DEFAULT 'trial',
-    subscription_end INTEGER
+    subscription_end INTEGER,
+    email_verified INTEGER DEFAULT 0,
+    verify_token TEXT,
+    reset_token TEXT,
+    reset_token_expiry INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS user_settings (

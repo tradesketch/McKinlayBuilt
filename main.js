@@ -43,7 +43,7 @@ function createWindow() {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://mckinlaybuilt-production.up.railway.app https://api.openweathermap.org wss: ws:; font-src 'self' data:; media-src 'self' blob:;"
+          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://mckinlaybuilt-production.up.railway.app http://localhost:3141 https://api.openweathermap.org wss: ws:; font-src 'self' data:; media-src 'self' blob:;"
         ]
       }
     });
