@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { autoUpdater } = require('electron-updater');
@@ -35,6 +35,18 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, 'app', 'preload.js')
     }
+  });
+
+  // Set Content Security Policy
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://mckinlaybuilt-production.up.railway.app https://api.openweathermap.org wss: ws:; font-src 'self' data:; media-src 'self' blob:;"
+        ]
+      }
+    });
   });
 
   mainWindow.loadFile('app/mck-sketch.html');

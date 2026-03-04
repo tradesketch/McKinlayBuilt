@@ -20676,7 +20676,7 @@ function createScene(container) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
+  renderer.toneMappingExposure = 0.9;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(renderer.domElement);
 
@@ -54683,7 +54683,7 @@ function whRenderPreview(item) {
   renderer.setSize(w, h);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
+  renderer.toneMappingExposure = 0.9;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = true;
   container.appendChild(renderer.domElement);
@@ -54696,12 +54696,12 @@ function whRenderPreview(item) {
   scene.environment = envTex;
   pmrem.dispose();
 
-  const ambient = new THREE.AmbientLight(0xffffff, 0.4);
-  const key = new THREE.DirectionalLight(0xffffff, 2.0);
+  const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+  const key = new THREE.DirectionalLight(0xffffff, 1.2);
   key.position.set(2, 4, 3); key.castShadow = true;
-  const fill = new THREE.DirectionalLight(0xc8d8f0, 0.6);
+  const fill = new THREE.DirectionalLight(0xc8d8f0, 0.4);
   fill.position.set(-3, 2, -2);
-  const rim = new THREE.DirectionalLight(0xf0e8d0, 0.8);
+  const rim = new THREE.DirectionalLight(0xf0e8d0, 0.5);
   rim.position.set(1, -1, -3);
   scene.add(ambient, key, fill, rim);
 
@@ -56025,31 +56025,31 @@ function fpMouseDown(e) {
   } else if (fpState.tool === 'eraser') {
     var ept = fpS2W(mp.x, mp.y);
     var edeleted = false;
-    // Delete wall
-    for (var ewi = fpState.walls.length - 1; ewi >= 0; ewi--) {
-      var ew = fpState.walls[ewi];
-      if (fpPointNearSegment(ept, ew.x1, ew.y1, ew.x2, ew.y2, 20 / fpState.scale)) {
+    // Check openings FIRST — clicking near a door/window removes just the opening, not the wall
+    for (var eoi = fpState.openings.length - 1; eoi >= 0; eoi--) {
+      var eop = fpState.openings[eoi];
+      var eww = fpState.walls[eop.wallIndex];
+      if (!eww) continue;
+      var ewlen = Math.sqrt(Math.pow(eww.x2-eww.x1,2)+Math.pow(eww.y2-eww.y1,2));
+      var eddx = (eww.x2-eww.x1)/ewlen, eddy = (eww.y2-eww.y1)/ewlen;
+      var emx = eww.x1 + eddx*(eop.t*ewlen + eop.width/2);
+      var emy = eww.y1 + eddy*(eop.t*ewlen + eop.width/2);
+      if (Math.sqrt(Math.pow(ept.x-emx,2)+Math.pow(ept.y-emy,2)) < eop.width/2 + 200/fpState.scale) {
         fpPushUndo();
-        fpState.openings = fpState.openings.filter(function(o) { return o.wallIndex !== ewi; });
-        fpState.openings.forEach(function(o) { if (o.wallIndex > ewi) o.wallIndex--; });
-        fpState.walls.splice(ewi, 1);
-        fpRedraw(); fpSetStatus('Wall deleted.'); edeleted = true; break;
+        fpState.openings.splice(eoi, 1);
+        fpRedraw(); fpSetStatus((eop.type==='door'?'Door':'Window') + ' deleted.'); edeleted = true; break;
       }
     }
     if (!edeleted) {
-      // Delete opening
-      for (var eoi = fpState.openings.length - 1; eoi >= 0; eoi--) {
-        var eop = fpState.openings[eoi];
-        var eww = fpState.walls[eop.wallIndex];
-        if (!eww) continue;
-        var ewlen = Math.sqrt(Math.pow(eww.x2-eww.x1,2)+Math.pow(eww.y2-eww.y1,2));
-        var eddx = (eww.x2-eww.x1)/ewlen, eddy = (eww.y2-eww.y1)/ewlen;
-        var emx = eww.x1 + eddx*(eop.t*ewlen + eop.width/2);
-        var emy = eww.y1 + eddy*(eop.t*ewlen + eop.width/2);
-        if (Math.sqrt(Math.pow(ept.x-emx,2)+Math.pow(ept.y-emy,2)) < eop.width/2 + 100/fpState.scale) {
+      // Delete wall (only if no opening was found near click)
+      for (var ewi = fpState.walls.length - 1; ewi >= 0; ewi--) {
+        var ew = fpState.walls[ewi];
+        if (fpPointNearSegment(ept, ew.x1, ew.y1, ew.x2, ew.y2, 20 / fpState.scale)) {
           fpPushUndo();
-          fpState.openings.splice(eoi, 1);
-          fpRedraw(); fpSetStatus((eop.type==='door'?'Door':'Window') + ' deleted.'); edeleted = true; break;
+          fpState.openings = fpState.openings.filter(function(o) { return o.wallIndex !== ewi; });
+          fpState.openings.forEach(function(o) { if (o.wallIndex > ewi) o.wallIndex--; });
+          fpState.walls.splice(ewi, 1);
+          fpRedraw(); fpSetStatus('Wall deleted.'); edeleted = true; break;
         }
       }
     }
@@ -56773,7 +56773,10 @@ function fpGenerate3D() {
 
   fpStop3D();
   var container = document.getElementById('fp-3d-container');
-  var W = container.clientWidth || 400, H = container.clientHeight || 400;
+  // Use offsetWidth/offsetHeight so we get the real rendered size even if the overlay
+  // was just made visible in the same tick (clientWidth can be 0 before layout).
+  var W = container.offsetWidth || container.clientWidth || 800;
+  var H = container.offsetHeight || container.clientHeight || 600;
 
   fp3DRenderer = new T.WebGLRenderer({ antialias: true });
   fp3DRenderer.setPixelRatio(window.devicePixelRatio);
@@ -56783,6 +56786,9 @@ function fpGenerate3D() {
   fp3DRenderer.toneMappingExposure = 1.2;
   container.innerHTML = '';
   container.appendChild(fp3DRenderer.domElement);
+  // Re-measure after DOM append in case layout hadn't committed yet
+  var W2 = container.offsetWidth || W, H2 = container.offsetHeight || H;
+  if (W2 !== W || H2 !== H) { fp3DRenderer.setSize(W2, H2); W = W2; H = H2; }
 
   fp3DScene = new T.Scene();
   fp3DScene.background = new T.Color(0x1e1e2a);
@@ -56804,12 +56810,36 @@ function fpGenerate3D() {
   var hemi = new T.HemisphereLight(0xd4e8ff, 0xb0a090, 0.35);
   fp3DScene.add(hemi);
 
-  // Floor
-  var floorGeo = new T.PlaneGeometry(100000, 100000);
-  var floorMat = new T.MeshStandardMaterial({ color: 0xd8cdb8, roughness: 0.9, metalness: 0 });
-  var floorMesh = new T.Mesh(floorGeo, floorMat);
-  floorMesh.rotation.x = -Math.PI/2; floorMesh.receiveShadow = true;
-  fp3DScene.add(floorMesh);
+  // Floor — bounded to house footprint with a margin, not infinite plane
+  (function() {
+    var fwxs = [], fwys = [];
+    fpState.walls.forEach(function(w){ fwxs.push(w.x1,w.x2); fwys.push(w.y1,w.y2); });
+    var fwxMin = Math.min.apply(null,fwxs), fwxMax = Math.max.apply(null,fwxs);
+    var fwyMin = Math.min.apply(null,fwys), fwyMax = Math.max.apply(null,fwys);
+    var fMargin = 3000; // 3 m margin around house
+    var floorW = (fwxMax - fwxMin) + fMargin * 2;
+    var floorD = (fwyMax - fwyMin) + fMargin * 2;
+    var floorCX = (fwxMin + fwxMax) / 2;
+    var floorCY = (fwyMin + fwyMax) / 2;
+    // Ground / garden plane (light green grass colour)
+    var groundGeo = new T.PlaneGeometry(floorW, floorD);
+    var groundMat = new T.MeshStandardMaterial({ color: 0xc8d4a0, roughness: 0.95, metalness: 0 });
+    var groundMesh = new T.Mesh(groundGeo, groundMat);
+    groundMesh.rotation.x = -Math.PI / 2;
+    groundMesh.position.set(floorCX, 0, -floorCY);
+    groundMesh.receiveShadow = true;
+    fp3DScene.add(groundMesh);
+    // Interior floor slab (same footprint as walls, 1 mm above ground so it wins depth test)
+    var intFloorW = fwxMax - fwxMin;
+    var intFloorD = fwyMax - fwyMin;
+    var intFloorGeo = new T.PlaneGeometry(intFloorW, intFloorD);
+    var intFloorMat = new T.MeshStandardMaterial({ color: 0xd8cdb8, roughness: 0.8, metalness: 0 });
+    var intFloorMesh = new T.Mesh(intFloorGeo, intFloorMat);
+    intFloorMesh.rotation.x = -Math.PI / 2;
+    intFloorMesh.position.set(floorCX, 1, -floorCY);
+    intFloorMesh.receiveShadow = true;
+    fp3DScene.add(intFloorMesh);
+  })();
 
   var wallMat = new T.MeshStandardMaterial({ color: 0xf2ede0, roughness: 0.85, metalness: 0, side: T.FrontSide, flatShading: true });
 
@@ -56999,20 +57029,20 @@ function fpGenerate3D() {
     fp3DAddSeg(nx, ny, prevX, prevY, ax2, ay2, 0, w.height, wallMats);
   });
 
-  // Improvement 2: Ceiling — flat plane just above max wall height
+  // Ceiling — flat plane at max wall height, bounded to house footprint only (no extra margin)
   (function() {
     var maxWH = 0;
     fpState.walls.forEach(function(w){ if ((w.height||2400) > maxWH) maxWH = (w.height||2400); });
-    var wxs = [], wys = [];
-    fpState.walls.forEach(function(w){ wxs.push(w.x1,w.x2); wys.push(w.y1,w.y2); });
-    var wxMin = Math.min.apply(null,wxs)-2000, wxMax = Math.max.apply(null,wxs)+2000;
-    var wyMin = Math.min.apply(null,wys)-2000, wyMax = Math.max.apply(null,wys)+2000;
-    var ceilW = wxMax - wxMin, ceilD = wyMax - wyMin;
+    var cwxs = [], cwys = [];
+    fpState.walls.forEach(function(w){ cwxs.push(w.x1,w.x2); cwys.push(w.y1,w.y2); });
+    var ceilWxMin = Math.min.apply(null,cwxs), ceilWxMax = Math.max.apply(null,cwxs);
+    var ceilWyMin = Math.min.apply(null,cwys), ceilWyMax = Math.max.apply(null,cwys);
+    var ceilW = ceilWxMax - ceilWxMin, ceilD = ceilWyMax - ceilWyMin;
     var ceilGeo = new T.PlaneGeometry(ceilW, ceilD);
     var ceilMat = new T.MeshStandardMaterial({ color: 0xF8F4EE, roughness: 0.9, metalness: 0, side: T.BackSide });
     var ceilMesh = new T.Mesh(ceilGeo, ceilMat);
     ceilMesh.rotation.x = Math.PI / 2;
-    ceilMesh.position.set((wxMin+wxMax)/2, maxWH, -(wyMin+wyMax)/2);
+    ceilMesh.position.set((ceilWxMin+ceilWxMax)/2, maxWH, -(ceilWyMin+ceilWyMax)/2);
     ceilMesh.receiveShadow = true;
     fp3DScene.add(ceilMesh);
   })();
