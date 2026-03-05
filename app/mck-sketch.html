@@ -16818,13 +16818,13 @@ kbd {
     </div>
 
     <!-- Forgot password form -->
-    <div id="forgot-form">
+    <div id="forgot-form" style="display:none">
       <div id="forgot-error" style="background:rgba(224,104,104,0.1);border:1px solid rgba(224,104,104,0.3);color:#e06868;padding:10px 12px;border-radius:8px;font-size:12px;margin-bottom:12px;display:none"></div>
       <p style="color:#888;font-size:13px;margin-bottom:16px">Enter your email and we'll send you a reset link.</p>
       <label class="login-field-label">Email</label>
       <input id="forgotEmail" type="email" class="login-input" placeholder="you@example.com">
       <button class="login-btn" onclick="doForgotPassword()">Send Reset Link</button>
-      <div id="forgot-success">Check your email for a reset link.</div>
+      <div id="forgot-success" style="display:none;color:#5cb85c;font-size:13px;padding:10px 0">Check your email for a reset link.</div>
       <div class="login-footer" style="margin-top:12px">
         <a onclick="showLoginTab('login')">&#8592; Back to login</a>
       </div>
@@ -54220,6 +54220,46 @@ function openMouldingProfile(){mpRenderList();document.getElementById('moulding-
 function closeMouldingProfile(){document.getElementById('moulding-profile-overlay').classList.remove('open');}
 function mpResizeCanvas(){var c=document.getElementById('mp-canvas');if(!c)return;var p=c.parentElement;c.width=p.clientWidth;c.height=p.clientHeight-50;mpDrawProfile();}
 
+function mpThumbSVG(id){
+  // Returns a small inline SVG thumbnail showing the profile cross-section
+  var w=28,h=40;
+  // Compute path string from a normalised version of each profile
+  var pts='';
+  if(id.includes('torus')){
+    var br=w*0.5;pts='M0,'+h+' L0,'+(h-br*2)+' A'+br+','+br+' 0 0,0 '+w+','+(h-br*2)+' L'+w+','+h+' Z';
+  }else if(id==='sk-victorian'){
+    pts='M0,'+h+' L0,'+(h*0.6)+' L'+(w*0.22)+','+(h*0.6)+' C'+(w*0.22)+','+(h*0.2)+' '+w+','+(h*0.3)+' '+w+','+(h*0.38)+' L'+w+','+h+' Z';
+  }else if(id.includes('ogee')){
+    pts='M0,'+h+' L0,'+(h*0.58)+' C0,'+(h*0.18)+' '+(w*0.88)+','+(h*0.22)+' '+w+','+(h*0.04)+' L'+w+','+h+' Z';
+  }else if(id.includes('bullnose')){
+    var r=w*0.14;pts='M0,'+h+' L0,'+r+' A'+r+','+r+' 0 0,1 '+r+',0 L'+w+',0 L'+w+','+h+' Z';
+  }else if(id.includes('chamfer')){
+    var ch=w*0.48;pts='M0,'+h+' L0,0 L'+(w-ch)+',0 L'+w+','+(ch*1.5)+' L'+w+','+h+' Z';
+  }else if(id.includes('lambs')){
+    pts='M0,'+h+' L0,'+(h*0.5)+' L'+(w*0.12)+','+(h*0.5)+' C'+(w*0.12)+','+(h*0.15)+' '+(w*0.5)+','+(h*0.18)+' '+w+',0 L'+w+','+h+' Z';
+  }else if(id.includes('ovolo')){
+    var r2=w*0.88;pts='M0,'+h+' L0,0 L'+(w-r2)+',0 A'+r2+','+r2+' 0 0,1 '+w+','+r2+' L'+w+','+h+' Z';
+  }else if(id.includes('cove')){
+    pts='M0,'+h+' A'+w+','+h+' 0 0,0 '+w+',0 L'+w+','+h+' Z';
+  }else if(id.includes('stepped')){
+    pts='M0,'+h+' L0,0 L'+(w*0.36)+',0 L'+(w*0.36)+','+(h*0.34)+' L'+(w*0.66)+','+(h*0.34)+' L'+(w*0.66)+','+(h*0.67)+' L'+w+','+(h*0.67)+' L'+w+','+h+' Z';
+  }else if(id.includes('dentil')){
+    pts='M0,'+h+' L0,0 L'+w+',0 L'+w+','+(h*0.32)+' L'+(w*0.8)+','+(h*0.32)+' L'+(w*0.8)+','+(h*0.7)+' L'+(w*0.6)+','+(h*0.7)+' L'+(w*0.6)+','+(h*0.32)+' L'+(w*0.4)+','+(h*0.32)+' L'+(w*0.4)+','+(h*0.7)+' L'+(w*0.2)+','+(h*0.7)+' L'+(w*0.2)+','+(h*0.32)+' L0,'+(h*0.32)+' Z';
+  }else if(id.includes('bolection')){
+    pts='M0,'+h+' L0,'+(h*0.32)+' L'+(w*0.26)+','+(h*0.32)+' L'+(w*0.26)+','+(h*0.56)+' C'+(w*0.26)+','+(h*0.18)+' '+(w*0.78)+','+(h*0.28)+' '+w+',0 L'+w+','+h+' Z';
+  }else if(id.includes('bead')||id.includes('pm-')){
+    var br2=w*0.48;pts='M0,'+h+' L0,'+(h*0.52+br2*0)+' A'+br2+','+br2+' 0 0,0 '+w+','+(h*0.52)+' L'+w+','+h+' Z';
+  }else if(id.includes('pr-')||id.includes('std')||id.includes('deep')){
+    var br3=w*0.45;pts='M0,'+h+' L0,'+(h*0.5)+' A'+br3+','+br3+' 0 0,0 '+w+','+(h*0.5)+' L'+(w*0.7)+','+(h*0.5)+' L'+(w*0.7)+',0 L'+w+',0 L'+w+','+h+' Z';
+  }else{
+    pts='M0,0 L'+w+',0 L'+w+','+h+' L0,'+h+' Z';
+  }
+  return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="display:block;flex-shrink:0;border-radius:2px;overflow:hidden">'
+    +'<rect width="'+w+'" height="'+h+'" fill="#2a2a30"/>'
+    +'<path d="'+pts+'" fill="#d4c280" stroke="#f0d860" stroke-width="1.2" stroke-linejoin="round"/>'
+    +'</svg>';
+}
+
 function mpRenderList(){
   var cat=document.getElementById('mp-category').value;
   var list=document.getElementById('mp-profile-list');
@@ -54227,12 +54267,12 @@ function mpRenderList(){
   MP_PROFILES.forEach(function(p){
     if(cat!=='all'&&p.cat!==cat)return;
     var sel=p.id===mpData.selectedId?' selected':'';
-    html+='<div class="mp-profile-card'+sel+'" onclick="mpSelect(\''+p.id+'\')">';
-    html+='<span style="font-weight:600;color:var(--text-primary)">'+p.name+'</span>';
-    html+='<span style="margin-left:auto">';
+    html+='<div class="mp-profile-card'+sel+'" onclick="mpSelect(\''+p.id+'\')">'+mpThumbSVG(p.id);
+    html+='<span style="font-weight:600;color:var(--text-primary);flex:1">'+p.name+'</span>';
+    html+='<span style="display:flex;flex-direction:column;gap:2px;align-items:flex-end">';
     p.sizes.forEach(function(s,i){
       var act=p.id===mpData.selectedId&&i===mpData.selectedSize?' active':'';
-      html+='<span class="mp-size-badge'+act+'" onclick="event.stopPropagation();mpSelect(\''+p.id+'\','+i+')">'+s.h+'x'+s.d+'</span>';
+      html+='<span class="mp-size-badge'+act+'" onclick="event.stopPropagation();mpSelect(\''+p.id+'\','+i+')">'+s.h+'×'+s.d+'</span>';
     });
     html+='</span></div>';
   });
@@ -54249,63 +54289,225 @@ function mpSelect(id,sizeIdx){
   }
 }
 function mpFilterProfiles(){mpRenderList();}
-function mpDrawProfile(){
-  var cvs=document.getElementById('mp-canvas');if(!cvs)return;var ctx=cvs.getContext('2d');
-  var cw=cvs.width,ch=cvs.height;ctx.clearRect(0,0,cw,ch);ctx.fillStyle='#fff';ctx.fillRect(0,0,cw,ch);
-  var p=MP_PROFILES.find(function(x){return x.id===mpData.selectedId;});
-  if(!p){ctx.fillStyle='#999';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText('Select a profile to view',cw/2,ch/2);return;}
-  var s=p.sizes[mpData.selectedSize]||p.sizes[0];
-  var sc=Math.min((cw-200)/(s.d*4),(ch-200)/(s.h*4));
-  var ox=cw/2,oy=ch/2+s.h*sc;
-  // Draw the cross-section profile
-  ctx.save();ctx.translate(ox-s.d*sc*1.5,oy);
-  var w=s.d*sc*3,h=s.h*sc*3;
-  // Solid section (hatched)
-  ctx.fillStyle='#f0e8d8';ctx.strokeStyle='#444';ctx.lineWidth=2;
+// Build the cross-section path for a given profile id
+// Coordinates: origin = bottom-left, x→right(wall), y up = negative(canvas)
+function mpBuildPath(ctx,id,w,h){
   ctx.beginPath();
-  if(p.id.includes('torus')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.quadraticCurveTo(w*0.5,-h-h*0.15,w,-h*0.7);ctx.lineTo(w,0);ctx.closePath();
-  }else if(p.id.includes('ogee')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.bezierCurveTo(w*0.3,-h-h*0.1,w*0.5,-h*0.5,w,-h*0.6);ctx.lineTo(w,0);ctx.closePath();
-  }else if(p.id.includes('bullnose')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h+w*0.5);ctx.arc(w*0.5,-h+w*0.5,w*0.5,-Math.PI,0);ctx.lineTo(w,0);ctx.closePath();
-  }else if(p.id.includes('chamfer')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.lineTo(w*0.6,-h);ctx.lineTo(w,-h*0.6);ctx.lineTo(w,0);ctx.closePath();
-  }else if(p.id.includes('ovolo')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.quadraticCurveTo(w,-h,w,-h*0.5);ctx.lineTo(w,0);ctx.closePath();
-  }else if(p.id.includes('cove')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.lineTo(w*0.3,-h);ctx.quadraticCurveTo(w*0.3,0,w,0);ctx.closePath();
-  }else if(p.id.includes('bolection')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.lineTo(w*0.3,-h);ctx.lineTo(w*0.3,-h*0.7);ctx.lineTo(w*0.7,-h*0.7);ctx.lineTo(w*0.7,-h);ctx.lineTo(w,-h);ctx.lineTo(w,0);ctx.closePath();
-  }else if(p.id.includes('stepped')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.lineTo(w*0.33,-h);ctx.lineTo(w*0.33,-h*0.7);ctx.lineTo(w*0.66,-h*0.7);ctx.lineTo(w*0.66,-h*0.4);ctx.lineTo(w,-h*0.4);ctx.lineTo(w,0);ctx.closePath();
-  }else if(p.id.includes('dentil')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.lineTo(w,-h);ctx.lineTo(w,-h*0.5);
-    for(var d=w;d>0;d-=w/5){ctx.lineTo(d,-h*0.5);ctx.lineTo(d,-h*0.35);ctx.lineTo(d-w/10,-h*0.35);ctx.lineTo(d-w/10,-h*0.5);}
-    ctx.lineTo(0,-h*0.5);ctx.lineTo(0,0);ctx.closePath();
-  }else if(p.id.includes('bead')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.arc(w*0.5,-h+w*0.3,w*0.3,-Math.PI,0);ctx.lineTo(w,0);ctx.closePath();
-  }else if(p.id.includes('lambs')){
-    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.bezierCurveTo(w*0.2,-h*1.05,w*0.6,-h*0.7,w,-h*0.5);ctx.lineTo(w,0);ctx.closePath();
+  if(id.includes('torus')){
+    // Flat plinth + semicircle bead at top — classic UK torus skirting/architrave
+    var br=w*0.5;
+    ctx.moveTo(0,0);
+    ctx.lineTo(0,-(h-br*2));
+    ctx.arc(br,-(h-br),br,Math.PI,0,false);
+    ctx.lineTo(w,0);ctx.closePath();
+  }else if(id==='sk-victorian'){
+    // Victorian: plinth + concave cove + flat rebate + small top bead
+    var p1=h*0.40,cove=h*0.22,flat=h*0.24,bR=h*0.07;
+    ctx.moveTo(0,0);ctx.lineTo(0,-p1);
+    ctx.lineTo(w*0.22,-p1);
+    ctx.bezierCurveTo(w*0.22,-(p1+cove*0.85),w*0.9,-(p1+cove*0.15),w,-(p1+cove));
+    ctx.lineTo(w,-(p1+cove+flat));
+    ctx.lineTo(w*0.42,-(p1+cove+flat));
+    ctx.arc(w*0.42-bR,-(p1+cove+flat+bR),bR,0,Math.PI,false);
+    ctx.lineTo(0,-(p1+cove+flat+bR*2));
+    ctx.lineTo(0,0);ctx.closePath();
+  }else if(id.includes('ogee')){
+    // Ogee: flat plinth + S-curve (cyma recta) rising to back at top
+    var ph=h*0.42;
+    ctx.moveTo(0,0);ctx.lineTo(0,-ph);
+    ctx.bezierCurveTo(0,-(ph+(h-ph)*0.55),w*0.88,-(ph+(h-ph)*0.45),w,-(ph+(h-ph)*0.92));
+    ctx.lineTo(w,-h);ctx.lineTo(w,0);ctx.closePath();
+  }else if(id.includes('bullnose')){
+    // Bullnose: rectangular board with rounded top-front corner
+    var r=Math.min(w*0.5,h*0.13);
+    ctx.moveTo(0,0);ctx.lineTo(0,-(h-r));
+    ctx.arc(r,-(h-r),r,Math.PI,Math.PI*1.5,false);
+    ctx.lineTo(w,-h);ctx.lineTo(w,0);ctx.closePath();
+  }else if(id.includes('chamfer')){
+    // Chamfer: board with angled chamfer at top-front corner
+    var ch=Math.min(w*0.48,h*0.11);
+    ctx.moveTo(0,0);ctx.lineTo(0,-h);
+    ctx.lineTo(w-ch,-h);ctx.lineTo(w,-(h-ch*1.5));ctx.lineTo(w,0);ctx.closePath();
+  }else if(id.includes('lambs')){
+    // Lamb's tongue: plinth + quirk step + tongue curve
+    var ph2=h*0.5,tr=(h-ph2)*0.48;
+    ctx.moveTo(0,0);ctx.lineTo(0,-ph2);
+    ctx.lineTo(w*0.12,-ph2);
+    ctx.bezierCurveTo(w*0.12,-(ph2+tr*1.1),w*0.55,-(ph2+tr),w*0.5,-(ph2+tr*1.3));
+    ctx.bezierCurveTo(w*0.46,-(ph2+tr*1.7),w*0.9,-(ph2+tr*1.6),w,-h);
+    ctx.lineTo(w,0);ctx.closePath();
+  }else if(id.includes('ovolo')){
+    // Ovolo: convex quarter-round — common on architrave and panel mould
+    var r2=Math.min(w,h)*0.88;
+    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.lineTo(w-r2,-h);
+    ctx.arc(w-r2,-(h-r2),r2,Math.PI*1.5,0,false);
+    ctx.lineTo(w,0);ctx.closePath();
+  }else if(id.includes('cove')){
+    // Cove cornice: concave quarter-circle face between wall and ceiling
+    // Arc centre at (w,0); arc bows toward room = concave from wall corner
+    ctx.moveTo(0,0);
+    ctx.arc(w,0,w,Math.PI,Math.PI*1.5,false);
+    ctx.lineTo(w,0);ctx.closePath();
+  }else if(id.includes('stepped')){
+    // Stepped cornice: three projecting steps
+    ctx.moveTo(0,0);ctx.lineTo(0,-h);
+    ctx.lineTo(w*0.36,-h);ctx.lineTo(w*0.36,-(h*0.66));
+    ctx.lineTo(w*0.66,-(h*0.66));ctx.lineTo(w*0.66,-(h*0.33));
+    ctx.lineTo(w,-(h*0.33));ctx.lineTo(w,0);ctx.closePath();
+  }else if(id.includes('dentil')){
+    // Dentil cornice: 3 blocks + 2 gaps (block-gap-block-gap-block pattern)
+    var dw=w/5,dd=h*0.32,notchBot=-h*0.18;
+    ctx.moveTo(0,0);ctx.lineTo(0,-h);ctx.lineTo(w,-h);
+    ctx.lineTo(w,-(h-dd));
+    // Loop draws notch cuts at ODD positions (di=3,1) giving blocks at di=0,2,4
+    for(var di=4;di>=0;di--){
+      if(di%2!==0){
+        ctx.lineTo((di+1)*dw,-(h-dd));ctx.lineTo((di+1)*dw,notchBot);
+        ctx.lineTo(di*dw,notchBot);ctx.lineTo(di*dw,-(h-dd));
+      }
+    }
+    ctx.lineTo(0,-(h-dd));ctx.lineTo(0,0);ctx.closePath();
+  }else if(id.includes('bolection')){
+    // Bolection: projects above panel face with ogee return curve
+    ctx.moveTo(0,0);ctx.lineTo(0,-(h*0.32));
+    ctx.lineTo(w*0.26,-(h*0.32));ctx.lineTo(w*0.26,-(h*0.58));
+    ctx.bezierCurveTo(w*0.26,-(h*0.82),w*0.78,-(h*0.72),w,-h);
+    ctx.lineTo(w,0);ctx.closePath();
+  }else if(id.includes('bead')||id.includes('pm-')){
+    // Panel bead / panel mould: flat field + small semicircle bead
+    var br2=w*0.48;
+    ctx.moveTo(0,0);ctx.lineTo(0,-(h*0.52));
+    ctx.arc(br2,-(h*0.52+br2),br2,Math.PI,0,false);
+    ctx.lineTo(w,-(h*0.52+br2*2));ctx.lineTo(w,0);ctx.closePath();
+  }else if(id.includes('pr-')||id.includes('std')||id.includes('deep')){
+    // Picture rail: torus bead + flat back with rebate at bottom
+    var br3=w*0.45;
+    ctx.moveTo(0,0);ctx.lineTo(0,-(h*0.42));
+    ctx.arc(br3,-(h*0.42+br3),br3,Math.PI,0,false);
+    ctx.lineTo(w,-(h*0.42+br3*2));
+    ctx.lineTo(w*0.7,-(h*0.42+br3*2));
+    ctx.lineTo(w*0.7,-h);ctx.lineTo(w,-h);ctx.lineTo(w,0);ctx.closePath();
   }else{
     ctx.rect(0,-h,w,h);
   }
-  ctx.fill();ctx.stroke();
-  // Hatching
-  ctx.strokeStyle='#c8b898';ctx.lineWidth=0.5;ctx.save();ctx.clip();
-  for(var i=-h*2;i<w+h;i+=8){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i+h,-h);ctx.stroke();}
-  ctx.restore();ctx.restore();
-  // Dimensions
-  ctx.fillStyle='#333';ctx.font='11px sans-serif';ctx.textAlign='center';
-  keDrawDim(ctx,ox-s.d*sc*1.5-20,oy,ox-s.d*sc*1.5-20,oy-h,s.h+'mm');
-  keDrawDim(ctx,ox-s.d*sc*1.5,oy+25,ox-s.d*sc*1.5+w,oy+25,s.d+'mm');
-  // Title
-  ctx.fillStyle='#333';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
-  ctx.fillText(p.name,cw/2,50);
-  ctx.font='12px sans-serif';ctx.fillStyle='#666';
-  ctx.fillText(s.h+'mm x '+s.d+'mm — '+p.cat,cw/2,68);
 }
-function mpPrint(){var c=document.getElementById('mp-canvas');var w=window.open('','_blank');w.document.write('<html><head><title>Moulding Profile</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh}img{max-width:100%;max-height:100vh}</style></head><body><img src="'+c.toDataURL()+'"><script>window.print()<\/script></body></html>');w.document.close();}
+
+// Dimension line helper for the moulding profile canvas
+function mpDimLine(ctx,x1,y1,x2,y2,label){
+  var dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+  if(len<2)return;
+  var nx=-dy/len*5,ny=dx/len*5;
+  ctx.save();
+  ctx.strokeStyle='#5a6070';ctx.lineWidth=0.5;
+  // Tick marks at each end
+  ctx.beginPath();ctx.moveTo(x1+nx,y1+ny);ctx.lineTo(x1-nx,y1-ny);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x2+nx,y2+ny);ctx.lineTo(x2-nx,y2-ny);ctx.stroke();
+  // Dimension line with arrows
+  var al=7,ax=-dx/len*al,ay=-dy/len*al;
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);
+  ctx.moveTo(x1,y1);ctx.lineTo(x1+ax+nx*0.4,y1+ay+ny*0.4);
+  ctx.moveTo(x1,y1);ctx.lineTo(x1+ax-nx*0.4,y1+ay-ny*0.4);
+  ctx.moveTo(x2,y2);ctx.lineTo(x2-ax+nx*0.4,y2-ay+ny*0.4);
+  ctx.moveTo(x2,y2);ctx.lineTo(x2-ax-nx*0.4,y2-ay-ny*0.4);
+  ctx.stroke();
+  var mx=(x1+x2)/2,my=(y1+y2)/2;
+  ctx.fillStyle='#3a4050';ctx.font='11px sans-serif';ctx.textAlign='center';
+  if(Math.abs(dx)<Math.abs(dy)){
+    ctx.save();ctx.translate(mx-14,my);ctx.rotate(-Math.PI/2);ctx.fillText(label,0,0);ctx.restore();
+  }else{ctx.fillText(label,mx,my-6);}
+  ctx.restore();
+}
+
+function mpDrawProfile(){
+  var cvs=document.getElementById('mp-canvas');if(!cvs)return;
+  var ctx=cvs.getContext('2d');
+  var cw=cvs.width,ch=cvs.height;
+  ctx.clearRect(0,0,cw,ch);
+  // Warm off-white background with subtle grid
+  ctx.fillStyle='#f7f6f1';ctx.fillRect(0,0,cw,ch);
+  ctx.strokeStyle='#eae9e3';ctx.lineWidth=0.5;
+  for(var gx=0;gx<cw;gx+=20){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,ch);ctx.stroke();}
+  for(var gy=0;gy<ch;gy+=20){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(cw,gy);ctx.stroke();}
+
+  var p=MP_PROFILES.find(function(x){return x.id===mpData.selectedId;});
+  if(!p){
+    ctx.fillStyle='#aaa';ctx.font='14px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Select a profile from the list',cw/2,ch/2-8);
+    ctx.font='11px sans-serif';ctx.fillStyle='#ccc';
+    ctx.fillText('Cross-section view will appear here',cw/2,ch/2+14);
+    return;
+  }
+  var s=p.sizes[mpData.selectedSize]||p.sizes[0];
+
+  // Scale: fill canvas leaving margins for dims + title
+  var margin=90;
+  var sc=Math.min((cw-margin*2.2)/(s.d*3.5),(ch-130)/(s.h*3.5),9);
+  var pw=s.d*sc,ph=s.h*sc;
+  var left=(cw-pw)/2+12;
+  var bottom=Math.min((ch+ph)/2+20,ch-55);
+
+  // Reference lines: floor (horizontal) + wall (vertical dashed)
+  ctx.save();
+  ctx.strokeStyle='#c4b87a';ctx.lineWidth=1;ctx.setLineDash([6,4]);
+  ctx.beginPath();ctx.moveTo(left-60,bottom);ctx.lineTo(left+pw+60,bottom);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(left+pw,bottom-ph-55);ctx.lineTo(left+pw,bottom+22);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#b8a860';ctx.font='9px sans-serif';ctx.textAlign='left';
+  ctx.fillText('FLOOR',left+pw+8,bottom+4);
+  ctx.save();ctx.translate(left+pw+8,bottom-ph*0.38);ctx.rotate(-Math.PI/2);ctx.fillText('WALL',0,0);ctx.restore();
+  ctx.restore();
+
+  // === DRAW PROFILE CROSS-SECTION ===
+  ctx.save();
+  ctx.translate(left,bottom);
+  // Base fill: warm timber colour
+  ctx.fillStyle='#eedfa8';
+  mpBuildPath(ctx,p.id,pw,ph);ctx.fill();
+  // End-grain timber hatching at 45°
+  ctx.save();
+  mpBuildPath(ctx,p.id,pw,ph);ctx.clip();
+  ctx.strokeStyle='rgba(148,108,50,0.22)';ctx.lineWidth=1.1;
+  for(var hi=-ph*2;hi<pw+ph*2;hi+=10){
+    ctx.beginPath();ctx.moveTo(hi,0);ctx.lineTo(hi-ph,-ph);ctx.stroke();
+  }
+  ctx.restore();
+  // Inner shadow for depth
+  ctx.save();
+  mpBuildPath(ctx,p.id,pw,ph);ctx.clip();
+  ctx.strokeStyle='rgba(100,75,30,0.16)';ctx.lineWidth=8;
+  mpBuildPath(ctx,p.id,pw,ph);ctx.stroke();
+  ctx.restore();
+  // Crisp outline
+  ctx.strokeStyle='#1c1e24';ctx.lineWidth=2;
+  mpBuildPath(ctx,p.id,pw,ph);ctx.stroke();
+  ctx.restore();
+  // === END PROFILE ===
+
+  // Dimension lines
+  mpDimLine(ctx,left-38,bottom,left-38,bottom-ph,s.h+'mm');
+  mpDimLine(ctx,left,bottom+38,left+pw,bottom+38,s.d+'mm');
+
+  // Title
+  ctx.fillStyle='#1a1c22';ctx.font='bold 15px sans-serif';ctx.textAlign='center';
+  ctx.fillText(p.name,cw/2,32);
+  ctx.font='12px sans-serif';ctx.fillStyle='#6a7080';
+  ctx.fillText(s.h+'mm H \u00d7 '+s.d+'mm D  \u00b7  '+p.cat.charAt(0).toUpperCase()+p.cat.slice(1),cw/2,50);
+  ctx.font='9px sans-serif';ctx.fillStyle='#c0bfba';ctx.textAlign='center';
+  ctx.fillText('CROSS SECTION \u2014 END VIEW',cw/2,ch-6);
+}
+
+function mpPrint(){
+  var c=document.getElementById('mp-canvas');
+  var dataUrl=c.toDataURL();
+  var pw=window.open('','_blank');
+  if(!pw)return;
+  var st=pw.document.head.appendChild(pw.document.createElement('style'));
+  st.textContent='body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f5f4ef}img{max-width:100%;max-height:100vh}';
+  var im=pw.document.body.appendChild(pw.document.createElement('img'));
+  im.src=dataUrl;
+  setTimeout(function(){pw.print();},300);
+}
 function mpNewCustomProfile(){status('Custom profile editor coming soon');}
 function mpExportProfile(){status('SVG export coming soon');}
 function mpInsertProfile(){status('Profile inserted into design');}
@@ -55808,7 +56010,7 @@ function fpExportOBJ() {
     faces.push('f '+(base+3)+' '+(base+7)+' '+(base+4)+' '+base);
     vi+=8;
   });
-  var obj=['# McK Sketch OBJ export','# Units: metres',''].concat(verts).concat(['']).concat(faces).join('\n');
+  var obj=['# TradeSketch OBJ export','# Units: metres',''].concat(verts).concat(['']).concat(faces).join('\n');
   var blob=new Blob([obj],{type:'text/plain'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a'); a.href=url; a.download='floor-plan.obj';
@@ -57754,7 +57956,7 @@ if (window.api && window.api.onUpdateDownloaded) {
     var bar = document.createElement('div');
     bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:var(--accent);color:#fff;padding:12px 16px;z-index:9999;display:flex;align-items:center;justify-content:space-between;font-size:13px';
     var msg = document.createElement('span');
-    msg.textContent = 'McK Sketch ' + version + ' downloaded — restart to install.';
+    msg.textContent = 'TradeSketch ' + version + ' downloaded — restart to install.';
     var btn = document.createElement('button');
     btn.textContent = 'Restart & Update';
     btn.style.cssText = 'background:#fff;color:var(--accent);border:none;border-radius:4px;padding:6px 14px;cursor:pointer;font-weight:600;margin-left:16px';

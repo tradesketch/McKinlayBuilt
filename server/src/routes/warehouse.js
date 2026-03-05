@@ -9,7 +9,26 @@ const router = express.Router();
 const MODELS_DIR = path.join(__dirname, '../../warehouse/models');
 const THUMBNAILS_DIR = path.join(__dirname, '../../warehouse/thumbnails');
 
-// All routes require authentication
+// Serve static assets without auth (thumbnails and models are not sensitive)
+router.get('/item/:id/thumbnail', (req, res) => {
+  const db = getDb();
+  const item = db.prepare('SELECT thumbnail_filename FROM warehouse_items WHERE id = ?').get(req.params.id);
+  if (!item || !item.thumbnail_filename) return res.status(404).json({ error: 'Thumbnail not found' });
+  const filePath = path.join(THUMBNAILS_DIR, path.basename(item.thumbnail_filename));
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+  res.sendFile(filePath);
+});
+
+router.get('/item/:id/model', (req, res) => {
+  const db = getDb();
+  const item = db.prepare('SELECT model_filename FROM warehouse_items WHERE id = ?').get(req.params.id);
+  if (!item || !item.model_filename) return res.status(404).json({ error: 'Model not found' });
+  const filePath = path.join(MODELS_DIR, path.basename(item.model_filename));
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+  res.sendFile(filePath);
+});
+
+// All other routes require authentication
 router.use(requireAuth);
 
 // GET /categories — distinct category/subcategory tree
@@ -68,25 +87,23 @@ router.get('/item/:id', (req, res) => {
   res.json(item);
 });
 
-// GET /item/:id/model — serve glTF file
-router.get('/item/:id/model', (req, res) => {
+
+// POST /item/:id/thumbnail — save base64 PNG thumbnail (admin only)
+router.post('/item/:id/thumbnail', (req, res) => {
+  if (req.userId !== 1) return res.status(403).json({ error: 'Admin only' });
+  const { dataUrl } = req.body;
+  if (!dataUrl || !dataUrl.startsWith('data:image/png;base64,')) {
+    return res.status(400).json({ error: 'Invalid dataUrl' });
+  }
+  const base64 = dataUrl.replace('data:image/png;base64,', '');
+  const buf = Buffer.from(base64, 'base64');
+  const filename = `${req.params.id}.png`;
+  const filePath = path.join(THUMBNAILS_DIR, filename);
+  fs.mkdirSync(THUMBNAILS_DIR, { recursive: true });
+  fs.writeFileSync(filePath, buf);
   const db = getDb();
-  const item = db.prepare('SELECT model_filename FROM warehouse_items WHERE id = ?').get(req.params.id);
-  if (!item || !item.model_filename) return res.status(404).json({ error: 'Model not found' });
-
-  const filePath = path.join(MODELS_DIR, path.basename(item.model_filename));
-  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
-  res.sendFile(filePath);
-});
-
-// GET /item/:id/thumbnail — serve thumbnail
-router.get('/item/:id/thumbnail', (req, res) => {
-  const db = getDb();
-  const item = db.prepare('SELECT thumbnail_filename FROM warehouse_items WHERE id = ?').get(req.params.id);
-  if (!item || !item.thumbnail_filename) return res.status(404).json({ error: 'Thumbnail not found' });
-
-  const filePath = path.join(THUMBNAILS_DIR, path.basename(item.thumbnail_filename));
-  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+  db.prepare('UPDATE warehouse_items SET thumbnail_filename = ? WHERE id = ?').run(filename, req.params.id);
+  res.json({ success: true, filename });
 });
 
 // POST /item — create (admin only, user id 1)
