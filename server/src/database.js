@@ -21,7 +21,8 @@ function getDb() {
 
     // Migrate existing databases — safe to re-run (catches duplicate column error)
     try {
-      db.exec('ALTER TABLE users ADD COLUMN trial_start DATETIME DEFAULT CURRENT_TIMESTAMP');
+      db.exec('ALTER TABLE users ADD COLUMN trial_start DATETIME');
+      db.exec("UPDATE users SET trial_start = created_at WHERE trial_start IS NULL");
     } catch (e) {
       // Column already exists — safe to ignore
     }
