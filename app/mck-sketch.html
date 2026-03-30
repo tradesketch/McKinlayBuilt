@@ -46702,6 +46702,11 @@ async function doRegister() {
     document.getElementById('register-error').style.display = 'block';
     return;
   }
+  if (password.length < 8) {
+    document.getElementById('register-error').textContent = 'Password must be at least 8 characters';
+    document.getElementById('register-error').style.display = 'block';
+    return;
+  }
 
   try {
     const res = await fetch(API_BASE + '/auth/register', {
@@ -46870,7 +46875,12 @@ async function checkAuth() {
       var manageBtn = document.getElementById('manage-subscription-btn');
       if (manageBtn) manageBtn.style.display = 'inline-block';
     } else if (user.trialExpired) {
-      document.getElementById('trial-expired-overlay').classList.add('active');
+      var expOverlay = document.getElementById('trial-expired-overlay');
+      if (user.subscriptionStatus === 'cancelled') {
+        expOverlay.querySelector('h2').textContent = 'Your subscription has ended';
+        expOverlay.querySelector('p').textContent = 'Renew your plan to continue using TradeSketch';
+      }
+      expOverlay.classList.add('active');
     } else if (typeof user.trialDaysRemaining === 'number' && user.trialDaysRemaining <= 14) {
       var banner = document.getElementById('trial-banner');
       var txt = document.getElementById('trial-banner-text');

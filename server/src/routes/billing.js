@@ -4,6 +4,8 @@ const Stripe = require('stripe');
 const { getDb } = require('../database');
 const { requireAuth } = require('../middleware/auth');
 
+const APP_URL = process.env.APP_URL || 'https://tradesketch.co.uk';
+
 function getStripe() {
   return Stripe(process.env.STRIPE_SECRET_KEY);
 }
@@ -49,8 +51,8 @@ router.post('/create-checkout', requireAuth, async (req, res) => {
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
       allow_promotion_codes: true,
-      success_url: 'https://tradesketch.co.uk/success',
-      cancel_url: 'https://tradesketch.co.uk',
+      success_url: APP_URL + '/success',
+      cancel_url: APP_URL,
       subscription_data: {
         metadata: { userId: String(user.id) }
       }
@@ -77,7 +79,7 @@ router.get('/portal', requireAuth, async (req, res) => {
 
     const session = await stripe.billingPortal.sessions.create({
       customer: user.stripe_customer_id,
-      return_url: 'https://tradesketch.co.uk'
+      return_url: APP_URL
     });
 
     res.json({ url: session.url });

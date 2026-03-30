@@ -1,6 +1,11 @@
 const { app, BrowserWindow, ipcMain, shell, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
+
+// Allow CDP WebSocket connections in dev mode
+if (!app.isPackaged) {
+  app.commandLine.appendSwitch('remote-allow-origins', '*');
+}
 const { autoUpdater } = require('electron-updater');
 
 if (app.isPackaged) {
@@ -20,7 +25,9 @@ if (!app.isPackaged) {
 }
 
 let mainWindow;
-const CONFIG_PATH = path.join(__dirname, 'app', 'config.json');
+const CONFIG_PATH = app.isPackaged
+  ? path.join(app.getPath('userData'), 'config.json')
+  : path.join(__dirname, 'app', 'config.json');
 
 function createWindow() {
   mainWindow = new BrowserWindow({

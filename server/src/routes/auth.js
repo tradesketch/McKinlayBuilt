@@ -96,7 +96,7 @@ router.get('/me', requireAuth, (req, res) => {
 
   // Determine effective access status
   const subStatus = user.subscription_status || 'trial';
-  const hasActiveSubscription = subStatus === 'active' || subStatus === 'lifetime';
+  const hasActiveSubscription = subStatus === 'active' || subStatus === 'lifetime' || subStatus === 'past_due';
   const isLifetime = subStatus === 'lifetime';
 
   res.json({

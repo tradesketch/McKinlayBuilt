@@ -15,6 +15,7 @@ const announcementRoutes = require('./src/routes/announcements');
 const feedbackRoutes = require('./src/routes/feedback');
 const newsletterRoutes = require('./src/routes/newsletter');
 const billingRoutes = require('./src/routes/billing');
+const pageRoutes = require('./src/routes/pages');
 
 const app = express();
 const PORT = process.env.PORT || 3141;
@@ -57,9 +58,18 @@ app.use('/api/feedback', feedbackLimiter, feedbackRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/billing', billingRoutes);
 
+// Web pages
+app.use('/', pageRoutes);
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Global error handler — must be after all routes
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.stack || err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(PORT, () => {

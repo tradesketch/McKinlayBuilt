@@ -19,20 +19,26 @@ function getDb() {
     const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
     db.exec(schema);
 
-    // Migrate existing databases — safe to re-run (catches duplicate column error)
+    // Migrate existing databases — only ignore "duplicate column" errors
+    function safeMigrate(sql) {
+      try { db.exec(sql); } catch (e) {
+        if (!e.message.includes('duplicate column')) throw e;
+      }
+    }
+
     try {
       db.exec('ALTER TABLE users ADD COLUMN trial_start DATETIME');
       db.exec("UPDATE users SET trial_start = created_at WHERE trial_start IS NULL");
     } catch (e) {
-      // Column already exists — safe to ignore
+      if (!e.message.includes('duplicate column')) throw e;
     }
-    try { db.exec(`ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`); } catch(e){}
-    try { db.exec(`ALTER TABLE users ADD COLUMN subscription_status TEXT DEFAULT 'trial'`); } catch(e){}
-    try { db.exec(`ALTER TABLE users ADD COLUMN subscription_end INTEGER`); } catch(e){}
-    try { db.exec(`ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0`); } catch(e){}
-    try { db.exec(`ALTER TABLE users ADD COLUMN verify_token TEXT`); } catch(e){}
-    try { db.exec(`ALTER TABLE users ADD COLUMN reset_token TEXT`); } catch(e){}
-    try { db.exec(`ALTER TABLE users ADD COLUMN reset_token_expiry INTEGER`); } catch(e){}
+    safeMigrate('ALTER TABLE users ADD COLUMN stripe_customer_id TEXT');
+    safeMigrate("ALTER TABLE users ADD COLUMN subscription_status TEXT DEFAULT 'trial'");
+    safeMigrate('ALTER TABLE users ADD COLUMN subscription_end INTEGER');
+    safeMigrate('ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0');
+    safeMigrate('ALTER TABLE users ADD COLUMN verify_token TEXT');
+    safeMigrate('ALTER TABLE users ADD COLUMN reset_token TEXT');
+    safeMigrate('ALTER TABLE users ADD COLUMN reset_token_expiry INTEGER');
   }
   return db;
 }
