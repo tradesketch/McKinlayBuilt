@@ -3970,7 +3970,7 @@ kbd {
 .fp-close { margin-left: auto; background: none; border: none; font-size: 22px; color: var(--text-secondary); cursor: pointer; line-height: 1; padding: 0 4px; }
 .fp-close:hover { color: var(--text-primary); }
 .fp-body { flex: 1; display: flex; overflow: hidden; }
-.fp-2d-panel { flex: 1; position: relative; overflow: hidden; background: #f8f8f6; }
+.fp-2d-panel { flex: 1; position: relative; overflow: hidden; background: var(--canvas); }
 #fp-canvas { display: block; cursor: crosshair; }
 .fp-2d-panel.tool-select #fp-canvas { cursor: default; }
 .fp-2d-panel.tool-door #fp-canvas,
@@ -3994,8 +3994,8 @@ kbd {
   pointer-events: none;
 }
 .fp-dim-label {
-  position: absolute; font-size: 10px; color: #666;
-  background: rgba(255,255,255,0.9); padding: 1px 4px;
+  position: absolute; font-size: 10px; color: var(--text-muted);
+  background: var(--bg-surface); padding: 1px 4px;
   border-radius: 2px; pointer-events: none; white-space: nowrap;
 }
 .fp-sidebar {
