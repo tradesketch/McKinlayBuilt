@@ -4004,6 +4004,23 @@ kbd {
   overflow-y: auto; flex-shrink: 0;
 }
 .fp-sidebar-section { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.fp-select {
+  width: 100%;
+  margin-bottom: 8px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 11px;
+  transition: border-color 0.15s;
+  cursor: pointer;
+}
+.fp-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(245, 197, 24, 0.15);
+}
 .fp-sidebar-title {
   font-size: 10px; font-weight: 700; color: var(--accent);
   text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px;
@@ -19627,8 +19644,7 @@ kbd {
       </div>
       <div class="fp-sidebar-section" id="fp-wall-finishes">
         <div class="fp-sidebar-title">External Finish</div>
-        <select id="fp-ext-finish" onchange="fpSetDefaultExtFinish(this.value)"
-          style="width:100%;margin-bottom:8px;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:4px;font-size:11px">
+        <select id="fp-ext-finish" class="fp-select" onchange="fpSetDefaultExtFinish(this.value)">
           <option value="roughcast">Roughcast / Pebbledash</option>
           <option value="smooth-render">Smooth Render</option>
           <option value="timber-h">Timber Cladding (Horizontal)</option>
@@ -19640,8 +19656,7 @@ kbd {
           <option value="metal-cladding">Metal Cladding</option>
         </select>
         <div class="fp-sidebar-title">Internal Finish</div>
-        <select id="fp-int-finish" onchange="fpSetDefaultIntFinish(this.value)"
-          style="width:100%;margin-bottom:8px;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:4px;font-size:11px">
+        <select id="fp-int-finish" class="fp-select" onchange="fpSetDefaultIntFinish(this.value)">
           <option value="plaster">Plaster (smooth)</option>
           <option value="plaster-textured">Plaster (textured)</option>
           <option value="timber-panel">Timber Panelling</option>
@@ -19655,8 +19670,8 @@ kbd {
           <input type="color" id="fp-paint-colour" value="#F5F0EB"
             onchange="fpSetDefaultPaintColour(this.value)"
             style="width:36px;height:28px;border:none;border-radius:4px;cursor:pointer;padding:0">
-          <select id="fp-paint-preset" onchange="fpApplyPaintPreset(this.value)"
-            style="flex:1;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:4px;font-size:10px">
+          <select id="fp-paint-preset" class="fp-select" onchange="fpApplyPaintPreset(this.value)"
+            style="flex:1;margin-bottom:0">
             <option value="">— Farrow &amp; Ball presets —</option>
             <option value="#F5F0EB">Wimborne White</option>
             <option value="#E8E0D5">String</option>
@@ -19671,8 +19686,7 @@ kbd {
           </select>
         </div>
         <div class="fp-sidebar-title" style="margin-top:8px">Fascia / Soffit</div>
-        <select id="fp-fascia-mat"
-          style="width:100%;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:4px;font-size:11px">
+        <select id="fp-fascia-mat" class="fp-select" style="margin-bottom:0">
           <option value="pvc-white">PVC White</option>
           <option value="pvc-anthracite">PVC Anthracite Grey</option>
           <option value="timber-painted">Painted Timber</option>
