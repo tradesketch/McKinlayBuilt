@@ -4031,6 +4031,34 @@ kbd {
   content: ''; flex: 1; height: 1px;
   background: linear-gradient(90deg, var(--border), transparent);
 }
+.fp-sidebar-section .fp-sidebar-body {
+  overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+  max-height: 500px;
+  opacity: 1;
+}
+.fp-sidebar-section.closed .fp-sidebar-body {
+  max-height: 0;
+  opacity: 0;
+}
+.fp-sidebar-title.collapsible {
+  cursor: pointer;
+  user-select: none;
+}
+.fp-sidebar-title.collapsible:hover {
+  color: var(--text-primary);
+}
+.fp-sidebar-title.collapsible::after {
+  display: none;
+}
+.fp-sidebar-title.collapsible::before {
+  content: '\25BE';
+  font-size: 9px;
+  transition: transform 0.2s;
+}
+.fp-sidebar-section.closed .fp-sidebar-title.collapsible::before {
+  transform: rotate(-90deg);
+}
 .fp-prop-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; }
 .fp-prop-row label { color: var(--text-secondary); font-size: 11px; }
 .fp-prop-row input {
@@ -19643,59 +19671,64 @@ kbd {
         <div id="fp-elec-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;"></div>
       </div>
       <div class="fp-sidebar-section" id="fp-wall-finishes">
-        <div class="fp-sidebar-title">External Finish</div>
-        <select id="fp-ext-finish" class="fp-select" onchange="fpSetDefaultExtFinish(this.value)">
-          <option value="roughcast">Roughcast / Pebbledash</option>
-          <option value="smooth-render">Smooth Render</option>
-          <option value="timber-h">Timber Cladding (Horizontal)</option>
-          <option value="timber-v">Timber Cladding (Vertical)</option>
-          <option value="pvc-cladding">PVC Cladding</option>
-          <option value="stone">Natural Stone</option>
-          <option value="brick">Facing Brick</option>
-          <option value="block-painted">Painted Block</option>
-          <option value="metal-cladding">Metal Cladding</option>
-        </select>
-        <div class="fp-sidebar-title">Internal Finish</div>
-        <select id="fp-int-finish" class="fp-select" onchange="fpSetDefaultIntFinish(this.value)">
-          <option value="plaster">Plaster (smooth)</option>
-          <option value="plaster-textured">Plaster (textured)</option>
-          <option value="timber-panel">Timber Panelling</option>
-          <option value="mdf-panel">MDF Panelling (painted)</option>
-          <option value="brick-internal">Exposed Brick</option>
-          <option value="tile">Ceramic Tile</option>
-          <option value="stone-internal">Stone</option>
-        </select>
-        <div class="fp-sidebar-title">Paint Colour</div>
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
-          <input type="color" id="fp-paint-colour" value="#F5F0EB"
-            onchange="fpSetDefaultPaintColour(this.value)"
-            style="width:36px;height:28px;border:none;border-radius:4px;cursor:pointer;padding:0">
-          <select id="fp-paint-preset" class="fp-select" onchange="fpApplyPaintPreset(this.value)"
-            style="flex:1;margin-bottom:0">
-            <option value="">— Farrow &amp; Ball presets —</option>
-            <option value="#F5F0EB">Wimborne White</option>
-            <option value="#E8E0D5">String</option>
-            <option value="#D5C9B8">Elephant's Breath</option>
-            <option value="#C5B9A8">Skimming Stone</option>
-            <option value="#B8C4C2">Mizzle</option>
-            <option value="#8FA39B">Mole's Breath</option>
-            <option value="#4A5A5C">Hague Blue</option>
-            <option value="#2C3E40">Inchyra Blue</option>
-            <option value="#F0E8D5">Clunch</option>
-            <option value="#E5DDD0">Parchment</option>
+        <div class="fp-sidebar-title collapsible" onclick="this.parentElement.classList.toggle('closed')">Finishes</div>
+        <div class="fp-sidebar-body">
+          <label class="fp-prop-row" style="display:block;margin-bottom:4px">External</label>
+          <select id="fp-ext-finish" class="fp-select" onchange="fpSetDefaultExtFinish(this.value)">
+            <option value="roughcast">Roughcast / Pebbledash</option>
+            <option value="smooth-render">Smooth Render</option>
+            <option value="timber-h">Timber Cladding (Horizontal)</option>
+            <option value="timber-v">Timber Cladding (Vertical)</option>
+            <option value="pvc-cladding">PVC Cladding</option>
+            <option value="stone">Natural Stone</option>
+            <option value="brick">Facing Brick</option>
+            <option value="block-painted">Painted Block</option>
+            <option value="metal-cladding">Metal Cladding</option>
+          </select>
+          <label class="fp-prop-row" style="display:block;margin-bottom:4px">Internal</label>
+          <select id="fp-int-finish" class="fp-select" onchange="fpSetDefaultIntFinish(this.value)">
+            <option value="plaster">Plaster (smooth)</option>
+            <option value="plaster-textured">Plaster (textured)</option>
+            <option value="timber-panel">Timber Panelling</option>
+            <option value="mdf-panel">MDF Panelling (painted)</option>
+            <option value="brick-internal">Exposed Brick</option>
+            <option value="tile">Ceramic Tile</option>
+            <option value="stone-internal">Stone</option>
+          </select>
+          <label class="fp-prop-row" style="display:block;margin-bottom:4px">Paint Colour</label>
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+            <input type="color" id="fp-paint-colour" value="#F5F0EB"
+              onchange="fpSetDefaultPaintColour(this.value)"
+              style="width:36px;height:28px;border:none;border-radius:4px;cursor:pointer;padding:0">
+            <select id="fp-paint-preset" class="fp-select" onchange="fpApplyPaintPreset(this.value)"
+              style="flex:1;margin-bottom:0">
+              <option value="">— Farrow &amp; Ball presets —</option>
+              <option value="#F5F0EB">Wimborne White</option>
+              <option value="#E8E0D5">String</option>
+              <option value="#D5C9B8">Elephant's Breath</option>
+              <option value="#C5B9A8">Skimming Stone</option>
+              <option value="#B8C4C2">Mizzle</option>
+              <option value="#8FA39B">Mole's Breath</option>
+              <option value="#4A5A5C">Hague Blue</option>
+              <option value="#2C3E40">Inchyra Blue</option>
+              <option value="#F0E8D5">Clunch</option>
+              <option value="#E5DDD0">Parchment</option>
+            </select>
+          </div>
+          <label class="fp-prop-row" style="display:block;margin-bottom:4px">Fascia / Soffit</label>
+          <select id="fp-fascia-mat" class="fp-select" style="margin-bottom:0">
+            <option value="pvc-white">PVC White</option>
+            <option value="pvc-anthracite">PVC Anthracite Grey</option>
+            <option value="timber-painted">Painted Timber</option>
+            <option value="aluminium">Aluminium</option>
           </select>
         </div>
-        <div class="fp-sidebar-title" style="margin-top:8px">Fascia / Soffit</div>
-        <select id="fp-fascia-mat" class="fp-select" style="margin-bottom:0">
-          <option value="pvc-white">PVC White</option>
-          <option value="pvc-anthracite">PVC Anthracite Grey</option>
-          <option value="timber-painted">Painted Timber</option>
-          <option value="aluminium">Aluminium</option>
-        </select>
       </div>
       <div class="fp-sidebar-section">
-        <div class="fp-sidebar-title">View</div>
-        <div class="fp-prop-row"><label>Grid</label><input type="number" id="fp-grid-size" value="300" min="100" max="1000" step="100" onchange="fpRedraw()"> mm</div>
+        <div class="fp-sidebar-title collapsible" onclick="this.parentElement.classList.toggle('closed')">View</div>
+        <div class="fp-sidebar-body">
+          <div class="fp-prop-row"><label>Grid</label><input type="number" id="fp-grid-size" value="300" min="100" max="1000" step="100" onchange="fpRedraw()"> mm</div>
+        </div>
       </div>
       <div class="fp-sidebar-section">
         <div class="fp-sidebar-title">Rooms</div>
