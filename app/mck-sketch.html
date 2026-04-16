@@ -3957,6 +3957,19 @@ kbd {
   border-color: var(--accent);
   color: var(--text-primary);
 }
+.fp-tool-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+.fp-tool-row {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+.fp-tool-row > * {
+  flex: 1;
+}
 .unit-toggle-btn.active { background: var(--accent); color: #111; }
 .view-toggle-btn { padding:5px 14px; border:none; background:transparent; cursor:pointer; font-size:12px; font-weight:500; color:var(--text-secondary); transition:all 0.1s; letter-spacing:0.3px; }
 .view-toggle-btn:hover:not(.active) { background:var(--bg-hover); color:var(--text-primary); }
@@ -19605,7 +19618,7 @@ kbd {
     <div class="fp-sidebar">
       <div class="fp-sidebar-section" style="padding-bottom:8px">
         <div class="fp-sidebar-title">Tools</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px">
+        <div class="fp-tool-grid">
           <button class="fp-tool-btn active" id="fp-btn-wall" onclick="fpSetTool('wall')">Wall</button>
           <button class="fp-tool-btn" id="fp-btn-door" onclick="fpSetTool('door')">Door</button>
           <button class="fp-tool-btn" id="fp-btn-window" onclick="fpSetTool('window')">Window</button>
@@ -19616,9 +19629,9 @@ kbd {
           <button class="fp-tool-btn" id="fp-btn-electrical" onclick="fpSetTool('electrical')" title="Electrical Symbol">Symbol</button>
           <button class="fp-tool-btn" id="fp-btn-wire" onclick="fpSetTool('wire')" title="Wire Run">Wire</button>
         </div>
-        <div style="display:flex;gap:3px;margin-top:4px">
-          <button class="fp-tool-btn" id="fp-btn-undo" onclick="fpUndo()" title="Undo" style="flex:1">Undo</button>
-          <button class="fp-tool-btn" onclick="fpClear()" style="flex:1;color:var(--error)" title="Clear all">Clear</button>
+        <div class="fp-tool-row">
+          <button class="fp-tool-btn" id="fp-btn-undo" onclick="fpUndo()" title="Undo">Undo</button>
+          <button class="fp-tool-btn" onclick="fpClear()" style="color:var(--error)" title="Clear all">Clear</button>
         </div>
       </div>
       <div class="fp-sidebar-section" id="fp-wall-opts">
