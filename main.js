@@ -19,7 +19,8 @@ if (app.isPackaged) {
 if (!app.isPackaged) {
   try {
     require('electron-reload')(__dirname, {
-      electron: path.join(__dirname, 'node_modules', '.bin', 'electron')
+      electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+      ignored: /config\.json|node_modules|\.git|db\//
     });
   } catch (e) {}
 }
@@ -86,6 +87,7 @@ autoUpdater.on('update-downloaded', function(info) {
 });
 
 ipcMain.on('restart-and-update', function() { autoUpdater.quitAndInstall(); });
+ipcMain.on('is-packaged', (event) => { event.returnValue = app.isPackaged; });
 
 // ===== CONFIG =====
 

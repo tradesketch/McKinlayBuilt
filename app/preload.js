@@ -6,4 +6,5 @@ contextBridge.exposeInMainWorld('api', {
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   onUpdateDownloaded: (cb) => ipcRenderer.on('update-downloaded', (e, v) => cb(v)),
   restartAndUpdate: () => ipcRenderer.send('restart-and-update'),
+  isPackaged: ipcRenderer.sendSync('is-packaged'),
 });

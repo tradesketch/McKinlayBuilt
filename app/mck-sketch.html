@@ -46912,7 +46912,9 @@ function useSmsTemplate(templateId) {
 
 // ===== AUTH & API =====
 
-var API_BASE = 'https://mckinlaybuilt-production.up.railway.app';
+var API_BASE = (window.api && window.api.isPackaged)
+  ? 'https://mckinlaybuilt-production.up.railway.app'
+  : 'http://localhost:3141';
 let appConfig = {};
 let authState = { token: null, user: null };
 
