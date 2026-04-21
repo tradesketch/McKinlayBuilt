@@ -198,6 +198,7 @@ body {
 
 /* ===== TOOLBAR ===== */
 #toolbar {
+  grid-column: 1;
   background: var(--bg-panel);
   border-right: 1px solid var(--border);
   padding: 6px;
@@ -256,6 +257,7 @@ body {
 
 /* ===== CANVAS ===== */
 #canvas-wrap {
+  grid-column: 2;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -407,14 +409,15 @@ body {
 
 #scale-text { font-size: 10px; color: var(--text-secondary); font-weight: 500; }
 
-/* ===== RIGHT PANEL ===== */
+/* ===== RIGHT PANEL =====
+   grid-column: 3 pins this to the 260px track regardless of whether #toolbar
+   is display:none (floor-plan mode). Without the explicit column, auto-placement
+   shifts panel into the 1fr column and it fills the screen. */
 #panel {
+  grid-column: 3;
   background: var(--bg-panel);
   border-left: 1px solid var(--border);
   overflow-y: auto;
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
 }
 
 .section { border-bottom: 1px solid var(--border); }
@@ -21203,7 +21206,7 @@ function createScene(container) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 0.85;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(renderer.domElement);
 
@@ -21244,12 +21247,13 @@ function createScene(container) {
   controls.maxPolarAngle = Math.PI * 0.85;
   controls.update();
 
-  // ===== LIGHTING (product photography studio — balanced) =====
-  const ambient = new THREE.AmbientLight(0xffffff, 0.15);
+  // ===== LIGHTING (product photography studio — calibrated) =====
+  // Ambient kept low so shadow contrast reads; most fill comes from the PMREM env map.
+  const ambient = new THREE.AmbientLight(0xffffff, 0.10);
   scene.add(ambient);
 
-  // Key light (warm, top-right) — main illumination
-  const keyLight = new THREE.DirectionalLight(0xfff5e8, 1.4);
+  // Key light (warm, top-right) — the only shadow-casting light.
+  const keyLight = new THREE.DirectionalLight(0xfff2e0, 1.05);
   keyLight.position.set(3000, 5000, 2500);
   keyLight.castShadow = true;
   keyLight.shadow.mapSize.width = 4096;
@@ -21260,27 +21264,28 @@ function createScene(container) {
   keyLight.shadow.camera.right = 5000;
   keyLight.shadow.camera.top = 5000;
   keyLight.shadow.camera.bottom = -1500;
-  keyLight.shadow.bias = -0.001;
+  keyLight.shadow.bias = -0.0008;
+  keyLight.shadow.normalBias = 0.5;
   keyLight.shadow.radius = 4;
   scene.add(keyLight);
 
   // Fill light (cool, left) — lifts shadows softly
-  const fillLight = new THREE.DirectionalLight(0xe8f0ff, 0.6);
+  const fillLight = new THREE.DirectionalLight(0xdde8ff, 0.35);
   fillLight.position.set(-2500, 2000, 1200);
   scene.add(fillLight);
 
   // Rim light (behind) — edge separation
-  const rimLight = new THREE.DirectionalLight(0xffffff, 0.25);
+  const rimLight = new THREE.DirectionalLight(0xffffff, 0.15);
   rimLight.position.set(0, 1500, -3000);
   scene.add(rimLight);
 
   // Back fill (opposite key) — softens shadow side
-  const backFill = new THREE.DirectionalLight(0xf0f0ff, 0.2);
+  const backFill = new THREE.DirectionalLight(0xf0f0ff, 0.10);
   backFill.position.set(-3000, 3000, -1500);
   scene.add(backFill);
 
-  // Hemisphere (sky/ground bounce) — warm ground bounce
-  const hemiLight = new THREE.HemisphereLight(0xdce8ff, 0xc8b090, 0.2);
+  // Hemisphere (sky/ground bounce) — very subtle
+  const hemiLight = new THREE.HemisphereLight(0xdce8ff, 0xb8a890, 0.12);
   scene.add(hemiLight);
 
   // Post-processing: SSAO + Bloom + tone mapping + FXAA
@@ -21290,11 +21295,12 @@ function createScene(container) {
   // SSAO (ambient occlusion — contact shadows in recesses, joints, edges)
   const gtaoPass = new GTAOPass(scene, camera, w, h);
   gtaoPass.output = GTAOPass.OUTPUT.Default;
-  gtaoPass.updateGtaoMaterial({ radius: 1.5, distanceExponent: 2, thickness: 10, scale: 1.2 });
-  gtaoPass.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, samples: 16 });
+  // Tighter AO: smaller radius finds joints/edges without darkening flat surfaces.
+  gtaoPass.updateGtaoMaterial({ radius: 0.6, distanceExponent: 2, thickness: 8, scale: 1.0 });
+  gtaoPass.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 4, samples: 16 });
   composer.addPass(gtaoPass);
-  // Bloom (specular highlights on glass and metallic hardware)
-  const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.08, 0.35, 0.82);
+  // Bloom — high threshold so only real specular highlights (glass, brass) bloom.
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.05, 0.4, 0.92);
   composer.addPass(bloomPass);
   composer.addPass(new OutputPass());
   const fxaaPass = new ShaderPass(FXAAShader);
