@@ -679,21 +679,6 @@ body {
   transition: color 0.15s;
 }
 .login-pw-toggle:hover { color: var(--text-primary); }
-.login-remember {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-.login-remember input[type="checkbox"] {
-  accent-color: var(--accent);
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
-}
 /* ===== END LOGIN OVERLAY ===== */
 
 .dd-modal {
@@ -17018,10 +17003,6 @@ kbd {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
       </div>
-      <label class="login-remember">
-        <input type="checkbox" id="loginRemember" checked>
-        Remember this device
-      </label>
       <button class="login-btn" onclick="doLogin()">Log In</button>
       <div class="login-footer">
         <a onclick="showLoginTab('forgot')">Forgot password?</a>
@@ -46939,16 +46920,20 @@ async function apiFetch(path, opts = {}) {
     // Try silent refresh before showing login
     const cfg = await (window.api ? window.api.getConfig() : Promise.resolve(null)) || {};
     const refreshed = await tryRefreshToken(cfg.refreshToken);
-    if (refreshed) {
-      // Retry the original request with the new token
+    if (refreshed && refreshed !== 'rejected') {
       headers['Authorization'] = 'Bearer ' + refreshed.token;
       return fetch(API_BASE + path, { ...opts, headers });
     }
-    authState.token = null;
-    authState.user = null;
-    saveAuthToken(null);
-    showLoginModal();
-    throw new Error('Session expired — please log in again');
+    if (refreshed === 'rejected') {
+      // Server explicitly said the refresh token is dead — wipe and prompt login
+      authState.token = null;
+      authState.user = null;
+      saveAuthToken(null);
+      showLoginModal();
+      throw new Error('Session expired — please log in again');
+    }
+    // Transient failure (network / 5xx) — keep tokens, surface the error
+    throw new Error('Could not reach server — please try again');
   }
   return res;
 }
@@ -46972,13 +46957,14 @@ async function loadAuthToken() {
 }
 
 async function tryRefreshToken(refreshToken) {
-  if (!refreshToken) return null;
+  if (!refreshToken) return 'rejected';
   try {
     const res = await fetch(API_BASE + '/auth/refresh', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken })
     });
+    if (res.status === 400 || res.status === 401) return 'rejected';
     if (!res.ok) return null;
     const data = await res.json();
     authState.token = data.token;
@@ -47059,8 +47045,7 @@ async function doLogin() {
 
     authState.token = data.token;
     authState.user = data.user;
-    var remember = document.getElementById('loginRemember').checked;
-    await saveAuthToken(data.token, remember ? data.refreshToken : null);
+    await saveAuthToken(data.token, data.refreshToken);
     hideLoginModal();
     // Fetch full user status (subscription/trial) and update UI
     try {
@@ -47275,7 +47260,7 @@ async function checkAuth() {
     // If JWT expired but we have a refresh token, try silent refresh
     if (!res.ok && saved.refreshToken) {
       const refreshed = await tryRefreshToken(saved.refreshToken);
-      if (refreshed) {
+      if (refreshed && refreshed !== 'rejected') {
         token = refreshed.token;
         res = await fetch(API_BASE + '/auth/me', {
           headers: { 'Authorization': 'Bearer ' + token }

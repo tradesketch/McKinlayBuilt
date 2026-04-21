@@ -101,8 +101,9 @@ The floor plan is NOT a full-screen overlay anymore. It's the main workspace:
 11. **API_BASE auto-detect** — `window.api.isPackaged` exposed via preload IPC. Dev mode uses localhost:3141, packaged builds use Railway production URL.
 12. **Right panel width fix** — `#panel` locked to 260px to prevent sidebar expanding to full screen
 
-### Known issue — needs investigation
-- **Right panel sidebar may still appear too wide on first load** — the `#panel` width was locked to 260px but the root cause of why the grid column wasn't constraining it was not fully diagnosed. If the sidebar appears full-width again, check: (1) whether `openFloorPlan()` JS is executing without errors, (2) whether `.fp-sidebar` is actually being moved into `#fp-sidebar-in-panel`, (3) whether `#app` grid `48px 1fr 260px` is being applied. Remote debugging: `npx electron --remote-debugging-port=9222 /Users/taylor/McKinlayBuilt` then inspect at `http://localhost:9222`.
+### Sidebar full-width bug — FIXED (2026-04-20)
+- **Root cause:** `#app` grid children (`#toolbar`, `#canvas-wrap`, `#panel`) relied on auto-placement into the `48px 1fr 260px` columns. In floor-plan mode `#toolbar` is `display:none`, which removes it from grid flow — so `#canvas-wrap` shifted into column 1 (48px) and `#panel` shifted into column 2 (1fr = ~953px), leaving the 260px column empty.
+- **Fix:** Added explicit `grid-column: 1/2/3` to the three children and removed the width-lock hack on `#panel`. Layout is now independent of which children are hidden.
 
 ## Distribution (electron-builder)
 

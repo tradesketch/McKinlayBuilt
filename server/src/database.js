@@ -39,6 +39,8 @@ function getDb() {
     safeMigrate('ALTER TABLE users ADD COLUMN verify_token TEXT');
     safeMigrate('ALTER TABLE users ADD COLUMN reset_token TEXT');
     safeMigrate('ALTER TABLE users ADD COLUMN reset_token_expiry INTEGER');
+    safeMigrate('ALTER TABLE users ADD COLUMN refresh_token TEXT');
+    safeMigrate('ALTER TABLE users ADD COLUMN refresh_token_expiry INTEGER');
   }
   return db;
 }

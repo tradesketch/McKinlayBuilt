@@ -16,6 +16,15 @@ function generateToken(user) {
   );
 }
 
+function generateRefreshToken(userId) {
+  const db = getDb();
+  const token = crypto.randomBytes(48).toString('hex');
+  const expiry = Date.now() + 90 * 24 * 60 * 60 * 1000; // 90 days
+  db.prepare('UPDATE users SET refresh_token = ?, refresh_token_expiry = ? WHERE id = ?')
+    .run(token, expiry, userId);
+  return token;
+}
+
 // POST /auth/register
 router.post('/register', async (req, res) => {
   const { email, password, displayName } = req.body;
@@ -52,7 +61,8 @@ router.post('/register', async (req, res) => {
   sendVerificationEmail(normalisedEmail, verifyToken).catch(err => console.error('Verify email failed:', err));
 
   const token = generateToken(newUser);
-  res.status(201).json({ token, user: { id: newUser.id, email: newUser.email, displayName } });
+  const refreshToken = generateRefreshToken(newUser.id);
+  res.status(201).json({ token, refreshToken, user: { id: newUser.id, email: newUser.email, displayName } });
 });
 
 // POST /auth/login
@@ -77,7 +87,8 @@ router.post('/login', async (req, res) => {
   db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(user.id);
 
   const token = generateToken(user);
-  res.json({ token, user: { id: user.id, email: user.email, displayName: user.display_name } });
+  const refreshToken = generateRefreshToken(user.id);
+  res.json({ token, refreshToken, user: { id: user.id, email: user.email, displayName: user.display_name } });
 });
 
 // GET /auth/me
@@ -176,6 +187,27 @@ p{color:#888;margin:16px 0 24px}
 <h2>Email verified!</h2>
 <p>Your account is now active. Open the TradeSketch app to start your 30-day free trial.</p>
 </div></body></html>`);
+});
+
+// POST /auth/refresh
+router.post('/refresh', (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(400).json({ error: 'Refresh token required' });
+  }
+
+  const db = getDb();
+  const user = db.prepare('SELECT * FROM users WHERE refresh_token = ?').get(refreshToken);
+
+  if (!user || !user.refresh_token_expiry || Date.now() > user.refresh_token_expiry) {
+    return res.status(401).json({ error: 'Invalid or expired refresh token' });
+  }
+
+  // Issue new JWT + rotate refresh token
+  const token = generateToken(user);
+  const newRefreshToken = generateRefreshToken(user.id);
+
+  res.json({ token, refreshToken: newRefreshToken, user: { id: user.id, email: user.email, displayName: user.display_name } });
 });
 
 module.exports = router;
