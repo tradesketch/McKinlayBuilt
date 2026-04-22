@@ -20,6 +20,9 @@ const pageRoutes = require('./src/routes/pages');
 const app = express();
 const PORT = process.env.PORT || 3141;
 
+// Trust Railway's edge proxy (needed for express-rate-limit)
+app.set('trust proxy', 1);
+
 // Security
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: true, credentials: true }));

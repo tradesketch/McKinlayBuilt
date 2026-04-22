@@ -11,6 +11,7 @@ let db;
 
 function getDb() {
   if (!db) {
+    fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
     db = new Database(DB_PATH);
     db.pragma('journal_mode = WAL');
     db.pragma('foreign_keys = ON');
